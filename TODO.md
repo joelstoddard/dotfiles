@@ -1,49 +1,74 @@
+# General
+- [] CLI Only install option
+- [] Define Optional Package lists
+  - [] Desktop Environment tweaks
+  - [] Streaming
+  - [] Gaming
+  - [] Development
+  - [] 3D Modelling
+  - [] Video Production
+  - [] System Configuration
+
 # Packages
--[] Install packages
+-[-] Install packages
 
 ## General
-- [] `firefox`
-- [] `bitwarden`
-- [] `bw`
-- [] `discord`
-- [] `lotion`
-- [] `spotify`
-- [] `rofi` / PowerToys Run alternative
-- [] `ddccontrol`
-- [] `sxwm`
+- [x] `firefox`
+- [x] `bitwarden`
+- [x] `bw`
+- [x] `discord`
+- [x] `lotion`
+- [x] `spotify`
+- [-] `rofi` / PowerToys Run alternative
+  - Configure this
+  - [] window hopping, running commands, and ssh'ing from one window
+  - [] Customise the theme
+- [-] `ddccontrol`
+  - Configure this to keep monitors at:
+    - 100% during the day
+    - 80% during the evening
+    - 0% during the night
+- [] `sxwm` / Tiling Window Manager
+  - Investigate this
 - [] `fprintd`
   - [] `Verify result: verify-no-match (done)` - After successfully enrolling?
-- [] `stow`
-- [] `nvtop`
+- [-] `stow`
+  - Run this at the end of the install script
+    - `stow . --adopt`
+- [-] `nvtop`
+  - Deprecate this and use the [`btop` GPU config](https://github.com/aristocratos/btop?tab=readme-ov-file#gpu-compatibility)
 - [] `btop`
-- [] `fastfetch`
-- [] `zsh`
+- [-] `fastfetch`
+- [-] `zsh`
+  - [] Alias `Ctrl+Backspace` to `Ctrl+w`
+  - [] Word navigation with `Ctrl+Arrow Keys`
 - [] `xfce` / Desktop Environment
+  - Investigate if this is even my Desktop Environment of choice
 
 ## Streaming
 
 ## Gaming
 
 ## Launchers
-- [] `steam`
+- [x] `steam`
 
 ## Development
-- [] `git`
+- [-] `git`
   - [] Generate GPG signature for verified commits
-- [] `vim`/`neovim`
+- [-] `vim`/`neovim`
+  - Configure this
+    - [] Syntax highlighting
 - [] `code`
+  - Configure this
 - [] `tailscale`
 - [] `st`
   - [] Configure default font to `BlexMono Nerd Font Mono Regular`
-  - [] Word Navigation
-    - [] Ctrl+Arrow keys
-    - [] Ctrl+Backspace
   - [] Mouse Scrolling
   - [] Right click to copy selection
-  - [] Apollo ASCII Art
+  - [] Hostname ASCII Art
 - [] `tmux`
 - [] `sipcalc`
-- [] `oh-my-posh`
+- [-] `oh-my-posh`
   - [] Extend theme
     - [] [Python](https://ohmyposh.dev/docs/segments/languages/python)
     - [] [Kube](https://ohmyposh.dev/docs/segments/cli/kubectl)
@@ -63,7 +88,9 @@
 
 # System Configuration
 - [] Reduce/Remove timeout from `/boot/grub/grub.cfg`
-- [] Workspace keybinds
-- [] Validate microphones work
+- [] Disable swap
+- [] Workspace switching keybinds
+- [-] Validate microphones work
+  - Inputs are combined
 - [] Validate camera works
-- [] Unmounting cifs drives, slow on shutdown, improve this
+- [] Unmounting cifs drives, slow on shutdown with `sudo shutdown now`, improve this
