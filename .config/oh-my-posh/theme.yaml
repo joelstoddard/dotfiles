@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+upgrade:
+    source: cdn
+    interval: 168h
+    auto: true
+    notice: false
+blocks:
+  - type: prompt
+    alignment: left
+    segments:
+  - type: prompt
+    alignment: left
+    segments:
+      - type: root
+        style: plain
+        foreground: "#ff0000"
+        template: "❯"
+      - type: python
+        style: plain
+        foreground: "#ffffff"
+        foreground_templates:
+          - "{{ if .Venv }}#ffde57{{ end }}"
+        template: " "
+        properties:
+          display_mode: environment
+          home_enabled: true
+      - type: path
+        style: plain
+        foreground: "#ffffff"
+        foreground_templates:
+          - "{{if eq .Segments.Python.Venv .Folder }}#ffde57{{ end }}"
+        properties:
+          style: folder
+      - type: git
+        style: plain
+        foreground: "#f79625"
+        template: "{{ .HEAD }}
+          {{ if .Working.Untracked }}{{ .Working.Untracked }} {{ end
+          }}{{ if .Working.Modified }}{{ .Working.Modified }} {{ end
+          }}{{ if .Working.Deleted }}{{ .Working.Deleted }} {{ end
+          }}{{ if gt .StashCount 0 }}{{ .StashCount }} {{ end
+          }}{{ if gt .Ahead 0 }}{{ .Ahead }} {{ end
+          }}{{ if gt .Behind 0 }}{{ .Behind }} {{ end
+          }}"
+        properties:
+          fetch_status: true
+          source: cli
+          mapped_branches:
+            fix/*: "🐛 "
+            feat/*: "🚀 "
+            chore/*: "🛠️ "
+            ci/*: "🤖 "
+            docs/*: "📘 "
+            style/*: "🎨 "
+            tests/*: "✅ "
+            fix!/*: " 🐛 "
+            feat!/*: " 🚀 "
+            chore!/*: " 🛠️ "
+            ci!/*: " 🤖 "
+            docs!/*: " 📘 "
+            style!/*: " 🎨 "
+            tests!/*: " ✅ "
+secondary_prompt:
+  background: transparent
+  foreground: "#ffffff"
+  template: "❯"
+version: 3
