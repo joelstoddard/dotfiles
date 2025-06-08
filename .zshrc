@@ -14,4 +14,6 @@ HISTFILE=~/.zsh_history
 
 # oh-my-posh configuration
 export PATH=$PATH:/home/joel/.local/bin
-eval "$(oh-my-posh init zsh --config /home/joel/.config/oh-my-posh/theme.yaml)"
+if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.yaml)"
+fi
