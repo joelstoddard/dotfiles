@@ -1,0 +1,10 @@
+**.log
+**.tmp
+**.bak
+**.swp
+**.DS_Store
+**.idea/
+**.vscode/
+**.env
+**.cache/
+**dist/
