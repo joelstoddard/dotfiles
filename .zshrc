@@ -14,4 +14,4 @@ HISTFILE=~/.zsh_history
 
 # oh-my-posh configuration
 export PATH=$PATH:/home/joel/.local/bin
-eval "$(oh-my-posh init zsh --config /home/joel/.config/oh-my-posh/material-modded.omp.json)"
+eval "$(oh-my-posh init zsh --config /home/joel/.config/oh-my-posh/theme.yaml)"

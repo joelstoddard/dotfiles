@@ -69,15 +69,37 @@
 - [] `tmux`
 - [] `sipcalc`
 - [-] `oh-my-posh`
-  - [] Extend theme
-    - [] [Python](https://ohmyposh.dev/docs/segments/languages/python)
-    - [] [Kube](https://ohmyposh.dev/docs/segments/cli/kubectl)
-    - [] [Helm](https://ohmyposh.dev/docs/segments/cli/helm)
-    - [] [Terraform](https://ohmyposh.dev/docs/segments/cli/terraform)
-    - [] [ArgoCD](https://ohmyposh.dev/docs/segments/cli/argocd)
-    - [] [Docker](https://ohmyposh.dev/docs/segments/cli/docker)
-    - [] [AWS](https://ohmyposh.dev/docs/segments/cloud/aws)
-    - [] [Root](https://ohmyposh.dev/docs/segments/system/root)
+  - [-] Extend theme
+    - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
+    - [x] [Root](https://ohmyposh.dev/docs/segments/system/root)
+      - [x] Show ❯ prefix character in red
+    - [ ] [AWS](https://ohmyposh.dev/docs/segments/cloud/aws)
+      - [ ] Show  when in an AWS repo/folder
+    - [ ] [Terraform](https://ohmyposh.dev/docs/segments/cli/terraform)
+      - [ ] Show  when in a terraform repo/folder
+    - [-] [Kube](https://ohmyposh.dev/docs/segments/cli/kubectl)
+      - [ ] Show  when in a kubernetes repo/folder
+      - [ ] Display current cluster
+      - [ ] Display current context
+    - [ ] [Helm](https://ohmyposh.dev/docs/segments/cli/helm)
+      - [ ] Show  when in a helm repo/folder
+    - [ ] [ArgoCD](https://ohmyposh.dev/docs/segments/cli/argocd)
+      - [ ] Show  when in a ArgoCD repo/folder
+    - [ ] [Docker](https://ohmyposh.dev/docs/segments/cli/docker)
+      - [ ] Show  when in a docker repo/folder
+    - [x] [Python](https://ohmyposh.dev/docs/segments/languages/python)
+      - [x] Show  when a `.venv` is active in yellow ( #ffde57). 
+      - [-] When currently active `.venv` is from the pwd, then change the folder colour to yellow.
+    - [x] [Git](https://ohmyposh.dev/docs/segments/scm/git)
+      - [x] Show current working branch
+      - [x] Show icons if `.Ahead` or `.Behind`
+      - [x] Show working changes
+        Currently, this naively compares the `.Folder` and `.Venv` properties, which returns true if current directory is named the same as the `.venv`.
+        Replace this logic with comparing `{{ .Env.VIRTUAL_ENV | dir }}` and `{{ .Segments.Path.Location }}`, when they match, change the `foreground_template` in the path segment to #ffde57.
+    - [ ] [Secondary Prompt](https://ohmyposh.dev/docs/configuration/secondary-prompt)
+      - [ ] Show ❯ when in secondary prompt
+    - [ ] Tailscale
+      - [ ] Show connection
 
 ## 3D Modelling
 - [] `blender`
