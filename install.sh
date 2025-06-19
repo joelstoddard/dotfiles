@@ -51,10 +51,7 @@ i2c-tools \
 nvtop \
 fastfetch \
 btop \
-sipcalc \
-jq \
-yq
-
+sipcalc
 
 # Install .deb Packages
 
