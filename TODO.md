@@ -109,10 +109,12 @@
 - [] Da Vinci Resolve
 
 # System Configuration
-- [] Reduce/Remove timeout from `/boot/grub/grub.cfg`
+- [x] Reduce/Remove timeout from `/boot/grub/grub.cfg`
+- [] Figure out more graceful shutdowns
+  - [] Pressing the power button shuts down applications immediately, configure this
+  - [] Unmounting cifs drives, slow on shutdown with `sudo shutdown now`, improve this
 - [] Disable swap
 - [] Workspace switching keybinds
 - [-] Validate microphones work
   - Inputs are combined
 - [] Validate camera works
-- [] Unmounting cifs drives, slow on shutdown with `sudo shutdown now`, improve this
