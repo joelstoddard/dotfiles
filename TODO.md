@@ -1,13 +1,16 @@
 # General
-- [] CLI Only install option
-- [] Define Optional Package lists
-  - [] Desktop Environment tweaks
-  - [] Streaming
-  - [] Gaming
-  - [] Development
-  - [] 3D Modelling
-  - [] Video Production
-  - [] System Configuration
+- [ ] Multi OS Configuration
+- [ ] CLI Only install option
+- [ ] Define Optional Package lists
+  - [ ] Desktop Environment tweaks
+  - [ ] Streaming
+  - [ ] Gaming
+  - [ ] Development
+  - [ ] 3D Modelling
+  - [ ] Video Production
+  - [ ] System Configuration
+- [ ] Fetch secrets from BW
+  - [ ] Voyager credentials
 
 # Packages
 -[-] Install packages
@@ -21,28 +24,28 @@
 - [x] `spotify`
 - [-] `rofi` / PowerToys Run alternative
   - Configure this
-  - [] window hopping, running commands, and ssh'ing from one window
-  - [] Customise the theme
+    - [ ] window hopping, running commands, and ssh'ing from one window
+    - [ ] Customise the theme
 - [-] `ddccontrol`
   - Configure this to keep monitors at:
-    - 100% during the day
-    - 80% during the evening
-    - 0% during the night
-- [] `sxwm` / Tiling Window Manager
+    - [ ] 100% during the day
+    - [ ] 80% during the evening
+    - [ ] 0% during the night
+- [ ] `sxwm` / Tiling Window Manager
   - Investigate this
-- [] `fprintd`
-  - [] `Verify result: verify-no-match (done)` - After successfully enrolling?
+- [ ] `fprintd`
+  - [ ] `Verify result: verify-no-match (done)` - After successfully enrolling?
 - [-] `stow`
   - Run this at the end of the install script
     - `stow . --adopt`
 - [-] `nvtop`
   - Deprecate this and use the [`btop` GPU config](https://github.com/aristocratos/btop?tab=readme-ov-file#gpu-compatibility)
-- [] `btop`
+- [ ] `btop`
 - [-] `fastfetch`
 - [-] `zsh`
-  - [] Alias `Ctrl+Backspace` to `Ctrl+w`
-  - [] Word navigation with `Ctrl+Arrow Keys`
-- [] `xfce` / Desktop Environment
+  - [ ] Alias `Ctrl+Backspace` to `Ctrl+w`
+  - [ ] Word navigation with `Ctrl+Arrow Keys`
+- [ ] `xfce` / Desktop Environment
   - Investigate if this is even my Desktop Environment of choice
 
 ## Streaming
@@ -57,17 +60,17 @@
   - [] Generate GPG signature for verified commits
 - [-] `vim`/`neovim`
   - Configure this
-    - [] Syntax highlighting
-- [] `code`
+    - [ ] Syntax highlighting
+- [ ] `code`
   - Configure this
-- [] `tailscale`
-- [] `st`
-  - [] Configure default font to `BlexMono Nerd Font Mono Regular`
-  - [] Mouse Scrolling
-  - [] Right click to copy selection
-  - [] Hostname ASCII Art
-- [] `tmux`
-- [] `sipcalc`
+- [ ] `tailscale`
+- [ ] `st`
+  - [ ] Configure default font to `BlexMono Nerd Font Mono Regular`
+  - [ ] Mouse Scrolling
+  - [ ] Right click to copy selection
+  - [ ] Hostname ASCII Art
+- [ ] `tmux`
+- [ ] `sipcalc`
 - [-] `oh-my-posh`
   - [-] Extend theme
     - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
@@ -102,19 +105,20 @@
       - [ ] Show connection
 
 ## 3D Modelling
-- [] `blender`
+- [ ] `blender`
 
 ## Video Production
-- [] `obs`
-- [] Da Vinci Resolve
+- [ ] `obs`
+- [ ] Da Vinci Resolve
 
 # System Configuration
 - [x] Reduce/Remove timeout from `/boot/grub/grub.cfg`
-- [] Figure out more graceful shutdowns
-  - [] Pressing the power button shuts down applications immediately, configure this
-  - [] Unmounting cifs drives, slow on shutdown with `sudo shutdown now`, improve this
-- [] Disable swap
-- [] Workspace switching keybinds
+- [ ] Figure out more graceful shutdowns
+  - [ ] Pressing the power button shuts down applications immediately, configure this
+  - [ ] Unmounting cifs drives, slow on shutdown with `sudo shutdown now`, improve this
+- [ ] Disable swap
+- [ ] Workspace switching keybinds
 - [-] Validate microphones work
   - Inputs are combined
-- [] Validate camera works
+- [ ] Validate camera works
+
