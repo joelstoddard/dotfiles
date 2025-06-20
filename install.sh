@@ -14,7 +14,9 @@ curl \
 git \
 stow \
 zsh \
-vim 
+vim \
+jq \
+yq
 
 # Configure apt repositories
 
@@ -38,6 +40,7 @@ sudo apt update && \
 sudo apt install -y \
 firefox \
 spotify-client \
+obs-studio \
 zsh \
 stow \
 rofi \
@@ -47,6 +50,8 @@ ddccontrol-db \
 i2c-tools \
 nvtop \
 fastfetch \
+btop \
+sipcalc
 
 # Install .deb Packages
 
@@ -69,3 +74,11 @@ rm /tmp/discord.deb
 wget -q https://github.com/puneetsl/lotion/releases/download/v1.0.0/lotion_1.0.0_amd64.deb -O /tmp/lotion.deb
 sudo dpkg -i /tmp/lotion.deb
 rm /tmp/lotion.deb
+
+## VSCode
+wget -q https://vscode.download.prss.microsoft.com/dbazure/download/stable/258e40fedc6cb8edf399a463ce3a9d32e7e1f6f3/code_1.100.3-1748872405_amd64.deb -O /tmp/vscode.deb
+sudo dpkg -i /tmp/vscode.deb
+rm /tmp/vscode.deb
+
+# Install Oh My Posh
+curl -s https://ohmyposh.dev/install.sh | bash -s
