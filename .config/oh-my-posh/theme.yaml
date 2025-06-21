@@ -43,21 +43,7 @@ blocks:
         properties:
           fetch_status: true
           source: cli
-          mapped_branches:
-            fix*: " 🐛 "
-            feat*: " 🚀 "
-            chore*: " 🛠️ "
-            ci*: " 🤖 "
-            docs*: " 📘 "
-            style*: " 🎨 "
-            tests*: " ✅ "
-            fix!*: " ⚠️ 🐛 "
-            feat!: " ⚠️ 🚀 "
-            chore!*: " ⚠️ 🛠️ "
-            ci!*: " ⚠️ 🤖 "
-            docs!*: " ⚠️ 📘 "
-            style!*: " ⚠️ 🎨 "
-            tests!*: " ⚠️ ✅ "
+          branch_icon: " "
 secondary_prompt:
   background: transparent
   foreground: "#ffffff"
