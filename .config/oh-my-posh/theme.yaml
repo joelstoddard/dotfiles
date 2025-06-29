@@ -48,4 +48,32 @@ secondary_prompt:
   background: transparent
   foreground: "#ffffff"
   template: "❯"
+tooltips_action: prepend
+tooltips:
+  - type: kubectl
+    style: plain
+    tips:
+      - kubectl
+      - terraform
+    foreground: "#326CE5"
+    template: "󱃾 {{.Context}}{{if .Namespace}} - {{.Namespace}}{{end}} "
+  - type: terraform
+    tips:
+      - terraform
+    style: plain
+    foreground: "#ebcc34"
+    template: "{{ .Version }}"
+  - type: aws
+    tips:
+      - aws
+      - terraform
+    style: plain
+    foreground: "#FFA400"
+    template: " 󰸏 {{.Profile}}{{if .Region }} - {{ .Region }}{{end}}"
+  - type: docker
+    tips:
+      - docker
+    style: plain
+    foreground: "#0B59E7"
+    template: "  {{ .Context }} "
 version: 3
