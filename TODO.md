@@ -57,7 +57,19 @@
 
 ## Development
 - [-] `git`
-  - [] Generate GPG signature for verified commits
+  - [ ] Generate GPG signature for verified commits
+  - [ ] pick a difftool
+    - [ ] `delta`
+    - [ ] `neovim`
+  - [ ] Clean up commands
+    - [ ] `git log`
+      - [ ] More compact git log
+      - [ ] `--graph`
+      - [ ] Shorten information about commit authors
+      - [ ] Remove date
+      - [ ] Maybe `--oneline`
+    - [ ] Alias `git diff` to use the `difftool`
+    - [ ] Sort out the colours. 
 - [-] `vim`/`neovim`
   - Configure this
     - [ ] Syntax highlighting
