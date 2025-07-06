@@ -82,3 +82,9 @@ rm /tmp/vscode.deb
 
 # Install Oh My Posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
+
+# Alacritty
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup override set stable
+rustup update stable
+cargo install alacritty

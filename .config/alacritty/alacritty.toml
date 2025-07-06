@@ -1,0 +1,19 @@
+[window]
+title = "Terminal"
+dynamic_title = true
+
+[scrolling]
+history = 10000
+multiplier = 2
+
+[font]
+normal = {family = "BlexMono Nerd Font Mono"}
+
+[mouse]
+bindings = [
+    { mouse = "Right", mods = "Shift", action = "Paste" },
+    { mouse = "Right", action = "Copy" }
+]
+
+[terminal]
+shell = "/bin/zsh"
