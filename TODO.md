@@ -64,7 +64,7 @@
 - [ ] `code`
   - Configure this
 - [ ] `tailscale`
-- [ ] Alacritty
+- [-] Alacritty
   - [x] Configure default font to `BlexMono Nerd Font Mono Regular`
   - [x] Mouse Scrolling
   - [x] Right click to copy selection
