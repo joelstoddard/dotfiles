@@ -64,10 +64,10 @@
 - [ ] `code`
   - Configure this
 - [ ] `tailscale`
-- [ ] `st`
-  - [ ] Configure default font to `BlexMono Nerd Font Mono Regular`
-  - [ ] Mouse Scrolling
-  - [ ] Right click to copy selection
+- [-] Alacritty
+  - [x] Configure default font to `BlexMono Nerd Font Mono Regular`
+  - [x] Mouse Scrolling
+  - [x] Right click to copy selection
   - [ ] Hostname ASCII Art
 - [ ] `tmux`
 - [ ] `sipcalc`
