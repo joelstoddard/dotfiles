@@ -48,6 +48,7 @@ firefox \
 spotify-client \
 obs-studio \
 zsh \
+tmux \
 stow \
 rofi \
 ddccontrol \
