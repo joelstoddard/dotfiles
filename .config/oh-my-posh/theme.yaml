@@ -9,29 +9,25 @@ blocks:
   - type: prompt
     alignment: left
     segments:
-      - type: root
-        style: plain
-        foreground: "#ff0000"
-        template: "❯"
       - type: python
         style: plain
-        foreground: "#ffffff"
+        foreground: "#FFFFFF"
         foreground_templates:
-          - "{{ if .Venv }}#ffde57{{ end }}"
+          - "{{ if .Venv }}#FFDE57{{ end }}"
         template: " "
         properties:
           display_mode: environment
           home_enabled: true
       - type: path
         style: plain
-        foreground: "#ffffff"
+        foreground: "#FFFFFF"
         foreground_templates:
-          - "{{if eq .Segments.Python.Venv .Folder }}#ffde57{{ end }}"
+          - "{{if eq .Segments.Python.Venv .Folder }}#FFDE57{{ end }}"
         properties:
           style: folder
       - type: git
         style: plain
-        foreground: "#f79625"
+        foreground: "#F79625"
         template: "{{ .HEAD }}
           {{ if .Working.Untracked }}{{ .Working.Untracked }} {{ end
           }}{{ if .Working.Modified }}{{ .Working.Modified }} {{ end
@@ -44,9 +40,13 @@ blocks:
           fetch_status: true
           source: cli
           branch_icon: " "
+      - type: root
+        style: plain
+        foreground: "#FF0000"
+        template: "❯"
 secondary_prompt:
   background: transparent
-  foreground: "#ffffff"
+  foreground: "#FFFFFF"
   template: "❯"
 tooltips_action: prepend
 tooltips:
@@ -61,7 +61,7 @@ tooltips:
     tips:
       - terraform
     style: plain
-    foreground: "#ebcc34"
+    foreground: "#EBCC34"
     template: "{{ .Version }}"
   - type: aws
     tips:
