@@ -22,10 +22,10 @@
 - [x] `discord`
 - [x] `lotion`
 - [x] `spotify`
-- [-] `rofi` / PowerToys Run alternative
+- [x] `rofi` / PowerToys Run alternative
   - Configure this
-    - [ ] window hopping, running commands, and ssh'ing from one window
-    - [ ] Customise the theme
+    - [x] window hopping, running commands, and ssh'ing from one window
+    - [x] Customise the theme
 - [-] `ddccontrol`
   - Configure this to keep monitors at:
     - [ ] 100% during the day
