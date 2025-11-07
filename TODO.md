@@ -70,6 +70,8 @@
   - [x] Right click to copy selection
   - [ ] Hostname ASCII Art
 - [ ] `tmux`
+  - [ ] Find a session manager I like
+  - [ ] Work on visual clarity when paired with `neovim`
 - [ ] `sipcalc`
 - [-] `oh-my-posh`
   - [-] Extend theme
