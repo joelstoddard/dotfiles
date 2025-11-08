@@ -58,19 +58,18 @@
 ## Development
 - [-] `git`
   - [ ] Generate GPG signature for verified commits
-  - [ ] pick a difftool
-    - [ ] `delta`
-    - [ ] `neovim`
   - [ ] Clean up commands
-    - [ ] `git log`
-      - [ ] More compact git log
-      - [ ] `--graph`
-      - [ ] Shorten information about commit authors
-      - [ ] Remove date
-      - [ ] Maybe `--oneline`
-    - [ ] Alias `git diff` to use the `difftool`
-    - [ ] Sort out the colours. 
-- [-] `vim`/`neovim`
+    - [ ] `git diff`
+      - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
+    - [x] `git log`
+      - [x] More compact git log
+      - [x] `--graph`
+        Can't just default this to on, I'll have to remember to pass the arg.
+      - [x] Shorten information about commit authors
+      - [x] Remove date
+        This is handy every now and then, I'll keep it for now but can remove it later if I find it's just too much noise.
+      - [x] Maybe `--oneline`
+    - [x] Sort out the colours.
   - Configure this
     - [ ] Syntax highlighting
 - [ ] `code`

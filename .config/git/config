@@ -12,6 +12,7 @@
     autocrlf = input
     whitespace = error
     preloadindex = true
+    editor = nvim
 
 [blame]
     coloring = highlightRecent
@@ -25,13 +26,23 @@
     context = 3
     renames = copies
     interHunkContext = 10
+    tool = nvimdiff
+
+[difftool]
+    prompt = true
+
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+
+[interactive]
+    diffFilter = difftool
+    singlekey = true
 
 [init]
     defaultBranch = main
 
 [log]
-    abbrevCommit = true
-    graphColors = blue,yellow,cyan,magenta,green,red
+    graphColors = white dim
 
 [status]
     branch = true
@@ -79,26 +90,20 @@
 [column]
     ui = auto
 
+[format]
+    pretty = format:%C("#F79625")%h%Creset: %C(white dim)%ar by %aN %Creset %n%C(white)%s%n%Creset
+    date = relative
+
 # Colors
 [color "blame"]
     highlightRecent = black bold,1 year ago,white,1 month ago,default,7 days ago,blue
 
 [color "branch"]
-    current  = magenta
-    local    = default
-    remote   = yellow
-    upstream = green
-    plain    = blue
+    current  = "#F79625"
+    local    = white
+    remote   = white dim
+    upstream = white dim
+    plain    = white dim
 
 [color "diff"]
-    meta       = black bold
-    frag       = magenta
-    context    = white
-    whitespace = yellow reverse
-    old        = red
-
-[color.decorate]
-    HE  = red
-    branch = blue
-    tag = yellow
-    remoteBranch = magenta
+    meta      = white dim
