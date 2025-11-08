@@ -61,6 +61,7 @@
   - [ ] Clean up commands
     - [ ] `git diff`
       - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
+      - [ ] Alias `git diff` to `git difftool`
     - [x] `git log`
       - [x] More compact git log
       - [x] `--graph`

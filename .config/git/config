@@ -35,7 +35,6 @@
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 
 [interactive]
-    diffFilter = difftool
     singlekey = true
 
 [init]
