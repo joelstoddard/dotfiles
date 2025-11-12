@@ -1,10 +1,10 @@
 [user]
     name = Joel Stoddard-Turvey
     email = 93982886+joelstoddard@users.noreply.github.com
-    # signingkey =
+    signingkey = 83C041427307B6AB
 
 [commit]
-    # gpgSign = true
+    gpgSign = true
     template = ~/.config/git/template
     verbose = true
 
