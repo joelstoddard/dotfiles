@@ -59,3 +59,5 @@ export PATH=$PATH:/home/joel/.local/bin
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.yaml)"
 fi
+
+export GPG_TTY=$(tty)

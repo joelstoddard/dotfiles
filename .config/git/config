@@ -1,0 +1,108 @@
+[user]
+    name = Joel Stoddard-Turvey
+    email = 93982886+joelstoddard@users.noreply.github.com
+    signingkey = 83C041427307B6AB
+
+[commit]
+    gpgSign = true
+    template = ~/.config/git/template
+    verbose = true
+
+[core]
+    autocrlf = input
+    whitespace = error
+    preloadindex = true
+    editor = nvim
+
+[blame]
+    coloring = highlightRecent
+    date = relative
+
+[diff]
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
+    renames = true
+    context = 3
+    renames = copies
+    interHunkContext = 10
+    tool = nvimdiff
+
+[difftool]
+    prompt = true
+
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+
+[interactive]
+    singlekey = true
+
+[init]
+    defaultBranch = main
+
+[log]
+    graphColors = white dim
+
+[status]
+    branch = true
+    short = true
+    showStash = true
+    showUntrackedFiles = all
+
+[push]
+    autoSetupRemote = true
+    default = current
+    # gpgSign = true
+
+[pull]
+    rebase = true
+    default = current
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+    updateRefs = true
+    missingCommitsCheck = warn
+
+# Integrity
+[transfer]
+    fsckObjects = true
+
+[receive]
+    fsckObjects = true
+
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+    fsckObjects = true
+
+[help]
+    autocorrect = prompt
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = version:refname
+
+[column]
+    ui = auto
+
+[format]
+    pretty = format:%C("#F79625")%h%Creset: %C(white dim)%ar by %aN %Creset %n%C(white)%s%n%Creset
+    date = relative
+
+# Colors
+[color "blame"]
+    highlightRecent = black bold,1 year ago,white,1 month ago,default,7 days ago,blue
+
+[color "branch"]
+    current  = "#F79625"
+    local    = white
+    remote   = white dim
+    upstream = white dim
+    plain    = white dim
+
+[color "diff"]
+    meta      = white dim

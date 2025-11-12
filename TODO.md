@@ -109,6 +109,12 @@
       - [x] `vim-tmux-navigator`
       - [x] `which-key`
       - [x] `zen-mode`
+  - [ ] Clean up commands
+    - [ ] `git diff`
+      - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
+      - [ ] Alias `git diff` to `git difftool`
+- [ ] `code`
+  - Configure this
 - [ ] `tailscale`
 - [-] Alacritty
   - [x] Configure default font to `BlexMono Nerd Font Mono Regular`
