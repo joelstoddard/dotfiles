@@ -41,6 +41,14 @@ Pin-Priority: 1000
 curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
 echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 
+## Neovim
+curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
+| sudo tar -xzf - --strip-components=1 --overwrite -C /usr
+
+## fzf
+wget -qO- https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz \
+| sudo tar -xzf - -C /usr/local/bin
+
 # Install Apt Packages
 sudo apt update && \
 sudo apt install -y \
