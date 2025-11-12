@@ -57,6 +57,58 @@
 
 ## Development
 - [-] `git`
+  - [] Generate GPG signature for verified commits
+- [-] `neovim`
+  - Configure
+    - [ ] Centrally locate languages I use?
+      - `bash`
+      - `zsh`
+      - `html`
+      - `css`
+      - `javascript`
+      - `json`
+      - `jsonc` / `hujson`
+      - `lua`
+      - `markdown` / `markdown_inline`
+      - `yaml`
+        - `ansible`
+        - `docker-compose`
+        - `kubernetes`
+        - `helm`
+      - `terraform`
+      - `python`
+      - `docker` / `dockerfile`
+      - `golang`
+    - [-] Theme
+      - [x] Install base theme (`gruvbox.nvim`)
+      - [ ] Customize theme
+    - [ ] Keybinds
+      - [ ] With usage, figure out which ones I want changing.
+      - [ ] Ctrl+Arrow keys for word navigation
+      - [-] Alt+Arrow keys line manipulation
+      - [ ] Alt+Shift multi line cursor
+      - [ ] Ctrl+/ to comment and uncomment
+    - [-] Plugins
+      - [ ] Replicate the `indent-rainbow` vscode plugin
+      - [ ] `undotree`
+      - [x] `ccc-nvim`
+      - [x] `copilot`
+      - [x] `fzf-lua`
+      - [x] `gitsigns-nvim`
+      - [x] `lspsaga-nvim`
+      - [-] `lualine-nvim`
+        - [ ] Match with custom theme when defined
+      - [x] `mini-nvim`
+      - [x] `nvim-cmp`
+      - [x] `nvim-dap-ui`
+      - [x] `nvim-lspconfig`
+      - [x] `nvim-tree`
+      - [x] `nvim-treesitter`
+      - [x] `trouble-nvim`
+      - [x] `vim-fugitive`
+      - [x] `vim-tmux-navigator`
+      - [x] `which-key`
+      - [x] `zen-mode`
   - [ ] Clean up commands
     - [ ] `git diff`
       - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
