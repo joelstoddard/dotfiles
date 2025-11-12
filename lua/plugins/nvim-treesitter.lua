@@ -15,8 +15,6 @@ return {
 			-- language parsers that MUST be installed
 			ensure_installed = {
 				"bash",
-				"c",
-				"cpp",
 				"css",
 				"dockerfile",
 				"go",
@@ -27,11 +25,9 @@ return {
 				"markdown",
 				"markdown_inline",
 				"python",
-				"rust",
-				"svelte",
 				"typescript",
-				"vue",
 				"yaml",
+				"terraform",
 			},
 			auto_install = true, -- auto-install any other parsers on opening new language files
 			sync_install = false,

@@ -14,8 +14,6 @@ return function(capabilities)
 			"javascriptreact",
 			"typescript",
 			"typescriptreact",
-			"vue",
-			"svelte",
 		},
 	})
 end

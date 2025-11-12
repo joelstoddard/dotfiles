@@ -40,3 +40,21 @@ vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc =
 -- File Explorer
 vim.keymap.set("n", "<leader>m", "<Cmd>NvimTreeFocus<CR>", { desc = "Focus on File Explorer" })
 vim.keymap.set("n", "<leader>e", "<Cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
+
+-- The Primeagen keymaps
+vim.keymap.set({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete without yanking" })
+vim.keymap.set(
+    "n",
+    "<leader>s",
+    [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+    { desc = "Replace word under cursor" }
+)
+vim.keymap.set(
+    "n",
+    "<leader>x",
+    "<cmd>!chmod +x %<CR>",
+    {
+        silent = true,
+        desc = "Make current file executable"
+    }
+)

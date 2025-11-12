@@ -1,15 +1,15 @@
 -- ================================================================================================
--- TITLE : melange-nvim
--- ABOUT : A subtle, warm colorscheme for Neovim inspired by Sublime Text's Melange theme.
+-- TITLE : gruvbox.nvim
+-- ABOUT : A port of gruvbox community theme to lua with treesitter and semantic highlights support!
 -- LINKS :
---   > github : https://github.com/savq/melange-nvim
+--   > github : https://github.com/ellisonleao/gruvbox.nvim
 -- ================================================================================================
 
 return {
-	"savq/melange-nvim",
+	"ellisonleao/gruvbox.nvim",
 	lazy = false,
 	priority = 1000,
 	config = function()
-		vim.cmd("colorscheme melange")
+		vim.cmd("colorscheme gruvbox")
 	end,
 }

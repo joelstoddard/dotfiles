@@ -28,8 +28,7 @@ return function(capabilities)
 	vim.lsp.config("efm", {
 		capabilities = capabilities,
 		filetypes = {
-			"c",
-			"cpp",
+			"sh",
 			"css",
 			"docker",
 			"go",
@@ -41,12 +40,10 @@ return function(capabilities)
 			"lua",
 			"markdown",
 			"python",
-			"sh",
-			"solidity",
-			"svelte",
 			"typescript",
 			"typescriptreact",
-			"vue",
+			"yaml",
+			"terraform",
 		},
 		init_options = {
 			documentFormatting = true,
