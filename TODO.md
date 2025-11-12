@@ -57,10 +57,10 @@
 
 ## Development
 - [-] `git`
-  - [] Generate GPG signature for verified commits
-- [-] `vim`/`neovim`
-  - Configure this
-    - [ ] Syntax highlighting
+  - [ ] Clean up commands
+    - [ ] `git diff`
+      - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
+      - [ ] Alias `git diff` to `git difftool`
 - [ ] `code`
   - Configure this
 - [ ] `tailscale`
