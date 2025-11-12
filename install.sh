@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Lower timeout on boot
+sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/g' /etc/default/grub
+sudo update-grub
+
 # Remove libreoffice
 sudo apt purge -y libreoffice* && \
 sudo apt autoremove -y
