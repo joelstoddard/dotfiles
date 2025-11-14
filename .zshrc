@@ -32,8 +32,6 @@ zinit snippet OMZP::command-not-found
 autoload -Uz compinit && compinit
 zinit cdreplay -q
 
-# Use emacs keybindings even if our EDITOR is set to vi
-bindkey -e
 # Alias Ctrl+Backspace to Ctrl+W
 bindkey '^[[3;5~' backward-kill-word
 # Navigate words with Ctrl+Left/Right
