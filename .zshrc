@@ -38,6 +38,9 @@ bindkey '^[[3;5~' backward-kill-word
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
+# Aliases :(
+alias ll='eza -lAh --icons=auto --colo'
+
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
