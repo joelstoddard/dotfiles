@@ -1,17 +1,75 @@
 # General
 - [ ] Multi OS Configuration
-- [ ] CLI Only install option
+  - [ ] Test this out from scratch on
+    - [ ] Debian
+    - [ ] Ubuntu
+    - [ ] MacOS
+    - [ ] Arch
+- [ ] Default to CLI Only install
+- [ ] Centrally define colour theme/palette
+  - [ ] Source colours from this central location.
+    - [ ] `oh-my-posh`
+    - [ ] `nvim`
+    - [ ] `git`
+    - [ ] `alacritty`
+    - [ ] etc.
 - [ ] Define Optional Package lists
-  - [ ] Desktop Environment tweaks
-  - [ ] Streaming
+  - [ ] Desktop Environment stuff
+    - [ ] General
+      - [ ] sxwm
+      - [ ] xfce/gnome
+      - [ ] Firefox
+      - [ ] Bitwarden
+      - [ ] Discord
+      - [ ] Lotion
+      - [ ] Spotify
+      - [ ] Rofi
+      - [ ] ddccontrol
+      - [ ] fprintd
   - [ ] Gaming
+    - [ ] steam
   - [ ] Development
+    - [ ] `bw`
+    - [ ] `stow`
+    - [ ] `wget`
+    - [ ] `curl`
+    - [ ] `neovim`
+    - [ ] `jq`
+    - [ ] `yq`
+    - [ ] `cmake`
+    - [ ] `g++`
+    - [ ] `python`
+    - [ ] `golang`
+    - [ ] `node` & `npm`
+    - [ ] `fzf`
+    - [x] `eza`
+    - [ ] `fastfetch`
+    - [ ] `btop`
+    - [ ] `git`
+    - [ ] `neovim`
+    - [ ] `tailscale`
+    - [ ] `alacritty`
+    - [ ] `tmux`
+    - [ ] `sipcalc`
+    - [ ] `oh-my-posh`
+    - [ ] `gnupg`
+    - [ ] `claude`
   - [ ] 3D Modelling
-  - [ ] Video Production
+    - [ ] Blender
+  - [ ] Streaming/Video Production
+    - [ ] obs
+    - [ ] Da Vinci Resolve
   - [ ] System Configuration
-- [ ] Fetch secrets from BW
-  - [ ] Voyager credentials
-
+    - [-] Grub timeouts
+    - [-] Voyager NFS mount
+      - [ ] Slow to disconnect on shutdown, improve this
+    - [ ] Disable swap
+    - [ ] Workspace switching keybinds
+    - [ ] Devices
+      - [ ] Microphones
+        - [ ] Audient audio interface has two device inputs but both are being merged at the minute
+      - [ ] Cameras
+        - [ ] Using camlink, figure out drivers for this
 # Packages
 -[-] Install packages
 
@@ -26,6 +84,7 @@
   - Configure this
     - [x] window hopping, running commands, and ssh'ing from one window
     - [x] Customise the theme
+    - [ ] Maths mode, +-*/, currency & unit conversions, etc.
 - [-] `ddccontrol`
   - Configure this to keep monitors at:
     - [ ] 100% during the day
@@ -37,7 +96,7 @@
   - [ ] `Verify result: verify-no-match (done)` - After successfully enrolling?
 - [-] `stow`
   - Run this at the end of the install script
-    - `stow . --adopt`
+    - `stow . --adopt -t ~`
 - [-] `nvtop`
   - Deprecate this and use the [`btop` GPU config](https://github.com/aristocratos/btop?tab=readme-ov-file#gpu-compatibility)
 - [ ] `btop`
@@ -123,8 +182,10 @@
   - [ ] Hostname ASCII Art
 - [ ] `tmux`
   - [ ] Find a session manager I like
+    - [ ] [`sessionx`](https://github.com/omerxx/tmux-sessionx)
   - [ ] Work on visual clarity when paired with `neovim`
 - [ ] `sipcalc`
+- [ ] `net-tools`
 - [-] `oh-my-posh`
   - [-] Extend theme
     - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
