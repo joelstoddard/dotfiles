@@ -56,6 +56,11 @@ curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x8
 wget -qO- https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz \
 | sudo tar -xzf - -C /usr/local/bin
 
+## NodeJS
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+\. "$HOME/.nvm/nvm.sh"
+nvm install 24
+
 # Install Apt Packages
 sudo apt update && \
 sudo apt install -y \
