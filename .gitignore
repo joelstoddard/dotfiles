@@ -8,3 +8,5 @@
 **.env
 **.cache/
 **dist/
+.config/nvim/lazy-lock.json
+
