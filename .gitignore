@@ -9,4 +9,6 @@
 **.cache/
 **dist/
 .config/nvim/lazy-lock.json
-
+node_modules/
+package.json
+package-lock.json
