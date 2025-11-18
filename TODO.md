@@ -144,6 +144,7 @@
     - [ ] Keybinds
       - [ ] With usage, figure out which ones I want changing.
       - [ ] Ctrl+Arrow keys for word navigation
+      - [ ] Ctrl+Backspace for delete word
       - [-] Alt+Arrow keys line manipulation
       - [ ] Alt+Shift multi line cursor
       - [ ] Ctrl+/ to comment and uncomment
