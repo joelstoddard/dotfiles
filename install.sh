@@ -1,111 +1,59 @@
 #!/bin/bash
 
-# Remove libreoffice
-sudo apt purge -y libreoffice* && \
-sudo apt autoremove -y
-sudo apt autoclean -y
+set -eo pipefail
 
-# Install prerequisites
-sudo apt update && \
-sudo apt upgrade -y && \
-sudo apt install -y \
+# Remove libreoffice
+sudo pacman -Rns --noconfirm libreoffice-fresh libreoffice-still 2>/dev/null
+
+# Install Packages
+sudo pacman -S --noconfirm --needed \
 wget \
 curl \
 git \
 stow \
 zsh \
-vim \
-jq \
-cmake \
-g++ \
-pkg-config \
-libfontconfig1-dev \
-libxcb-xfixes0-dev \
-libxkbcommon-dev \
-python3
-
-# Configure apt repositories
-
-## Firefox
-sudo install -d -m 0755 /etc/apt/keyrings
-wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
-echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
-echo '
-Package: *
-Pin: origin packages.mozilla.org
-Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla
-
-## Spotify
-curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
-echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
-
-## eza
-sudo mkdir -p /etc/apt/keyrings
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-
-## Neovim
-curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
-| sudo tar -xzf - --strip-components=1 --overwrite -C /usr
-
-## fzf
-wget -qO- https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz \
-| sudo tar -xzf - -C /usr/local/bin
-
-# Install Apt Packages
-sudo apt update && \
-sudo apt install -y \
-firefox \
-spotify-client \
-obs-studio \
-zsh \
 tmux \
-stow \
-rofi \
-ddccontrol \
-gddccontrol \
-ddccontrol-db \
-i2c-tools \
-nvtop \
-fastfetch \
-btop \
-sipcalc
+jq \
+yq \
+net-tools \
+grex \
+ripgrep \
+cmake \
+gnupg \
+unzip \
+firefox \
+bitwarden-cli \
+bitwarden \
+ttf-ibmplex-mono-nerd \
+ansible \
+aws-cli \
+docker \
+docker-compose \
+go \
+gnupg \
+helm \
+kubectl \
+kubectx \
+postgresql \
+python \
+rsync \
+tailscale \
+terraform \
+tldr \
+tmux \
+uv \
 
-# Install .deb Packages
-
-## Bitwarden
-wget -q https://github.com/bitwarden/clients/releases/download/desktop-v2025.5.1/Bitwarden-2025.5.1-amd64.deb -O /tmp/bitwarden.deb
-sudo dpkg -i /tmp/bitwarden.deb
-rm /tmp/bitwarden.deb
-
-## Bitwarden CLI
-wget -q https://github.com/bitwarden/clients/releases/download/cli-v2025.5.0/bw-linux-2025.5.0.zip -O /tmp/bitwarden-cli.zip
-sudo unzip -o -q /tmp/bitwarden-cli.zip -d /usr/local/bin
-rm /tmp/bitwarden-cli.zip
-
-## Discord
-wget -q https://stable.dl2.discordapp.net/apps/linux/0.0.96/discord-0.0.96.deb -O /tmp/discord.deb
-sudo dpkg -i /tmp/discord.deb
-rm /tmp/discord.deb
-
-## Lotion (Notion desktop client)
-wget -q https://github.com/puneetsl/lotion/releases/download/v1.0.0/lotion_1.0.0_amd64.deb -O /tmp/lotion.deb
-sudo dpkg -i /tmp/lotion.deb
-rm /tmp/lotion.deb
-
-## VSCode
-wget -q https://vscode.download.prss.microsoft.com/dbazure/download/stable/258e40fedc6cb8edf399a463ce3a9d32e7e1f6f3/code_1.100.3-1748872405_amd64.deb -O /tmp/vscode.deb
-sudo dpkg -i /tmp/vscode.deb
-rm /tmp/vscode.deb
+# Install AURs
+yay -S --noconfirm --needed \
+sipcalc \
+ttf-atkinson-hyperlegible-nerd
 
 # Install Oh My Posh
 curl -s https://ohmyposh.dev/install.sh | bash -s
+export PATH=$PATH:$HOME/.local/bin
 
-# Alacritty
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup override set stable
-rustup update stable
-cargo install alacritty
+# Remove conflicting Omarchy config files
+rm ~/.config/alacritty/alacritty.toml ~/.config/git/config
+rm -r ~/.config/nvim/
+
+stow . --adopt -t ~
