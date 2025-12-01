@@ -125,6 +125,8 @@
   - [ ] Find a session manager I like
   - [ ] Work on visual clarity when paired with `neovim`
 - [ ] `sipcalc`
+- [ ] `ripgrep`
+- [ ] `grex`
 - [-] `oh-my-posh`
   - [-] Extend theme
     - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
