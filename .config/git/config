@@ -106,3 +106,6 @@
 
 [color "diff"]
     meta      = white dim
+    new       = "#90A959"
+    old       = "#AC4242"
+    whitespace = "#AA759F"

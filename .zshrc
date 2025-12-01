@@ -39,7 +39,12 @@ bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
 # Aliases :(
-alias ll='eza -lAh --icons=auto --colo'
+if command -v eza &> /dev/null; then
+    alias ls='eza -lh --group-directories-first --icons=auto'
+    alias lsa='ls -a'
+    alias lt='eza --tree --level=2 --long --icons --git'
+    alias lta='lt -a'
+fi
 
 setopt appendhistory
 setopt sharehistory

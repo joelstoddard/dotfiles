@@ -1,20 +1,33 @@
+general.import = [ "~/.config/omarchy/current/theme/alacritty.toml"]
+
+[env]
+TERM = "xterm-256color"
+
 [window]
 title = "Terminal"
 dynamic_title = true
-padding = { x = 6, y = 6 }
+padding = { x = 14, y = 14 }
+decorations = "None"
 
 [scrolling]
 history = 10000
 multiplier = 2
 
 [font]
-normal = {family = "BlexMono Nerd Font Mono"}
-size = 14
+normal = {family = "BlexMono Nerd Font Mono", style = "Regular"}
+bold = {family = "BlexMono Nerd Font Mono", style = "Bold"}
+italic = {family = "BlexMono Nerd Font Mono", style = "Italic"}
+size = 9
 
 [mouse]
 bindings = [
     { mouse = "Right", mods = "Shift", action = "Paste" },
     { mouse = "Right", action = "Copy" }
+]
+[keyboard]
+bindings = [
+    { key = "Insert", mods = "Shift", action = "Paste" },
+    { key = "Insert", mods = "Control", action = "Copy" }
 ]
 
 [terminal]
