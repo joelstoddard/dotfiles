@@ -1,5 +1,8 @@
 # Set up the prompt
 
+# Inherit Omarchy Defaults
+. "$HOME/.local/share/../bin/env"
+
 if [[ -f "/opt/homebrew/bin/brew" ]] then
   # If you're using macOS, you'll want this enabled
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -21,13 +24,37 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 
 zinit snippet OMZL::git.zsh
-zinit snippet OMZP::git
-zinit snippet OMZP::sudo
+zinit snippet OMZP::ansible
 zinit snippet OMZP::archlinux
 zinit snippet OMZP::aws
+# zinit snippet OMZP::brew
+zinit snippet OMZP::command-not-found
+# zinit snippet OMZP::debian
+zinit snippet OMZP::docker-compose
+zinit snippet OMZP::docker
+zinit snippet OMZP::eza
+zinit snippet OMZP::fzf
+zinit snippet OMZP::gh
+zinit snippet OMZP::git
+zinit snippet OMZP::golang
+zinit snippet OMZP::gpg-agent
+zinit snippet OMZP::helm
 zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
-zinit snippet OMZP::command-not-found
+zinit snippet OMZP::localstack
+# zinit snippet OMZP::macos
+zinit snippet OMZP::postgres
+zinit snippet OMZP::python
+# zinit snippet OMZP::redis-cli
+zinit snippet OMZP::rsync
+zinit snippet OMZP::ssh
+zinit snippet OMZP::sudo
+zinit snippet OMZP::systemd
+zinit snippet OMZP::tailscale
+zinit snippet OMZP::terraform
+zinit snippet OMZP::tldr
+zinit snippet OMZP::tmux
+zinit snippet OMZP::uv
 
 autoload -Uz compinit && compinit
 zinit cdreplay -q
@@ -60,8 +87,13 @@ SAVEHIST=$HISTSIZE
 HISTFILE=~/.zsh_history
 HISTDUP=erase
 
+# Cargo configuration
+export PATH=$PATH:$HOME/.cargo/bin
+
 # oh-my-posh configuration
-export PATH=$PATH:/home/joel/.local/bin
+export PATH=$PATH:$HOME/.local/bin
+
+# MacOS configuration
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.yaml)"
 fi
