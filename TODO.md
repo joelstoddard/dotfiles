@@ -152,6 +152,9 @@
       - [ ] Show current context window
       - [ ] Create custom statusline in claude code prompt
 
+## Work
+- [ ] `jfrog`
+
 ## 3D Modelling
 - [ ] `blender`
 
