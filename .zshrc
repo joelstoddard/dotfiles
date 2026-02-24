@@ -6,7 +6,7 @@ if [[ ! -f "/opt/homebrew/bin/brew" ]] && [[ -f "$HOME/.local/share/../bin/env" 
   . "$HOME/.local/share/../bin/env"
 fi
 
-if [[ -f "/opt/homebrew/bin/brew" ]] then
+if [[ -f "/opt/homebrew/bin/brew" ]]; then
   # If you're using macOS, you'll want this enabled
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
@@ -19,6 +19,9 @@ if [ ! -d "$ZINIT_HOME" ]; then
   mkdir -p "$(dirname $ZINIT_HOME)"
   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
+
+# ZSH assumes incorrect config path without this.
+export ZSH_TMUX_FIXTERM=false
 
 # Source/Load zinit
 source "${ZINIT_HOME}/zinit.zsh"
@@ -115,8 +118,6 @@ export GPG_TTY=$(tty)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-
 
 # JFrog CLI configuration
 _jfrog() {
