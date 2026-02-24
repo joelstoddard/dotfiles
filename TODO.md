@@ -1,133 +1,119 @@
 # General
-- [ ] Multi OS Configuration
-- [ ] CLI Only install option
-- [ ] Define Optional Package lists
-  - [ ] Desktop Environment tweaks
+- [-] Multi OS Configuration (scripts exist, bugs fixed, testing needed)
+  - [x] MacOS (script complete)
+  - [x] Arch (script complete)
+  - [x] Debian/Ubuntu (script complete)
+  - [ ] Update Alacritty config per OS
+    - [ ] padding, font size, etc.
+- [ ] Default to CLI config & tools only install
+- [ ] Centralise packages list so all OS installation scripts can reference the same list
+  something like:
+  ```python
+  packages = [
+    "curl",
+    "wget", 
+    "zsh",
+  ]
+
+  if OS = "arch":
+    package_manager = "pacman"
+    install_options = "-S"
+  
+  for package in packages:
+    run(f"{package_manager} install {install_options} {package}")
+  ```
+- [x] Define Optional Package lists
+  - [ ] Desktop
+    - Firefox, notion, bitwarden, etc.
   - [ ] Streaming
+    - obs, davinci resolve, etc.
   - [ ] Gaming
+    - steam, discord, etc.
   - [ ] Development
+    - alacritty, nvim, python, golang, etc. 
   - [ ] 3D Modelling
-  - [ ] Video Production
+    - Blender.
   - [ ] System Configuration
-- [ ] Fetch secrets from BW
-  - [ ] Voyager credentials
+    - This stuff like reducing the grub timeout on systems that use it so there's not a 5 second wait on boot to get to the login prompt.
+
+- [ ] Test installation on all platforms
+  - [ ] Arch Linux
+  - [ ] Debian/Ubuntu
+  - [ ] macOS
 
 # Packages
--[-] Install packages
+- [ ] Define centralised package configuration file
+    - Mutli-OS support
+        - Change package name based on what OS we're installing on
+    - Package groups
+        - Desktop
+        - Streaming & Video Production
+        - Gaming
+        - Development
+        - 3D Modelling
+        - System Configuration
+- [-] Install packages
 
 ## General
 - [x] `firefox`
 - [x] `bitwarden`
-- [x] `bw`
-- [x] `discord`
-- [x] `lotion`
+- [x] `bitwarden-cli`
+- [x] `notion`
 - [x] `spotify`
-- [x] `rofi` / PowerToys Run alternative
+- [-] `rofi`/ Find alternative for Omarchy & MacOS. 
   - Configure this
     - [x] window hopping, running commands, and ssh'ing from one window
     - [x] Customise the theme
+    - Only use this on Debian with a Desktop Environment.
 - [-] `ddccontrol`
+  - Only needed for Omarchy/Debian/Ubuntu installs with a desktop environment.
   - Configure this to keep monitors at:
     - [ ] 100% during the day
     - [ ] 80% during the evening
     - [ ] 0% during the night
-- [ ] `sxwm` / Tiling Window Manager
-  - Investigate this
 - [ ] `fprintd`
   - [ ] `Verify result: verify-no-match (done)` - After successfully enrolling?
-- [-] `stow`
+- [x] `stow`
   - Run this at the end of the install script
     - `stow . --adopt`
-- [-] `nvtop`
-  - Deprecate this and use the [`btop` GPU config](https://github.com/aristocratos/btop?tab=readme-ov-file#gpu-compatibility)
 - [ ] `btop`
-- [-] `fastfetch`
-- [-] `zsh`
-  - [ ] Alias `Ctrl+Backspace` to `Ctrl+w`
-  - [ ] Word navigation with `Ctrl+Arrow Keys`
-- [ ] `xfce` / Desktop Environment
-  - Investigate if this is even my Desktop Environment of choice
+- [x] `fastfetch`
+- [x] `zsh`
+  - [ ] Utilise the `chpwd` hook for loading virtual environments in languages and tools that support it
+  - [x] Alias `Ctrl+Backspace` to `Ctrl+w`
+  - [x] Word navigation with `Ctrl+Arrow Keys`
+- [-] Desktop Environment
+  - Omarchy - ships with one
+  - MacOS - ships with one, needs a window manager on top though
+  - Debian/Ubuntu - GNOME
 
-## Streaming
+## Streaming & Video Production
+- [ ] `obs`
+- [ ] Da Vinci Resolve
 
 ## Gaming
-
-## Launchers
 - [x] `steam`
+- [x] `discord`
 
 ## Development
-- [-] `git`
-  - [] Generate GPG signature for verified commits
+- [x] `git`
+  - [x] Generate GPG signature for verified commits
 - [-] `neovim`
-  - Configure
-    - [ ] Centrally locate languages I use?
-      - `bash`
-      - `zsh`
-      - `html`
-      - `css`
-      - `javascript`
-      - `json`
-      - `jsonc` / `hujson`
-      - `lua`
-      - `markdown` / `markdown_inline`
-      - `yaml`
-        - `ansible`
-        - `docker-compose`
-        - `kubernetes`
-        - `helm`
-      - `terraform`
-      - `python`
-      - `docker` / `dockerfile`
-      - `golang`
-    - [-] Theme
-      - [x] Install base theme (`gruvbox.nvim`)
-      - [ ] Customize theme
-    - [ ] Keybinds
-      - [ ] With usage, figure out which ones I want changing.
-      - [ ] Ctrl+Arrow keys for word navigation
-      - [-] Alt+Arrow keys line manipulation
-      - [ ] Alt+Shift multi line cursor
-      - [ ] Ctrl+/ to comment and uncomment
-    - [-] Plugins
-      - [ ] Replicate the `indent-rainbow` vscode plugin
-      - [ ] `undotree`
-      - [x] `ccc-nvim`
-      - [x] `copilot`
-      - [x] `fzf-lua`
-      - [x] `gitsigns-nvim`
-      - [x] `lspsaga-nvim`
-      - [-] `lualine-nvim`
-        - [ ] Match with custom theme when defined
-      - [x] `mini-nvim`
-      - [x] `nvim-cmp`
-      - [x] `nvim-dap-ui`
-      - [x] `nvim-lspconfig`
-      - [x] `nvim-tree`
-      - [x] `nvim-treesitter`
-      - [x] `trouble-nvim`
-      - [x] `vim-fugitive`
-      - [x] `vim-tmux-navigator`
-      - [x] `which-key`
-      - [x] `zen-mode`
-  - [ ] Clean up commands
-    - [ ] `git diff`
-      - [ ] Remove `meta`, `frag`, `func`, only really need to see what's changed, some context lines, and what file the changes are in.
-      - [ ] Alias `git diff` to `git difftool`
-- [ ] `code`
-  - Configure this
+  - Note: Neovim configuration is managed in ~/personal/nvim repository
+  - See ~/personal/nvim/TODO.md for neovim-specific tasks
 - [ ] `tailscale`
-- [-] Alacritty
+- [x] Alacritty
   - [x] Configure default font to `BlexMono Nerd Font Mono Regular`
   - [x] Mouse Scrolling
   - [x] Right click to copy selection
-  - [ ] Hostname ASCII Art
+  - [ ] Hostname ASCII Art (future enhancement)
 - [ ] `tmux`
   - [ ] Find a session manager I like
   - [ ] Work on visual clarity when paired with `neovim`
-- [ ] `sipcalc`
-- [ ] `ripgrep`
-- [ ] `grex`
-- [-] `oh-my-posh`
+- [x] `sipcalc`
+- [x] `ripgrep`
+- [x] `grex`
+- [x] `oh-my-posh`
   - [-] Extend theme
     - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
     - [x] [Root](https://ohmyposh.dev/docs/segments/system/root)
@@ -157,19 +143,17 @@
       - [x] Show current working branch
       - [x] Show icons if `.Ahead` or `.Behind`
       - [x] Show working changes
-        Currently, this naively compares the `.Folder` and `.Venv` properties, which returns true if current directory is named the same as the `.venv`.
-        Replace this logic with comparing `{{ .Env.VIRTUAL_ENV | dir }}` and `{{ .Segments.Path.Location }}`, when they match, change the `foreground_template` in the path segment to #ffde57.
     - [x] [Secondary Prompt](https://ohmyposh.dev/docs/configuration/secondary-prompt)
       - [x] Show ❯ when in secondary prompt
     - [ ] Tailscale
       - [ ] Show connection
+    - [ ] Claude
+      - [ ] Show current model
+      - [ ] Show current context window
+      - [ ] Create custom statusline in claude code prompt
 
 ## 3D Modelling
 - [ ] `blender`
-
-## Video Production
-- [ ] `obs`
-- [ ] Da Vinci Resolve
 
 # System Configuration
 - [ ] Reduce/Remove timeout from `/boot/grub/grub.cfg`

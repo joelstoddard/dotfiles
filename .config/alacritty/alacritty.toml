@@ -27,8 +27,11 @@ bindings = [
 [keyboard]
 bindings = [
     { key = "Insert", mods = "Shift", action = "Paste" },
-    { key = "Insert", mods = "Control", action = "Copy" }
+    { key = "Insert", mods = "Control", action = "Copy" },
+    # Claude Code newlines in prompt
+    { key = "Return", mods = "Shift", chars = "\u001B\r"}
 ]
 
 [terminal]
 shell = "/bin/zsh"
+
