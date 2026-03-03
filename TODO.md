@@ -3,8 +3,8 @@
   - [x] MacOS (script complete)
   - [x] Arch (script complete)
   - [x] Debian/Ubuntu (script complete)
-  - [ ] Update Alacritty config per OS
-    - [ ] padding, font size, etc.
+  - [x] Update Alacritty config per OS
+    - [x] padding, font size, etc.
 - [ ] Default to CLI config & tools only install
 - [ ] Centralise packages list so all OS installation scripts can reference the same list
   something like:
@@ -98,6 +98,7 @@
 ## Development
 - [x] `git`
   - [x] Generate GPG signature for verified commits
+- [ ] `gh`
 - [-] `neovim`
   - Note: Neovim configuration is managed in ~/personal/nvim repository
   - See ~/personal/nvim/TODO.md for neovim-specific tasks
@@ -110,6 +111,7 @@
 - [ ] `tmux`
   - [ ] Find a session manager I like
   - [ ] Work on visual clarity when paired with `neovim`
+  - [ ] Always start this
 - [x] `sipcalc`
 - [x] `ripgrep`
 - [x] `grex`
@@ -154,6 +156,7 @@
 
 ## Work
 - [ ] `jfrog`
+- [ ] `assume`
 
 ## 3D Modelling
 - [ ] `blender`

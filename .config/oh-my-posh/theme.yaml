@@ -24,6 +24,7 @@ blocks:
         foreground_templates:
           # This returns true if current directory is named the same as the .venv
           # TODO: Instead compare {{ .Env.VIRTUAL_ENV | dir }} and {{ .Segments.Path.Location }}
+          # for full path resolution comparison.
           - "{{if eq .Segments.Python.Venv .Folder }}#FFDE57{{ end }}"
         properties:
           style: folder

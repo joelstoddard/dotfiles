@@ -52,8 +52,3 @@ ttf-atkinson-hyperlegible-nerd
 curl -s https://ohmyposh.dev/install.sh | bash -s
 export PATH=$PATH:$HOME/.local/bin
 
-# Remove conflicting Omarchy config files
-rm ~/.config/alacritty/alacritty.toml ~/.config/git/config
-rm -r ~/.config/nvim/
-
-stow . --adopt -t ~

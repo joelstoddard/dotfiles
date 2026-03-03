@@ -89,6 +89,26 @@ else
     stow . --adopt -t "$HOME"
 fi
 
+# Configure OS-specific Alacritty settings
+echo "Configuring Alacritty for $OS..."
+ALACRITTY_DIR="$HOME/.config/alacritty"
+case "$OS" in
+    macos)
+        ln -sf "macos.toml" "$ALACRITTY_DIR/os.toml"
+        ;;
+    linux)
+        case "$DISTRO" in
+            arch)
+                ln -sf "arch.toml" "$ALACRITTY_DIR/os.toml"
+                ;;
+            *)
+                ln -sf "linux.toml" "$ALACRITTY_DIR/os.toml"
+                ;;
+        esac
+        ;;
+esac
+echo "Alacritty configured: os.toml -> $(readlink "$ALACRITTY_DIR/os.toml")"
+
 echo ""
 echo "=== Installation complete! ==="
 echo ""

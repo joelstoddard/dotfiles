@@ -8,6 +8,7 @@
 **.env
 **.cache/
 **dist/
+.config/alacritty/os.toml
 .config/nvim/lazy-lock.json
 node_modules/
 package.json
