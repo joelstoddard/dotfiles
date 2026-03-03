@@ -28,3 +28,6 @@ _darcs
 ^/install.*
 ^/uninstall.*
 ^/stow-local-ignore.*
+^/CLAUDE.*
+^/os-detect.*
+^/scripts.*
