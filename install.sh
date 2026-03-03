@@ -1,118 +1,120 @@
 #!/bin/bash
+set -euo pipefail
 
-# Remove libreoffice
-sudo apt purge -y libreoffice* && \
-sudo apt autoremove -y
-sudo apt autoclean -y
+echo "=== Multi-OS Dotfiles Installation ==="
+echo ""
 
-# Install prerequisites
-sudo apt update && \
-sudo apt upgrade -y && \
-sudo apt install -y \
-wget \
-curl \
-git \
-stow \
-zsh \
-vim \
-jq \
-cmake \
-g++ \
-pkg-config \
-libfontconfig1-dev \
-libxcb-xfixes0-dev \
-libxkbcommon-dev \
-python3 \
-gpg
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Configure apt repositories
+# Source OS detection
+source "$SCRIPT_DIR/os-detect.sh"
 
-## Firefox
-sudo install -d -m 0755 /etc/apt/keyrings
-wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc | awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
-echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
-echo '
-Package: *
-Pin: origin packages.mozilla.org
-Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla
+echo "Detected environment:"
+echo "  OS: $OS"
+echo "  Distro: $DISTRO"
+echo "  Package Manager: $PKG_MANAGER"
+echo "  GUI Available: $HAS_GUI"
+echo ""
 
-## Spotify
-curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
-echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+# Confirm with user
+read -p "Continue installation? [y/N] " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Installation cancelled."
+    exit 0
+fi
 
-## eza
-sudo mkdir -p /etc/apt/keyrings
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+# Route to OS-specific script
+case "$OS" in
+    linux)
+        case "$DISTRO" in
+            debian)
+                echo "Running Debian/Ubuntu installation..."
+                bash "$SCRIPT_DIR/scripts/debian-ubuntu.sh"
+                ;;
+            arch)
+                echo "Running Arch Linux installation..."
+                bash "$SCRIPT_DIR/scripts/arch.sh"
+                ;;
+            *)
+                echo "Error: Unsupported Linux distribution: $DISTRO"
+                echo "Supported: Debian, Ubuntu, Arch Linux"
+                exit 1
+                ;;
+        esac
+        ;;
+    macos)
+        echo "Running macOS installation..."
+        bash "$SCRIPT_DIR/scripts/macos.sh"
+        ;;
+    windows)
+        echo "Error: Windows is not supported by this dotfiles repository."
+        echo ""
+        echo "GNU Stow and POSIX shell scripts are incompatible with Windows."
+        echo "Consider using a Windows-specific dotfiles solution:"
+        echo "  - chezmoi (https://www.chezmoi.io/)"
+        echo "  - PowerShell dotfiles with New-Item -ItemType SymbolicLink"
+        echo "  - yadm (https://yadm.io/)"
+        exit 1
+        ;;
+    *)
+        echo "Error: Unsupported operating system: $OS"
+        exit 1
+        ;;
+esac
 
-## Neovim
-curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
-| sudo tar -xzf - --strip-components=1 --overwrite -C /usr
+# Common post-installation
+echo ""
+echo "=== Configuring dotfiles with GNU Stow ==="
 
-## fzf
-wget -qO- https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz \
-| sudo tar -xzf - -C /usr/local/bin
+# Remove conflicting Omarchy configs on Arch
+if [[ "$OS" == "linux" && "$DISTRO" == "arch" && -d "$HOME/.config/omarchy" ]]; then
+    echo "Removing conflicting Omarchy configuration files..."
+    rm -f "$HOME/.config/alacritty/alacritty.toml"
+    rm -f "$HOME/.config/git/config"
+    rm -rf "$HOME/.config/nvim/"
+fi
 
-## NodeJS
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-\. "$HOME/.nvm/nvm.sh"
-nvm install 24
+# Stow all configurations
+cd "$SCRIPT_DIR"
 
-# Install Apt Packages
-sudo apt update && \
-sudo apt install -y \
-firefox \
-spotify-client \
-obs-studio \
-zsh \
-tmux \
-stow \
-rofi \
-ddccontrol \
-gddccontrol \
-ddccontrol-db \
-i2c-tools \
-nvtop \
-fastfetch \
-btop \
-sipcalc \
-eza \
+# Conditionally ignore rofi on non-Linux or non-GUI systems
+if [[ "$OS" != "linux" || "$HAS_GUI" != "yes" ]]; then
+    echo "Skipping rofi (Linux GUI-only tool)..."
+    echo "^/.config/rofi" >> .stow-local-ignore.tmp
+    stow . --adopt -t "$HOME" --ignore=".stow-local-ignore.tmp"
+    rm -f .stow-local-ignore.tmp
+else
+    stow . --adopt -t "$HOME"
+fi
 
-# Install .deb Packages
+# Configure OS-specific Alacritty settings
+echo "Configuring Alacritty for $OS..."
+ALACRITTY_DIR="$HOME/.config/alacritty"
+case "$OS" in
+    macos)
+        ln -sf "macos.toml" "$ALACRITTY_DIR/os.toml"
+        ;;
+    linux)
+        case "$DISTRO" in
+            arch)
+                ln -sf "arch.toml" "$ALACRITTY_DIR/os.toml"
+                ;;
+            *)
+                ln -sf "linux.toml" "$ALACRITTY_DIR/os.toml"
+                ;;
+        esac
+        ;;
+esac
+echo "Alacritty configured: os.toml -> $(readlink "$ALACRITTY_DIR/os.toml")"
 
-## Bitwarden
-wget -q https://github.com/bitwarden/clients/releases/download/desktop-v2025.5.1/Bitwarden-2025.5.1-amd64.deb -O /tmp/bitwarden.deb
-sudo dpkg -i /tmp/bitwarden.deb
-rm /tmp/bitwarden.deb
-
-## Bitwarden CLI
-wget -q https://github.com/bitwarden/clients/releases/download/cli-v2025.5.0/bw-linux-2025.5.0.zip -O /tmp/bitwarden-cli.zip
-sudo unzip -o -q /tmp/bitwarden-cli.zip -d /usr/local/bin
-rm /tmp/bitwarden-cli.zip
-
-## Discord
-wget -q https://stable.dl2.discordapp.net/apps/linux/0.0.96/discord-0.0.96.deb -O /tmp/discord.deb
-sudo dpkg -i /tmp/discord.deb
-rm /tmp/discord.deb
-
-## Lotion (Notion desktop client)
-wget -q https://github.com/puneetsl/lotion/releases/download/v1.0.0/lotion_1.0.0_amd64.deb -O /tmp/lotion.deb
-sudo dpkg -i /tmp/lotion.deb
-rm /tmp/lotion.deb
-
-## VSCode
-wget -q https://vscode.download.prss.microsoft.com/dbazure/download/stable/258e40fedc6cb8edf399a463ce3a9d32e7e1f6f3/code_1.100.3-1748872405_amd64.deb -O /tmp/vscode.deb
-sudo dpkg -i /tmp/vscode.deb
-rm /tmp/vscode.deb
-
-# Install Oh My Posh
-curl -s https://ohmyposh.dev/install.sh | bash -s
-
-# Alacritty
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup override set stable
-rustup update stable
-cargo install alacritty
+echo ""
+echo "=== Installation complete! ==="
+echo ""
+echo "Next steps:"
+echo "  1. Restart your shell or run: source ~/.zshrc"
+echo "  2. Verify oh-my-posh prompt displays correctly"
+echo "  3. Open a new terminal to test Alacritty configuration"
+echo ""
+echo "Note: Check TODO.md for remaining manual configuration tasks."

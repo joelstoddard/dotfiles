@@ -1,0 +1,18 @@
+# macOS-specific Alacritty overrides
+
+[window]
+decorations = "Full"
+
+[font]
+size = 20
+
+[keyboard]
+bindings = [
+    { key = "Insert", mods = "Shift", action = "Paste" },
+    { key = "Insert", mods = "Control", action = "Copy" },
+    { key = "Return", mods = "Shift", chars = "\u001B\r" },
+    { key = "Left", mods = "Command", action = "WordLeft" },
+    { key = "Right", mods = "Command", action = "WordRight" },
+    { key = "Backspace", mods = "Command", chars = "\u0017" },
+    { key = "Delete", mods = "Command", chars = "\u001Bd" },
+]

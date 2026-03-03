@@ -8,7 +8,9 @@
 **.env
 **.cache/
 **dist/
+.config/alacritty/os.toml
 .config/nvim/lazy-lock.json
+.config/tmux/plugins/
 node_modules/
 package.json
 package-lock.json
