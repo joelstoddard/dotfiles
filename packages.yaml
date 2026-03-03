@@ -1,0 +1,654 @@
+core:
+  wget:
+    description: "Non-interactive network downloader."
+    homepage: https://www.gnu.org/software/wget/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  curl:
+    description: "Command-line tool for transferring data with URLs."
+    homepage: https://curl.se/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  git:
+    description: "Distributed version control system."
+    homepage: https://git-scm.com/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  stow:
+    description: "GNU Stow — symlink farm manager used to deploy these dotfiles."
+    homepage: https://www.gnu.org/software/stow/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  zsh:
+    description: "Z shell — interactive shell and scripting language."
+    homepage: https://www.zsh.org/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  tmux:
+    description: "Terminal multiplexer."
+    homepage: https://github.com/tmux/tmux
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  neovim:
+    description: "Hyperextensible Vim-based text editor."
+    homepage: https://neovim.io/
+    arch: ~
+    debian:
+      type: script
+      url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+    ubuntu:
+      type: script
+      url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+    macos: ~
+
+  jq:
+    description: "Lightweight command-line JSON processor."
+    homepage: https://jqlang.github.io/jq/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  yq:
+    description: "YAML/JSON/XML processor (Mike Farah's yq)."
+    homepage: https://github.com/mikefarah/yq
+    arch: ~
+    macos: ~
+
+  ripgrep:
+    description: "Fast recursive grep replacement."
+    homepage: https://github.com/BurntSushi/ripgrep
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  grex:
+    description: "Generates regular expressions from user-provided test cases."
+    homepage: https://github.com/pemistahl/grex
+    arch:
+      type: yay
+    macos: ~
+
+  fzf:
+    description: "General-purpose command-line fuzzy finder."
+    homepage: https://github.com/junegunn/fzf
+    arch: ~
+    debian:
+      type: script
+      url: https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz
+    ubuntu:
+      type: script
+      url: https://github.com/junegunn/fzf/releases/latest/download/fzf-linux_amd64.tar.gz
+    macos: ~
+
+  cmake:
+    description: "Cross-platform build system generator."
+    homepage: https://cmake.org/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  gnupg:
+    description: "GNU Privacy Guard — OpenPGP encryption and signing."
+    homepage: https://gnupg.org/
+    arch: ~
+    debian: gpg
+    ubuntu: gpg
+    macos: ~
+
+  unzip:
+    description: "Utility for extracting ZIP archives."
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  rsync:
+    description: "Fast, versatile file copy/sync tool."
+    homepage: https://rsync.samba.org/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  tldr:
+    description: "Simplified, community-driven man pages."
+    homepage: https://tldr.sh/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  btop:
+    description: "Resource monitor with an interactive TUI."
+    homepage: https://github.com/aristocratos/btop
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  fastfetch:
+    description: "Fast system information tool."
+    homepage: https://github.com/fastfetch-cli/fastfetch
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  sipcalc:
+    description: "Advanced IP subnet calculator."
+    homepage: http://www.sipcalc.net/
+    arch:
+      type: yay
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  net-tools:
+    description: "Classic Linux networking utilities (ifconfig, netstat, ...)."
+    homepage: https://sourceforge.net/projects/net-tools/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+
+  ttl:
+    description: "Fast, modern traceroute with real-time TUI."
+    homepage: "https://github.com/lance0/ttl"
+    arch:
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  oh-my-posh:
+    description: "Prompt theme engine for any shell."
+    homepage: https://ohmyposh.dev/
+    arch:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    debian:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    ubuntu:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    macos:
+      type: tap
+      tap: jandedobbeleer/oh-my-posh
+      name: oh-my-posh
+
+  bitwarden-cli:
+    description: "Bitwarden command-line vault client."
+    homepage: https://bitwarden.com/help/cli/
+    arch:
+      type: yay
+    debian:
+      type: deb
+      url: https://github.com/bitwarden/clients/releases/download/cli-v2025.5.0/bw-linux-2025.5.0.zip
+    ubuntu:
+      type: deb
+      url: https://github.com/bitwarden/clients/releases/download/cli-v2025.5.0/bw-linux-2025.5.0.zip
+    macos: ~
+
+  tailscale:
+    description: "Zero-config VPN built on WireGuard."
+    homepage: https://tailscale.com/
+    arch: ~
+    debian:
+      type: script
+      url: https://tailscale.com/install.sh
+    ubuntu:
+      type: script
+      url: https://tailscale.com/install.sh
+    macos:
+      type: cask
+
+  claude-code:
+    description: "Anthropic's Claude Code CLI for AI-assisted development."
+    homepage: https://claude.ai/code
+    arch:
+      type: npm
+    debian:
+      type: npm
+    ubuntu:
+      type: npm
+    macos:
+      type: npm
+
+  nvm:
+    description: "Node Version Manager — manages multiple Node.js versions."
+    homepage: https://github.com/nvm-sh/nvm
+    arch:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    debian:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    ubuntu:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    macos:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+
+  rust:
+    description: "Rust toolchain installer."
+    homepage: https://www.rust-lang.org/
+    arch:
+      type: script
+      url: https://sh.rustup.rs
+    debian:
+      type: script
+      url: https://sh.rustup.rs
+    ubuntu:
+      type: script
+      url: https://sh.rustup.rs
+    macos:
+      type: script
+      url: https://sh.rustup.rs
+
+  eza:
+    description: "Modern replacement for ls with colour and git integration."
+    homepage: https://github.com/eza-community/eza
+    arch: ~
+    debian:
+      type: apt-repo
+      setup: |
+        curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      setup: |
+        curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+    macos: ~
+
+desktop:
+  firefox:
+    description: "Open-source web browser by Mozilla."
+    homepage: https://www.mozilla.org/en-GB/firefox/
+    arch: ~
+    debian:
+      type: apt-repo
+      setup: |
+        sudo install -d -m 0755 /etc/apt/keyrings
+        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      setup: |
+        sudo install -d -m 0755 /etc/apt/keyrings
+        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list
+        sudo apt update
+    macos:
+      type: cask
+
+  bitwarden:
+    description: "Open-source password manager desktop app."
+    homepage: https://bitwarden.com/
+    arch: ~
+    debian:
+      type: deb
+      url: https://github.com/bitwarden/clients/releases/download/desktop-v2025.5.1/Bitwarden-2025.5.1-amd64.deb
+    ubuntu:
+      type: deb
+      url: https://github.com/bitwarden/clients/releases/download/desktop-v2025.5.1/Bitwarden-2025.5.1-amd64.deb
+    macos:
+      type: cask
+
+  notion:
+    description: "All-in-one workspace for notes, docs, and project management."
+    homepage: https://www.notion.so/
+    arch:
+      type: yay
+      name: notion-app
+    debian:
+      type: deb
+      url: https://github.com/puneetsl/lotion/releases/download/v1.0.0/lotion_1.0.0_amd64.deb
+    ubuntu:
+      type: deb
+      url: https://github.com/puneetsl/lotion/releases/download/v1.0.0/lotion_1.0.0_amd64.deb
+    macos:
+      type: cask
+
+  spotify:
+    description: "Music streaming service desktop client."
+    homepage: https://www.spotify.com/
+    arch:
+      type: yay
+    debian:
+      type: apt-repo
+      name: spotify-client
+      setup: |
+        curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/spotify.gpg
+        echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: spotify-client
+      setup: |
+        curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/spotify.gpg
+        echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+        sudo apt update
+    macos:
+      type: cask
+
+  alacritty:
+    description: "GPU-accelerated terminal emulator."
+    homepage: https://alacritty.org/
+    arch: ~
+    debian:
+      type: cargo
+    ubuntu:
+      type: cargo
+    macos:
+      type: cask
+
+  rofi:
+    description: "Application launcher and window switcher (Linux/X11 only)."
+    homepage: https://github.com/davatorium/rofi
+    debian: ~
+    ubuntu: ~
+
+  app-launcher:
+    description: "Platform-appropriate application launcher."
+    macos:
+      type: cask
+      name: raycast
+    debian:
+      type: apt
+      name: rofi
+    ubuntu:
+      type: apt
+      name: rofi
+
+  display-controls:
+    description: "External monitor brightness/contrast control via DDC/CI."
+    arch: ~
+    debian: ddccontrol
+    ubuntu: ddccontrol
+
+  fingerprint-auth:
+    description: "Fingerprint reader authentication."
+    arch: ~
+    debian: fprintd
+    ubuntu: fprintd
+
+  ibm-plex-mono:
+    description: "IBM Plex Mono Nerd Font — terminal/editor font."
+    homepage: https://www.ibm.com/plex/
+    arch:
+      type: yay
+      name: ttf-ibmplex-mono-nerd
+    debian:
+      type: script
+      url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/IBMPlexMono.tar.xz
+    ubuntu:
+      type: script
+      url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/IBMPlexMono.tar.xz
+    macos:
+      type: cask
+      name: font-ibm-plex-mono-nerd-font
+
+  atkinson-hyperlegible:
+    description: "Atkinson Hyperlegible Nerd Font — high-legibility typeface."
+    homepage: https://brailleinstitute.org/freefont
+    arch:
+      type: yay
+      name: ttf-atkinson-hyperlegible-nerd
+    debian:
+      type: script
+      url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/AtkinsonHyperlegible.tar.xz
+    ubuntu:
+      type: script
+      url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/AtkinsonHyperlegible.tar.xz
+    macos:
+      type: cask
+      name: font-atkinson-hyperlegible-nerd-font
+
+gaming:
+  discord:
+    description: "Voice, video, and text chat platform."
+    homepage: https://discord.com/
+    arch:
+      type: yay
+    debian:
+      type: deb
+      url: https://stable.dl2.discordapp.net/apps/linux/0.0.96/discord-0.0.96.deb
+    ubuntu:
+      type: deb
+      url: https://stable.dl2.discordapp.net/apps/linux/0.0.96/discord-0.0.96.deb
+    macos:
+      type: cask
+
+  steam:
+    description: "Valve's digital game distribution platform."
+    homepage: https://store.steampowered.com/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+
+3d-modelling:
+  blender:
+    description: "Free and open-source 3D creation suite."
+    homepage: https://www.blender.org/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos:
+      type: cask
+
+streaming-video-production:
+  obs:
+    description: "Open Broadcaster Software — streaming and recording."
+    homepage: https://obsproject.com/
+    arch: obs-studio
+    debian: obs-studio
+    ubuntu: obs-studio
+    macos:
+      type: cask
+
+  da-vinci-resolve:
+    description: "Professional video editing, colour grading, and audio post."
+    homepage: https://www.blackmagicdesign.com/products/davinciresolve
+    arch:
+      type: yay
+      name: davinci-resolve
+
+development:
+  ansible:
+    description: "Agentless IT automation platform."
+    homepage: https://www.ansible.com/
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  aws-cli:
+    description: "Amazon Web Services unified command-line interface."
+    homepage: https://aws.amazon.com/cli/
+    arch: ~
+    macos: awscli
+
+  docker:
+    description: "Container platform — engine + CLI."
+    homepage: https://www.docker.com/
+    arch: ~
+    debian: docker.io
+    ubuntu: docker.io
+    macos:
+      type: cask
+
+  golang:
+    description: "Go programming language and standard toolchain."
+    homepage: https://go.dev/
+    arch: go
+    debian: golang
+    ubuntu: golang
+    macos: go
+
+  helm:
+    description: "Kubernetes package manager."
+    homepage: https://helm.sh/
+    arch: ~
+    debian:
+      type: apt-repo
+      setup: |
+        curl https://baltocdn.com/helm/signing.asc | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      setup: |
+        curl https://baltocdn.com/helm/signing.asc | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt update
+    macos: ~
+
+  kubectl:
+    description: "Kubernetes command-line tool."
+    homepage: https://kubernetes.io/docs/reference/kubectl/
+    arch: ~
+    debian:
+      type: apt-repo
+      setup: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      setup: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt update
+    macos: ~
+
+  kubectx:
+    description: "Faster way to switch between Kubernetes clusters and namespaces."
+    homepage: https://github.com/ahmetb/kubectx
+    arch: ~
+    macos: ~
+
+  libpq:
+    description: "PostgreSQL client libraries and psql CLI."
+    homepage: https://www.postgresql.org/
+    arch: postgresql
+    debian: postgresql-client
+    ubuntu: postgresql-client
+    macos: postgresql@16
+
+  python:
+    description: "Python programming language runtime."
+    homepage: https://www.python.org/
+    arch: ~
+    debian: python3
+    ubuntu: python3
+    macos: python@3.12
+
+  terraform:
+    description: "Infrastructure as Code tool by HashiCorp."
+    homepage: https://www.terraform.io/
+    arch: ~
+    macos: ~
+
+  uv:
+    description: "Extremely fast Python package and project manager."
+    homepage: https://github.com/astral-sh/uv
+    arch: ~
+    debian:
+      type: script
+      url: https://astral.sh/uv/install.sh
+    ubuntu:
+      type: script
+      url: https://astral.sh/uv/install.sh
+    macos: ~
+
+  bash:
+    description: "GNU Bourne Again Shell (updated version over system default)."
+    homepage: https://www.gnu.org/software/bash/
+    arch: ~
+    macos: ~
+
+  lua:
+    description: "Lightweight, embeddable scripting language."
+    homepage: https://www.lua.org/
+    arch: ~
+    debian: lua5.4
+    ubuntu: lua5.4
+    macos: ~
+
+  vscode:
+    description: "Visual Studio Code — source code editor by Microsoft."
+    homepage: https://code.visualstudio.com/
+    arch:
+      type: yay
+      name: visual-studio-code-bin
+    debian:
+      type: deb
+      url: https://vscode.download.prss.microsoft.com/dbazure/download/stable/258e40fedc6cb8edf399a463ce3a9d32e7e1f6f3/code_1.100.3-1748872405_amd64.deb
+    ubuntu:
+      type: deb
+      url: https://vscode.download.prss.microsoft.com/dbazure/download/stable/258e40fedc6cb8edf399a463ce3a9d32e7e1f6f3/code_1.100.3-1748872405_amd64.deb
+    macos:
+      type: cask
+      name: visual-studio-code
+
+  nvtop:
+    description: "GPU process monitor (htop for NVIDIA/AMD/Intel GPUs)."
+    homepage: https://github.com/Syllo/nvtop
+    arch: ~
+    debian: ~
+    ubuntu: ~
+
+work:
+  granted:
+    description: "Multi-account AWS role switcher (Common Fate)."
+    homepage: https://docs.commonfate.io/granted/introduction
+    arch:
+      type: yay
+      name: granted-bin
+    macos:
+      type: tap
+      tap: common-fate/granted
+
+  jfrog:
+    description: "JFrog CLI for interacting with JFrog Platform services."
+    homepage: https://jfrog.com/getcli/
+    arch:
+      type: yay
+      name: jfrog-cli-bin
+    debian:
+      type: script
+      url: https://getcli.jfrog.io
+    ubuntu:
+      type: script
+      url: https://getcli.jfrog.io
+    macos:
+      type: tap
+      tap: jfrog/tap
+       name: jfrog-cli
