@@ -33,7 +33,7 @@ zinit snippet OMZL::git.zsh
 zinit snippet OMZP::ansible
 zinit snippet OMZP::archlinux
 zinit snippet OMZP::aws
-# zinit snippet OMZP::brew
+zinit snippet OMZP::brew
 zinit snippet OMZP::command-not-found
 # zinit snippet OMZP::debian
 zinit snippet OMZP::docker-compose
