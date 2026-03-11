@@ -122,6 +122,8 @@
     - [ ] [`sessionx`](https://github.com/omerxx/tmux-sessionx)
   - [ ] Work on visual clarity when paired with `neovim`
   - [ ] Always start this
+  - [ ] adjust scroll sensitivity
+  - [ ] control + click for links
 - [x] `sipcalc`
 - [x] `ripgrep`
 - [x] `grex`
