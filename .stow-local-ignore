@@ -31,3 +31,4 @@ _darcs
 ^/CLAUDE.*
 ^/os-detect.*
 ^/scripts.*
+^/packages.*
