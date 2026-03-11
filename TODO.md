@@ -1,11 +1,19 @@
 # General
-- [-] Multi OS Configuration (scripts exist, bugs fixed, testing needed)
-  - [x] MacOS (script complete)
-  - [x] Arch (script complete)
-  - [x] Debian/Ubuntu (script complete)
-  - [x] Update Alacritty config per OS
-    - [x] padding, font size, etc.
-- [ ] Default to CLI config & tools only install
+- [ ] Multi OS Configuration
+  - [ ] Test this out from scratch on
+    - [ ] Debian
+    - [ ] Ubuntu
+    - [ ] MacOS
+    - [ ] Arch
+- [ ] Default to CLI Only install
+- [ ] Centrally define colour theme/palette
+  - [ ] Source colours from this central location.
+    - [ ] `oh-my-posh`
+    - [ ] `nvim`
+    - [ ] `git`
+    - [ ] `alacritty`
+    - [ ] etc.
+- [ ] Define Optional Package lists
 - [ ] Centralise packages list so all OS installation scripts can reference the same list
   something like:
   ```python
@@ -35,7 +43,6 @@
     - Blender.
   - [ ] System Configuration
     - This stuff like reducing the grub timeout on systems that use it so there's not a 5 second wait on boot to get to the login prompt.
-
 - [ ] Test installation on all platforms
   - [ ] Arch Linux
   - [ ] Debian/Ubuntu
@@ -64,7 +71,7 @@
   - Configure this
     - [x] window hopping, running commands, and ssh'ing from one window
     - [x] Customise the theme
-    - Only use this on Debian with a Desktop Environment.
+    - [ ] Maths mode, +-*/, currency & unit conversions, etc.
 - [-] `ddccontrol`
   - Only needed for Omarchy/Debian/Ubuntu installs with a desktop environment.
   - Configure this to keep monitors at:
@@ -75,7 +82,9 @@
   - [ ] `Verify result: verify-no-match (done)` - After successfully enrolling?
 - [x] `stow`
   - Run this at the end of the install script
-    - `stow . --adopt`
+    - `stow . --adopt -t ~`
+- [-] `nvtop`
+  - Deprecate this and use the [`btop` GPU config](https://github.com/aristocratos/btop?tab=readme-ov-file#gpu-compatibility)
 - [ ] `btop`
 - [x] `fastfetch`
 - [x] `zsh`
@@ -110,12 +119,16 @@
   - [ ] Hostname ASCII Art (future enhancement)
 - [ ] `tmux`
   - [ ] Find a session manager I like
+    - [ ] [`sessionx`](https://github.com/omerxx/tmux-sessionx)
   - [ ] Work on visual clarity when paired with `neovim`
   - [ ] Always start this
+  - [ ] adjust scroll sensitivity
+  - [ ] control + click for links
 - [x] `sipcalc`
 - [x] `ripgrep`
 - [x] `grex`
 - [x] `oh-my-posh`
+- [ ] `net-tools`
   - [-] Extend theme
     - [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session)
     - [x] [Root](https://ohmyposh.dev/docs/segments/system/root)
