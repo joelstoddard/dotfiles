@@ -112,6 +112,8 @@
   - [ ] Find a session manager I like
   - [ ] Work on visual clarity when paired with `neovim`
   - [ ] Always start this
+  - [ ] adjust scroll sensitivity
+  - [ ] control + click for links
 - [x] `sipcalc`
 - [x] `ripgrep`
 - [x] `grex`
