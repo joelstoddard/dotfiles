@@ -31,11 +31,11 @@ case "$OS" in
         case "$DISTRO" in
             debian)
                 echo "Running Debian/Ubuntu installation..."
-                bash "$SCRIPT_DIR/scripts/debian-ubuntu.sh"
+                bash "$SCRIPT_DIR/scripts/debian-ubuntu.sh" "$@"
                 ;;
             arch)
                 echo "Running Arch Linux installation..."
-                bash "$SCRIPT_DIR/scripts/arch.sh"
+                bash "$SCRIPT_DIR/scripts/arch.sh" "$@"
                 ;;
             *)
                 echo "Error: Unsupported Linux distribution: $DISTRO"
@@ -46,7 +46,7 @@ case "$OS" in
         ;;
     macos)
         echo "Running macOS installation..."
-        bash "$SCRIPT_DIR/scripts/macos.sh"
+        bash "$SCRIPT_DIR/scripts/macos.sh" "$@"
         ;;
     windows)
         echo "Error: Windows is not supported by this dotfiles repository."

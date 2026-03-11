@@ -389,13 +389,13 @@ desktop:
 
   display-controls:
     description: "External monitor brightness/contrast control via DDC/CI."
-    arch: ~
+    arch: ddccontrol
     debian: ddccontrol
     ubuntu: ddccontrol
 
   fingerprint-auth:
     description: "Fingerprint reader authentication."
-    arch: ~
+    arch: fprintd
     debian: fprintd
     ubuntu: fprintd
 
@@ -651,4 +651,4 @@ work:
     macos:
       type: tap
       tap: jfrog/tap
-       name: jfrog-cli
+      name: jfrog-cli
