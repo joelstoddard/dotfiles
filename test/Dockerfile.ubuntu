@@ -1,0 +1,14 @@
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get install -y \
+    sudo git curl wget python3 python3-pip python3-venv stow
+
+RUN useradd -m -s /bin/bash testuser && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN mkdir -p /home/testuser/dotfiles-v2 && chown testuser:testuser /home/testuser/dotfiles-v2
+
+USER testuser
+WORKDIR /home/testuser/dotfiles-v2
+COPY --chown=testuser:testuser . .
+
+RUN ./install.sh --yes --skip-stow --include core
+RUN .venv/bin/python scripts/verify.py || true
