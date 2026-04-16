@@ -11,7 +11,7 @@ blocks:
     segments:
       - type: python
         style: plain
-        foreground: "#FFFFFF"
+        foreground: "#8a8a8a"
         foreground_templates:
           - "{{ if .Venv }}#FFDE57{{ end }}"
         template: " "
@@ -20,7 +20,7 @@ blocks:
           home_enabled: true
       - type: path
         style: plain
-        foreground: "#FFFFFF"
+        foreground: "#8a8a8a"
         foreground_templates:
           - "{{ if and (.Env.VIRTUAL_ENV) (eq (.Env.VIRTUAL_ENV | dir) .Pwd) }}#FFDE57{{ end }}"
         properties:
@@ -42,11 +42,11 @@ blocks:
           branch_icon: " "
       - type: root
         style: plain
-        foreground: "#FF0000"
+        foreground: "#AC4242"
         template: "❯"
 secondary_prompt:
   background: transparent
-  foreground: "#FFFFFF"
+  foreground: "#8a8a8a"
   template: "❯"
 tooltips_action: prepend
 tooltips:
