@@ -1,120 +1,30 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "=== Multi-OS Dotfiles Installation ==="
-echo ""
-
-# Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Source OS detection
-source "$SCRIPT_DIR/os-detect.sh"
-
-echo "Detected environment:"
-echo "  OS: $OS"
-echo "  Distro: $DISTRO"
-echo "  Package Manager: $PKG_MANAGER"
-echo "  GUI Available: $HAS_GUI"
-echo ""
-
-# Confirm with user
-read -p "Continue installation? [y/N] " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Installation cancelled."
-    exit 0
-fi
-
-# Route to OS-specific script
-case "$OS" in
-    linux)
-        case "$DISTRO" in
-            debian)
-                echo "Running Debian/Ubuntu installation..."
-                bash "$SCRIPT_DIR/scripts/debian-ubuntu.sh"
-                ;;
-            arch)
-                echo "Running Arch Linux installation..."
-                bash "$SCRIPT_DIR/scripts/arch.sh"
-                ;;
-            *)
-                echo "Error: Unsupported Linux distribution: $DISTRO"
-                echo "Supported: Debian, Ubuntu, Arch Linux"
-                exit 1
-                ;;
-        esac
-        ;;
-    macos)
-        echo "Running macOS installation..."
-        bash "$SCRIPT_DIR/scripts/macos.sh"
-        ;;
-    windows)
-        echo "Error: Windows is not supported by this dotfiles repository."
-        echo ""
-        echo "GNU Stow and POSIX shell scripts are incompatible with Windows."
-        echo "Consider using a Windows-specific dotfiles solution:"
-        echo "  - chezmoi (https://www.chezmoi.io/)"
-        echo "  - PowerShell dotfiles with New-Item -ItemType SymbolicLink"
-        echo "  - yadm (https://yadm.io/)"
+# Bootstrap Python 3
+if ! command -v python3 &>/dev/null; then
+    echo "Python 3 not found. Installing..."
+    if command -v apt &>/dev/null; then
+        sudo apt update && sudo apt install -y python3 python3-pip python3-venv
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --noconfirm python python-pip
+    elif command -v brew &>/dev/null; then
+        brew install python
+    else
+        echo "Error: Cannot install Python 3. Install it manually." >&2
         exit 1
-        ;;
-    *)
-        echo "Error: Unsupported operating system: $OS"
-        exit 1
-        ;;
-esac
-
-# Common post-installation
-echo ""
-echo "=== Configuring dotfiles with GNU Stow ==="
-
-# Remove conflicting Omarchy configs on Arch
-if [[ "$OS" == "linux" && "$DISTRO" == "arch" && -d "$HOME/.config/omarchy" ]]; then
-    echo "Removing conflicting Omarchy configuration files..."
-    rm -f "$HOME/.config/alacritty/alacritty.toml"
-    rm -f "$HOME/.config/git/config"
-    rm -rf "$HOME/.config/nvim/"
+    fi
 fi
 
-# Stow all configurations
-cd "$SCRIPT_DIR"
-
-# Conditionally ignore rofi on non-Linux or non-GUI systems
-if [[ "$OS" != "linux" || "$HAS_GUI" != "yes" ]]; then
-    echo "Skipping rofi (Linux GUI-only tool)..."
-    echo "^/.config/rofi" >> .stow-local-ignore.tmp
-    stow . --adopt -t "$HOME" --ignore=".stow-local-ignore.tmp"
-    rm -f .stow-local-ignore.tmp
-else
-    stow . --adopt -t "$HOME"
+# Set up virtual environment and install dependencies
+VENV_DIR="$SCRIPT_DIR/.venv"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv "$VENV_DIR"
 fi
 
-# Configure OS-specific Alacritty settings
-echo "Configuring Alacritty for $OS..."
-ALACRITTY_DIR="$HOME/.config/alacritty"
-case "$OS" in
-    macos)
-        ln -sf "macos.toml" "$ALACRITTY_DIR/os.toml"
-        ;;
-    linux)
-        case "$DISTRO" in
-            arch)
-                ln -sf "arch.toml" "$ALACRITTY_DIR/os.toml"
-                ;;
-            *)
-                ln -sf "linux.toml" "$ALACRITTY_DIR/os.toml"
-                ;;
-        esac
-        ;;
-esac
-echo "Alacritty configured: os.toml -> $(readlink "$ALACRITTY_DIR/os.toml")"
+"$VENV_DIR/bin/pip" install --quiet pyyaml 2>/dev/null
 
-echo ""
-echo "=== Installation complete! ==="
-echo ""
-echo "Next steps:"
-echo "  1. Restart your shell or run: source ~/.zshrc"
-echo "  2. Verify oh-my-posh prompt displays correctly"
-echo "  3. Open a new terminal to test Alacritty configuration"
-echo ""
-echo "Note: Check TODO.md for remaining manual configuration tasks."
+exec "$VENV_DIR/bin/python" "$SCRIPT_DIR/scripts/install.py" "$@"
