@@ -1,0 +1,30 @@
+name: ash-plus
+
+# Ash monochrome base — terminal surfaces, ANSI defaults, "ambient" text.
+# Vivid colors are reserved for tool signals (accent / semantic).
+base:
+  bg:        "#121212"
+  bg-soft:   "#1a1a1a"
+  fg:        "#e0e0e0"
+  fg-bright: "#ffffff"
+  muted:     "#8a8a8a"
+  dim:       "#626262"
+
+accent:
+  orange:    "#F79625"
+  yellow:    "#FFDE57"
+  green:     "#90A959"
+  red:       "#AC4242"
+  blue:      "#326CE5"
+  purple:    "#AA759F"
+
+semantic:
+  git:       "#F79625"
+  python:    "#FFDE57"
+  error:     "#AC4242"
+  success:   "#90A959"
+  info:      "#326CE5"
+  aws:       "#FFA400"
+  docker:    "#0B59E7"
+  k8s:       "#326CE5"
+  terraform: "#EBCC34"

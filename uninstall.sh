@@ -1,38 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 
-# Remove any .deb packages
-sudo rm -f /tmp/*.deb
-sudo rm -f /tmp/*.zip
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Remove apt packages
-sudo apt purge -y \
-firefox \
-spotify-client \
-zsh \
-stow \
-rofi \
-ddccontrol \
-gddccontrol \
-ddccontrol-db \
-i2c-tools \
-nvtop \
-fastfetch
+VENV_DIR="$SCRIPT_DIR/.venv"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Virtual environment not found. Run install.sh first." >&2
+    exit 1
+fi
 
-# Remove apt repositories and keys
-
-## Firefox
-sudo rm /etc/apt/preferences.d/mozilla /etc/apt/sources.list.d/mozilla.list /etc/apt/keyrings/packages.mozilla.org.asc
-
-## Spotify
-sudo rm /etc/apt/trusted.gpg.d/spotify.gpg /etc/apt/sources.list.d/spotify.list
-
-# Remove prerequisites
-sudo apt purge -y \
-wget \
-curl \
-git \
-stow \
-zsh \
-vim
-sudo apt autoremove -y
-sudo apt autoclean -y
+exec "$VENV_DIR/bin/python" "$SCRIPT_DIR/scripts/uninstall.py" "$@"

@@ -1,5 +1,8 @@
 [general]
-import = ["~/.config/alacritty/os.toml"]
+import = [
+    "~/.config/alacritty/os.toml",
+    "~/.config/alacritty/colors.toml",
+]
 
 [env]
 TERM = "xterm-256color"
@@ -22,6 +25,3 @@ bindings = [
     { mouse = "Right", mods = "Shift", action = "Paste" },
     { mouse = "Right", action = "Copy" }
 ]
-
-[terminal]
-shell = "/bin/zsh"

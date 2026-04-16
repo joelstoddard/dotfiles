@@ -1,87 +1,60 @@
-# Set up the prompt
+# ============================================================================
+# Environment
+# ============================================================================
+typeset -U path
 
-# If we're on Omarchy, Inherit Omarchy Defaults
-# Improved selection logic: check if brew exists (macOS), if not we might be on Omarchy
+# Omarchy defaults (Arch Linux)
 if [[ ! -f "/opt/homebrew/bin/brew" ]] && [[ -f "$HOME/.local/share/../bin/env" ]]; then
-  . "$HOME/.local/share/../bin/env"
+    . "$HOME/.local/share/../bin/env"
 fi
 
+# Homebrew (macOS)
 if [[ -f "/opt/homebrew/bin/brew" ]]; then
-  # If you're using macOS, you'll want this enabled
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Set the directory we want to store zinit and plugins
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+# Cargo
+[[ -d "$HOME/.cargo/bin" ]] && path=("$HOME/.cargo/bin" $path)
 
-# Download Zinit, if it's not there yet
-if [ ! -d "$ZINIT_HOME" ]; then
-  mkdir -p "$(dirname $ZINIT_HOME)"
-  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-fi
+# Local bin
+path=("$HOME/.local/bin" $path)
 
-# ZSH assumes incorrect config path without this.
-export ZSH_TMUX_FIXTERM=false
+# ============================================================================
+# Completions
+# ============================================================================
+ZSH_PLUGINS="$HOME/.local/share/zsh/plugins"
 
-# Source/Load zinit
-source "${ZINIT_HOME}/zinit.zsh"
+# zsh-completions
+[[ -d "$ZSH_PLUGINS/zsh-completions/src" ]] && fpath=("$ZSH_PLUGINS/zsh-completions/src" $fpath)
 
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
+# zsh-autosuggestions
+[[ -f "$ZSH_PLUGINS/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
+    source "$ZSH_PLUGINS/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-zinit snippet OMZL::git.zsh
-zinit snippet OMZP::ansible
-zinit snippet OMZP::archlinux
-zinit snippet OMZP::aws
-zinit snippet OMZP::brew
-zinit snippet OMZP::command-not-found
-# zinit snippet OMZP::debian
-zinit snippet OMZP::docker-compose
-zinit snippet OMZP::docker
-zinit snippet OMZP::eza
-zinit snippet OMZP::fzf
-zinit snippet OMZP::gh
-zinit snippet OMZP::git
-zinit snippet OMZP::golang
-zinit snippet OMZP::gpg-agent
-zinit snippet OMZP::helm
-zinit snippet OMZP::kubectl
-zinit snippet OMZP::kubectx
-zinit snippet OMZP::localstack
-zinit snippet OMZP::postgres
-zinit snippet OMZP::python
-# zinit snippet OMZP::redis-cli
-zinit snippet OMZP::rsync
-zinit snippet OMZP::ssh
-zinit snippet OMZP::sudo
-zinit snippet OMZP::systemd
-zinit snippet OMZP::tailscale
-zinit snippet OMZP::terraform
-zinit snippet OMZP::tldr
-zinit snippet OMZP::tmux
-zinit snippet OMZP::uv
+# Generated tool completions
+[[ -d "$HOME/.local/share/zsh/completions" ]] && fpath=("$HOME/.local/share/zsh/completions" $fpath)
 
-# Docker completions (OS-aware path)
-if [[ -d "${HOME}/.docker/completions" ]]; then
-  fpath=("${HOME}/.docker/completions" $fpath)
-fi
+# Docker completions
+[[ -d "$HOME/.docker/completions" ]] && fpath=("$HOME/.docker/completions" $fpath)
 
 autoload -Uz compinit && compinit
-zinit cdreplay -q
+# Suppress insecure directory warnings
+compinit -u 2>/dev/null
 
-# Alias Ctrl+Backspace to Ctrl+W
-bindkey '^[[3;5~' backward-kill-word
-# Navigate words with Ctrl+Left/Right
-bindkey '^[[1;5D' backward-word
-bindkey '^[[1;5C' forward-word
+# ============================================================================
+# Key Bindings
+# ============================================================================
+bindkey '^[[3;5~' backward-kill-word     # Ctrl+Backspace
+bindkey '^[[1;5D' backward-word          # Ctrl+Left
+bindkey '^[[1;5C' forward-word           # Ctrl+Right
 
-# Aliases :(
-if command -v eza &> /dev/null; then
-    alias ls='eza -lh --group-directories-first --icons=auto'
-    alias lsa='ls -a'
-    alias lt='eza --tree --level=2 --long --icons --git'
-    alias lta='lt -a'
-fi
+# ============================================================================
+# History
+# ============================================================================
+HISTSIZE=1000
+SAVEHIST=$HISTSIZE
+HISTFILE=~/.zsh_history
+HISTDUP=erase
 
 setopt appendhistory
 setopt sharehistory
@@ -91,48 +64,91 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
-HISTSIZE=1000
-SAVEHIST=$HISTSIZE
-HISTFILE=~/.zsh_history
-HISTDUP=erase
-
-# Cargo configuration
-export PATH=$PATH:$HOME/.cargo/bin
-
-# oh-my-posh configuration
-export PATH=$PATH:$HOME/.local/bin
-
-# Docker configuration
-export PATH=$PATH:/usr/local/bin
-
-# MacOS configuration
-if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.yaml)"
+# ============================================================================
+# Aliases
+# ============================================================================
+if command -v eza &>/dev/null; then
+    alias ls='eza -lh --group-directories-first --icons=auto'
+    alias lsa='ls -a'
+    alias lt='eza --tree --level=2 --long --icons --git'
+    alias lta='lt -a'
 fi
 
-# GPG configuration
+# ============================================================================
+# Tool Init
+# ============================================================================
+
+# oh-my-posh
+if command -v oh-my-posh &>/dev/null && [[ "$TERM_PROGRAM" != "Apple_Terminal" ]]; then
+    eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/theme.yaml)"
+fi
+
+# GPG
 export GPG_TTY=$(tty)
 
-# NodeJS/NVM configuration
+# NVM (lazy loaded — only sources when nvm/node/npm/npx is first called)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# JFrog CLI configuration
-_jfrog() {
-	local -a opts
-	opts=("${(@f)$(_CLI_ZSH_AUTOCOMPLETE_HACK=1 ${words[@]:0:#words[@]-1} --generate-bash-completion)}")
-	_describe 'values' opts
-	if [[ $compstate[nmatches] -eq 0 && $words[$CURRENT] != -* ]]; then
-		_files
-	fi
-}
-
-compdef _jfrog jfrog
-compdef _jfrog jf
-
-# PostgreSQL Client (macOS only)
-if [[ "$(uname -s)" == "Darwin" ]] && [[ -d "/opt/homebrew/opt/libpq@16/bin" ]]; then
-  export PATH="/opt/homebrew/opt/libpq@16/bin:$PATH"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    _lazy_nvm() {
+        unfunction nvm node npm npx 2>/dev/null
+        . "$NVM_DIR/nvm.sh"
+        [[ -s "$NVM_DIR/bash_completion" ]] && . "$NVM_DIR/bash_completion"
+    }
+    nvm()  { _lazy_nvm; nvm  "$@" }
+    node() { _lazy_nvm; node "$@" }
+    npm()  { _lazy_nvm; npm  "$@" }
+    npx()  { _lazy_nvm; npx  "$@" }
 fi
+
+# PostgreSQL client (macOS)
+if [[ "$(uname -s)" == "Darwin" ]] && [[ -d "/opt/homebrew/opt/libpq@16/bin" ]]; then
+    path=("/opt/homebrew/opt/libpq@16/bin" $path)
+fi
+
+# JFrog CLI completion
+if command -v jfrog &>/dev/null; then
+    _jfrog() {
+        local -a opts
+        opts=("${(@f)$(_CLI_ZSH_AUTOCOMPLETE_HACK=1 ${words[@]:0:#words[@]-1} --generate-bash-completion)}")
+        _describe 'values' opts
+        if [[ $compstate[nmatches] -eq 0 && $words[$CURRENT] != -* ]]; then
+            _files
+        fi
+    }
+    compdef _jfrog jfrog
+    compdef _jfrog jf
+fi
+
+# ZSH tmux plugin compat
+export ZSH_TMUX_FIXTERM=false
+
+# ============================================================================
+# Shell Integrations
+# ============================================================================
+
+# fzf key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd) + completion
+if command -v fzf &>/dev/null; then
+    source <(fzf --zsh)
+fi
+
+# command-not-found — suggest installable packages when a command is missing
+# Debian/Ubuntu ship /etc/zsh_command_not_found; Arch provides it via pkgfile
+for f in /etc/zsh_command_not_found /usr/share/doc/pkgfile/command-not-found.zsh; do
+    [[ -r "$f" ]] && source "$f" && break
+done
+
+# AWS CLI tab completion via the official aws_completer (bash-style, needs bashcompinit)
+if command -v aws_completer &>/dev/null; then
+    autoload -U +X bashcompinit && bashcompinit
+    complete -C "$(command -v aws_completer)" aws
+fi
+
+# List configured AWS profiles (helper function, not an alias)
+aws_profiles() {
+    grep -h -Eo '\[(profile[[:space:]]+)?[^]]+\]' \
+        "${AWS_CONFIG_FILE:-$HOME/.aws/config}" \
+        "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" 2>/dev/null \
+        | sed -E 's/^\[(profile[[:space:]]+)?//; s/\]$//' \
+        | grep -v '^granted_registry_' \
+        | sort -u
+}

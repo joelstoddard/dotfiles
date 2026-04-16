@@ -1,0 +1,606 @@
+core:
+  wget:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  curl:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  git:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  stow:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  zsh:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  tmux:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  neovim:
+    arch: ~
+    debian:
+      type: github-release
+      repo: neovim/neovim
+      asset: "nvim-linux-x86_64.tar.gz"
+      install: "sudo tar -xzf {asset} --strip-components=1 --overwrite -C /usr"
+    ubuntu:
+      type: github-release
+      repo: neovim/neovim
+      asset: "nvim-linux-x86_64.tar.gz"
+      install: "sudo tar -xzf {asset} --strip-components=1 --overwrite -C /usr"
+    macos: ~
+
+  jq:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  yq:
+    arch: ~
+    macos: ~
+
+  ripgrep:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  grex:
+    arch:
+      type: yay
+    macos: ~
+
+  fzf:
+    arch: ~
+    debian:
+      type: github-release
+      repo: junegunn/fzf
+      asset: "fzf-*-linux_amd64.tar.gz"
+      install: "sudo tar -xzf {asset} -C /usr/local/bin"
+    ubuntu:
+      type: github-release
+      repo: junegunn/fzf
+      asset: "fzf-*-linux_amd64.tar.gz"
+      install: "sudo tar -xzf {asset} -C /usr/local/bin"
+    macos: ~
+
+  cmake:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  gnupg:
+    arch: ~
+    debian: gpg
+    ubuntu: gpg
+    macos: ~
+
+  unzip:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  rsync:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  tldr:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  btop:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  fastfetch:
+    arch: ~
+    debian:
+      type: github-release
+      repo: fastfetch-cli/fastfetch
+      asset: "fastfetch-linux-amd64.deb"
+    ubuntu:
+      type: github-release
+      repo: fastfetch-cli/fastfetch
+      asset: "fastfetch-linux-amd64.deb"
+    macos: ~
+
+  sipcalc:
+    arch:
+      type: yay
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  net-tools:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+
+  ttl:
+    check: "test -x $HOME/.local/bin/ttl || test -x /usr/local/bin/ttl"
+    arch:
+      type: github-release
+      repo: lance0/ttl
+      asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
+    debian:
+      type: github-release
+      repo: lance0/ttl
+      asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
+    ubuntu:
+      type: github-release
+      repo: lance0/ttl
+      asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
+    macos:
+      type: github-release
+      repo: lance0/ttl
+      asset: "ttl-aarch64-apple-darwin.tar.gz"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
+
+  oh-my-posh:
+    check: "oh-my-posh version"
+    arch:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    debian:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    ubuntu:
+      type: script
+      url: https://ohmyposh.dev/install.sh
+    macos:
+      type: tap
+      tap: jandedobbeleer/oh-my-posh
+      name: oh-my-posh
+
+  bitwarden-cli:
+    check: "bw --version"
+    arch:
+      type: yay
+      name: bitwarden-cli
+    macos: ~
+
+  tailscale:
+    arch: ~
+    debian:
+      type: script
+      url: https://tailscale.com/install.sh
+    ubuntu:
+      type: script
+      url: https://tailscale.com/install.sh
+    macos:
+      type: cask
+
+  claude-code:
+    check: "test -x $HOME/.local/bin/claude"
+    arch:
+      type: script
+      url: https://claude.ai/install.sh
+    debian:
+      type: script
+      url: https://claude.ai/install.sh
+    ubuntu:
+      type: script
+      url: https://claude.ai/install.sh
+    macos:
+      type: script
+      url: https://claude.ai/install.sh
+
+  eza:
+    arch: ~
+    debian:
+      type: apt-repo
+      name: eza
+      setup: |
+        curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: eza
+      setup: |
+        curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+    macos: ~
+
+  nvm:
+    check: "test -d $HOME/.nvm"
+    arch:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    debian:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    ubuntu:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+    macos:
+      type: script
+      url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+
+  rust:
+    check: "cargo --version"
+    arch:
+      type: script
+      url: https://sh.rustup.rs
+    debian:
+      type: script
+      url: https://sh.rustup.rs
+    ubuntu:
+      type: script
+      url: https://sh.rustup.rs
+    macos:
+      type: script
+      url: https://sh.rustup.rs
+
+desktop:
+  firefox:
+    arch: ~
+    debian:
+      type: apt-repo
+      name: firefox
+      setup: |
+        sudo install -d -m 0755 /etc/apt/keyrings
+        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: firefox
+      setup: |
+        sudo install -d -m 0755 /etc/apt/keyrings
+        wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee /etc/apt/sources.list.d/mozilla.list
+        sudo apt update
+    macos:
+      type: cask
+
+  bitwarden:
+    check: "test -d /Applications/Bitwarden.app || dpkg -l bitwarden 2>/dev/null | grep -q ^ii"
+    arch: ~
+    debian:
+      type: github-release
+      repo: bitwarden/clients
+      asset: "Bitwarden-*-amd64.deb"
+    ubuntu:
+      type: github-release
+      repo: bitwarden/clients
+      asset: "Bitwarden-*-amd64.deb"
+    macos:
+      type: cask
+
+  notion:
+    arch:
+      type: yay
+      name: notion-app
+    macos:
+      type: cask
+
+  spotify:
+    arch:
+      type: yay
+    debian:
+      type: apt-repo
+      name: spotify-client
+      setup: |
+        curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/spotify.gpg
+        echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: spotify-client
+      setup: |
+        curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/spotify.gpg
+        echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+        sudo apt update
+    macos:
+      type: cask
+
+  alacritty:
+    arch: ~
+    debian:
+      type: cargo
+    ubuntu:
+      type: cargo
+    macos:
+      type: cask
+
+  raycast:
+    macos:
+      type: cask
+
+  linearmouse:
+    macos:
+      type: cask
+
+  rofi:
+    debian: ~
+    ubuntu: ~
+
+  ibm-plex-mono:
+    check: "fc-list | grep -qi 'BlexMono Nerd Font' || test -d /Users/*/Library/Fonts/BlexMono*"
+    arch:
+      type: yay
+      name: ttf-ibmplex-mono-nerd
+    debian:
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "IBMPlexMono.tar.xz"
+      install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
+    ubuntu:
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "IBMPlexMono.tar.xz"
+      install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
+    macos:
+      type: cask
+      name: font-blex-mono-nerd-font
+
+  atkinson-hyperlegible:
+    check: "fc-list | grep -qi 'Atkinson Hyperlegible' || test -d /Users/*/Library/Fonts/Atkinson*"
+    arch:
+      type: yay
+      name: ttf-atkinson-hyperlegible-nerd
+    debian:
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "AtkinsonHyperlegibleMono.tar.xz"
+      install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
+    ubuntu:
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "AtkinsonHyperlegibleMono.tar.xz"
+      install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
+    macos:
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "AtkinsonHyperlegibleMono.tar.xz"
+      install: "mkdir -p $HOME/Library/Fonts && tar -xJf {asset} -C $HOME/Library/Fonts"
+
+gaming:
+  discord:
+    arch:
+      type: yay
+    debian:
+      type: github-release
+      repo: discord/discord
+      asset: "discord-*.deb"
+    ubuntu:
+      type: github-release
+      repo: discord/discord
+      asset: "discord-*.deb"
+    macos:
+      type: cask
+
+  steam:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+
+3d-modelling:
+  blender:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos:
+      type: cask
+
+streaming-video-production:
+  obs:
+    arch: obs-studio
+    debian: obs-studio
+    ubuntu: obs-studio
+    macos:
+      type: cask
+
+  da-vinci-resolve:
+    arch:
+      type: yay
+      name: davinci-resolve
+
+development:
+  ansible:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  aws-cli:
+    check: "aws --version"
+    arch: ~
+    macos: awscli
+
+  docker:
+    check: "docker --version"
+    arch: ~
+    debian: docker.io
+    ubuntu: docker.io
+    macos: ~
+
+  colima:
+    check: "colima version"
+    macos: ~
+
+  golang:
+    check: "go version"
+    arch: go
+    debian: golang
+    ubuntu: golang
+    macos: go
+
+  helm:
+    arch: ~
+    debian:
+      type: apt-repo
+      name: helm
+      setup: |
+        curl https://baltocdn.com/helm/signing.asc | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: helm
+      setup: |
+        curl https://baltocdn.com/helm/signing.asc | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+        sudo apt update
+    macos: ~
+
+  kubectl:
+    arch: ~
+    debian:
+      type: apt-repo
+      name: kubectl
+      setup: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: kubectl
+      setup: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt update
+    macos: ~
+
+  kubectx:
+    arch: ~
+    macos: ~
+
+  gh:
+    arch: ~
+    debian: gh
+    ubuntu: gh
+    macos: ~
+
+  libpq:
+    check: "psql --version"
+    arch: postgresql
+    debian: postgresql-client
+    ubuntu: postgresql-client
+    macos: postgresql@16
+
+  librdkafka:
+    macos: ~
+
+  python:
+    check: "python3 --version"
+    arch: ~
+    debian: python3
+    ubuntu: python3
+    macos: python@3.12
+
+  terraform:
+    arch: ~
+    macos: ~
+
+  uv:
+    arch: ~
+    debian:
+      type: script
+      url: https://astral.sh/uv/install.sh
+    ubuntu:
+      type: script
+      url: https://astral.sh/uv/install.sh
+    macos: ~
+
+  bash:
+    arch: ~
+    macos: ~
+
+  lua:
+    arch: ~
+    debian: lua5.4
+    ubuntu: lua5.4
+    macos: ~
+
+  vscode:
+    check: "code --version"
+    arch:
+      type: yay
+      name: visual-studio-code-bin
+    debian:
+      type: apt-repo
+      name: code
+      setup: |
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+        sudo install -D -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+        rm -f /tmp/packages.microsoft.gpg
+        sudo apt update
+    ubuntu:
+      type: apt-repo
+      name: code
+      setup: |
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+        sudo install -D -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+        rm -f /tmp/packages.microsoft.gpg
+        sudo apt update
+    macos:
+      type: cask
+      name: visual-studio-code
+
+work:
+  granted:
+    check: "assume --version"
+    arch:
+      type: yay
+      name: granted-bin
+    macos:
+      type: tap
+      tap: common-fate/granted
+      name: granted
+
+  awscurl:
+    macos: ~
+
+  jfrog:
+    check: "jf --version"
+    arch:
+      type: yay
+      name: jfrog-cli-bin
+    debian:
+      type: script
+      url: https://getcli.jfrog.io
+    ubuntu:
+      type: script
+      url: https://getcli.jfrog.io
+    macos:
+      type: tap
+      tap: jfrog/tap
+      name: jfrog-cli
