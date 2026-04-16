@@ -2,33 +2,33 @@
 # Regenerate with: make generate-theme
 
 [colors.primary]
-background = "#282828"
-foreground = "#ebdbb2"
+background = "#121212"
+foreground = "#e0e0e0"
 
 [colors.cursor]
-cursor = "#ebdbb2"
-text = "#282828"
+cursor = "#e0e0e0"
+text = "#121212"
 
 [colors.selection]
-background = "#32302f"
-foreground = "#fbf1c7"
+background = "#1a1a1a"
+foreground = "#ffffff"
 
 [colors.normal]
-black   = "#282828"
-red     = "#AC4242"
-green   = "#90A959"
-yellow  = "#F79625"
-blue    = "#326CE5"
-magenta = "#AA759F"
-cyan    = "#a89984"
-white   = "#ebdbb2"
+black   = "#121212"
+red     = "#8a8a8a"
+green   = "#626262"
+yellow  = "#8a8a8a"
+blue    = "#626262"
+magenta = "#8a8a8a"
+cyan    = "#626262"
+white   = "#e0e0e0"
 
 [colors.bright]
-black   = "#a89984"
-red     = "#AC4242"
-green   = "#90A959"
-yellow  = "#FFDE57"
-blue    = "#326CE5"
-magenta = "#AA759F"
-cyan    = "#ebdbb2"
-white   = "#fbf1c7"
+black   = "#8a8a8a"
+red     = "#e0e0e0"
+green   = "#626262"
+yellow  = "#e0e0e0"
+blue    = "#626262"
+magenta = "#8a8a8a"
+cyan    = "#e0e0e0"
+white   = "#ffffff"

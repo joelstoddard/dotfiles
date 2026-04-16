@@ -35,45 +35,49 @@ def flatten_palette(palette: dict) -> dict[str, str]:
 
 
 def generate_alacritty_colors(palette: dict) -> str:
-    """Generate Alacritty TOML color scheme."""
+    """Generate Alacritty TOML color scheme.
+
+    ANSI palette is intentionally monochrome (ash-style). Tools that want
+    color signals (git, oh-my-posh segments, etc.) override via explicit
+    hex in their own configs — the terminal's default palette stays quiet.
+    """
     base = palette.get("base", {})
-    accent = palette.get("accent", {})
 
     return f"""\
 # Generated from theme/palette.yaml — do not edit manually
 # Regenerate with: make generate-theme
 
 [colors.primary]
-background = "{base.get('bg', '#282828')}"
-foreground = "{base.get('fg', '#ebdbb2')}"
+background = "{base.get('bg', '#121212')}"
+foreground = "{base.get('fg', '#e0e0e0')}"
 
 [colors.cursor]
-cursor = "{base.get('fg', '#ebdbb2')}"
-text = "{base.get('bg', '#282828')}"
+cursor = "{base.get('fg', '#e0e0e0')}"
+text = "{base.get('bg', '#121212')}"
 
 [colors.selection]
-background = "{base.get('bg-soft', '#32302f')}"
-foreground = "{base.get('fg-bright', '#fbf1c7')}"
+background = "{base.get('bg-soft', '#1a1a1a')}"
+foreground = "{base.get('fg-bright', '#ffffff')}"
 
 [colors.normal]
-black   = "{base.get('bg', '#282828')}"
-red     = "{accent.get('red', '#AC4242')}"
-green   = "{accent.get('green', '#90A959')}"
-yellow  = "{accent.get('orange', '#F79625')}"
-blue    = "{accent.get('blue', '#326CE5')}"
-magenta = "{accent.get('purple', '#AA759F')}"
-cyan    = "{base.get('muted', '#a89984')}"
-white   = "{base.get('fg', '#ebdbb2')}"
+black   = "{base.get('bg', '#121212')}"
+red     = "{base.get('muted', '#8a8a8a')}"
+green   = "{base.get('dim', '#626262')}"
+yellow  = "{base.get('muted', '#8a8a8a')}"
+blue    = "{base.get('dim', '#626262')}"
+magenta = "{base.get('muted', '#8a8a8a')}"
+cyan    = "{base.get('dim', '#626262')}"
+white   = "{base.get('fg', '#e0e0e0')}"
 
 [colors.bright]
-black   = "{base.get('muted', '#a89984')}"
-red     = "{accent.get('red', '#AC4242')}"
-green   = "{accent.get('green', '#90A959')}"
-yellow  = "{accent.get('yellow', '#FFDE57')}"
-blue    = "{accent.get('blue', '#326CE5')}"
-magenta = "{accent.get('purple', '#AA759F')}"
-cyan    = "{base.get('fg', '#ebdbb2')}"
-white   = "{base.get('fg-bright', '#fbf1c7')}"
+black   = "{base.get('muted', '#8a8a8a')}"
+red     = "{base.get('fg', '#e0e0e0')}"
+green   = "{base.get('dim', '#626262')}"
+yellow  = "{base.get('fg', '#e0e0e0')}"
+blue    = "{base.get('dim', '#626262')}"
+magenta = "{base.get('muted', '#8a8a8a')}"
+cyan    = "{base.get('fg', '#e0e0e0')}"
+white   = "{base.get('fg-bright', '#ffffff')}"
 """
 
 

@@ -1,11 +1,14 @@
-name: joel
+name: ash-plus
 
+# Ash monochrome base — terminal surfaces, ANSI defaults, "ambient" text.
+# Vivid colors are reserved for tool signals (accent / semantic).
 base:
-  bg:        "#282828"
-  bg-soft:   "#32302f"
-  fg:        "#ebdbb2"
-  fg-bright: "#fbf1c7"
-  muted:     "#a89984"
+  bg:        "#121212"
+  bg-soft:   "#1a1a1a"
+  fg:        "#e0e0e0"
+  fg-bright: "#ffffff"
+  muted:     "#8a8a8a"
+  dim:       "#626262"
 
 accent:
   orange:    "#F79625"
