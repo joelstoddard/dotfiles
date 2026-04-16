@@ -145,27 +145,27 @@ core:
     ubuntu: ~
 
   ttl:
-    check: "test -x /usr/local/bin/ttl"
+    check: "test -x $HOME/.local/bin/ttl || test -x /usr/local/bin/ttl"
     arch:
       type: github-release
       repo: lance0/ttl
       asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
-      install: "mkdir -p /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && sudo install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) /usr/local/bin/ttl && rm -rf /tmp/ttl-unpack"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
     debian:
       type: github-release
       repo: lance0/ttl
       asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
-      install: "mkdir -p /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && sudo install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) /usr/local/bin/ttl && rm -rf /tmp/ttl-unpack"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
     ubuntu:
       type: github-release
       repo: lance0/ttl
       asset: "ttl-x86_64-unknown-linux-musl.tar.gz"
-      install: "mkdir -p /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && sudo install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) /usr/local/bin/ttl && rm -rf /tmp/ttl-unpack"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
     macos:
       type: github-release
       repo: lance0/ttl
       asset: "ttl-aarch64-apple-darwin.tar.gz"
-      install: "mkdir -p /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && sudo install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) /usr/local/bin/ttl && rm -rf /tmp/ttl-unpack"
+      install: "mkdir -p $HOME/.local/bin /tmp/ttl-unpack && tar -xzf {asset} -C /tmp/ttl-unpack && install -m 755 $(find /tmp/ttl-unpack -name ttl -type f | head -1) $HOME/.local/bin/ttl && rm -rf /tmp/ttl-unpack"
 
   oh-my-posh:
     check: "oh-my-posh version"
@@ -367,7 +367,7 @@ desktop:
       install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
     macos:
       type: cask
-      name: font-ibm-plex-mono-nerd-font
+      name: font-blex-mono-nerd-font
 
   atkinson-hyperlegible:
     check: "fc-list | grep -qi 'Atkinson Hyperlegible' || test -d /Users/*/Library/Fonts/Atkinson*"
@@ -385,8 +385,10 @@ desktop:
       asset: "AtkinsonHyperlegible.tar.xz"
       install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
     macos:
-      type: cask
-      name: font-atkinson-hyperlegible-nerd-font
+      type: github-release
+      repo: ryanoasis/nerd-fonts
+      asset: "AtkinsonHyperlegible.tar.xz"
+      install: "mkdir -p $HOME/Library/Fonts && tar -xJf {asset} -C $HOME/Library/Fonts"
 
 gaming:
   discord:
