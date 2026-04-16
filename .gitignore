@@ -20,3 +20,6 @@ __pycache__/
 
 # Stow internal
 .stow-local-ignore.tmp
+
+# Git worktrees
+.claude/worktrees/
