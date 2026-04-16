@@ -20,6 +20,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `scripts/verify.py` — post-install sanity checks (symlinks, binaries, config syntax)
 - `scripts/generate_completions.py` — generates zsh completions for kubectl, helm, gh, docker, etc.
 
+## Git Worktrees
+
+- Use `.claude/worktrees/<branch-name>` for all git worktrees (already in `.gitignore`)
+
 ## Platform Support
 
 | Platform | Package Manager | Notes |
@@ -52,6 +56,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `type: cargo` — installs via `cargo install`
 
 The `check` field overrides the default `command -v <key>` existence check.
+
+## Committing
+
+Always use the `commit` skill for all git commits — invoke it via the Skill tool. Applies to all agents including sub-agents.
 
 ## Commands
 
