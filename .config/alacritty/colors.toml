@@ -1,0 +1,34 @@
+# Generated from theme/palette.yaml — do not edit manually
+# Regenerate with: make generate-theme
+
+[colors.primary]
+background = "#282828"
+foreground = "#ebdbb2"
+
+[colors.cursor]
+cursor = "#ebdbb2"
+text = "#282828"
+
+[colors.selection]
+background = "#32302f"
+foreground = "#fbf1c7"
+
+[colors.normal]
+black   = "#282828"
+red     = "#AC4242"
+green   = "#90A959"
+yellow  = "#F79625"
+blue    = "#326CE5"
+magenta = "#AA759F"
+cyan    = "#a89984"
+white   = "#ebdbb2"
+
+[colors.bright]
+black   = "#a89984"
+red     = "#AC4242"
+green   = "#90A959"
+yellow  = "#FFDE57"
+blue    = "#326CE5"
+magenta = "#AA759F"
+cyan    = "#ebdbb2"
+white   = "#fbf1c7"

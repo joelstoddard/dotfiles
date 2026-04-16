@@ -1,0 +1,27 @@
+name: joel
+
+base:
+  bg:        "#282828"
+  bg-soft:   "#32302f"
+  fg:        "#ebdbb2"
+  fg-bright: "#fbf1c7"
+  muted:     "#a89984"
+
+accent:
+  orange:    "#F79625"
+  yellow:    "#FFDE57"
+  green:     "#90A959"
+  red:       "#AC4242"
+  blue:      "#326CE5"
+  purple:    "#AA759F"
+
+semantic:
+  git:       "#F79625"
+  python:    "#FFDE57"
+  error:     "#AC4242"
+  success:   "#90A959"
+  info:      "#326CE5"
+  aws:       "#FFA400"
+  docker:    "#0B59E7"
+  k8s:       "#326CE5"
+  terraform: "#EBCC34"
