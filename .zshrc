@@ -121,3 +121,34 @@ fi
 
 # ZSH tmux plugin compat
 export ZSH_TMUX_FIXTERM=false
+
+# ============================================================================
+# Shell Integrations
+# ============================================================================
+
+# fzf key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd) + completion
+if command -v fzf &>/dev/null; then
+    source <(fzf --zsh)
+fi
+
+# command-not-found — suggest installable packages when a command is missing
+# Debian/Ubuntu ship /etc/zsh_command_not_found; Arch provides it via pkgfile
+for f in /etc/zsh_command_not_found /usr/share/doc/pkgfile/command-not-found.zsh; do
+    [[ -r "$f" ]] && source "$f" && break
+done
+
+# AWS CLI tab completion via the official aws_completer (bash-style, needs bashcompinit)
+if command -v aws_completer &>/dev/null; then
+    autoload -U +X bashcompinit && bashcompinit
+    complete -C "$(command -v aws_completer)" aws
+fi
+
+# List configured AWS profiles (helper function, not an alias)
+aws_profiles() {
+    grep -h -Eo '\[(profile[[:space:]]+)?[^]]+\]' \
+        "${AWS_CONFIG_FILE:-$HOME/.aws/config}" \
+        "${AWS_SHARED_CREDENTIALS_FILE:-$HOME/.aws/credentials}" 2>/dev/null \
+        | sed -E 's/^\[(profile[[:space:]]+)?//; s/\]$//' \
+        | grep -v '^granted_registry_' \
+        | sort -u
+}
