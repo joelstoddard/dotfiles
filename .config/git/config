@@ -21,6 +21,7 @@
 [diff]
     algorithm = histogram
     colorMoved = plain
+    colorMovedWS = allow-indentation-change
     mnemonicPrefix = true
     renames = copies
     context = 3
@@ -104,7 +105,12 @@
     plain    = white dim
 
 [color "diff"]
-    meta      = white dim
-    new       = "#90A959"
-    old       = "#AC4242"
-    whitespace = "#AA759F"
+    meta       = "#8a8a8a"
+    frag       = "#8a8a8a"
+    func       = "#8a8a8a" dim
+    context    = white dim
+    new        = "#90A959"
+    old        = "#AC4242"
+    newMoved   = "#AA759F"
+    oldMoved   = "#AA759F"
+    whitespace = "#AC4242" reverse
