@@ -169,7 +169,7 @@ def main() -> int:
     args = parse_args()
     failed_count = 0
 
-    print("=== dotfiles-v2 installer ===\n")
+    print("=== dotfiles installer ===\n")
 
     # Detect platform
     platform = detect()

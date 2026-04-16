@@ -12,7 +12,7 @@ REPO_DIR = Path(__file__).resolve().parent.parent
 
 
 def main() -> None:
-    print("=== dotfiles-v2 uninstaller ===\n")
+    print("=== dotfiles uninstaller ===\n")
 
     try:
         stow.remove(REPO_DIR)

@@ -1,4 +1,4 @@
-# dotfiles-v2
+# dotfiles
 
 Unified dotfiles for Arch Linux (Omarchy), Debian/Ubuntu, and macOS.
 
@@ -12,8 +12,8 @@ Unified dotfiles for Arch Linux (Omarchy), Debian/Ubuntu, and macOS.
 ## Quick Start
 
 ```bash
-git clone <repo> ~/dotfiles-v2
-cd ~/dotfiles-v2
+git clone <repo> ~/dotfiles
+cd ~/dotfiles
 ./install.sh          # CLI-only (core + dev + work packages)
 ./install.sh --gui    # Include desktop, gaming, streaming packages
 ```

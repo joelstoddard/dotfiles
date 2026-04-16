@@ -5,7 +5,7 @@ RUN echo "DisableSandbox" >> /etc/pacman.conf \
     && pacman -S --noconfirm sudo git curl wget python python-pip stow base-devel
 
 RUN useradd -m -s /bin/bash testuser && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN mkdir -p /home/testuser/dotfiles-v2 && chown testuser:testuser /home/testuser/dotfiles-v2
+RUN mkdir -p /home/testuser/dotfiles && chown testuser:testuser /home/testuser/dotfiles
 
 USER testuser
 
@@ -13,7 +13,7 @@ RUN git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin \
     && cd /tmp/yay-bin && makepkg -si --noconfirm \
     && rm -rf /tmp/yay-bin
 
-WORKDIR /home/testuser/dotfiles-v2
+WORKDIR /home/testuser/dotfiles
 COPY --chown=testuser:testuser . .
 
 RUN ./install.sh --yes --skip-stow --include core
