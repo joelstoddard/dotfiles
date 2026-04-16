@@ -14,7 +14,7 @@ blocks:
         foreground: "#FFFFFF"
         foreground_templates:
           - "{{ if .Venv }}#FFDE57{{ end }}"
-        template: " "
+        template: " "
         properties:
           display_mode: environment
           home_enabled: true
@@ -29,17 +29,17 @@ blocks:
         style: plain
         foreground: "#F79625"
         template: "{{ .HEAD }}
-          {{ if .Working.Untracked }}{{ .Working.Untracked }} {{ end
-          }}{{ if .Working.Modified }}{{ .Working.Modified }} {{ end
-          }}{{ if .Working.Deleted }}{{ .Working.Deleted }} {{ end
-          }}{{ if gt .StashCount 0 }}{{ .StashCount }} {{ end
-          }}{{ if gt .Ahead 0 }}{{ .Ahead }} {{ end
-          }}{{ if gt .Behind 0 }}{{ .Behind }} {{ end
+          {{ if .Working.Untracked }}{{ .Working.Untracked }} {{ end
+          }}{{ if .Working.Modified }}{{ .Working.Modified }} {{ end
+          }}{{ if .Working.Deleted }}{{ .Working.Deleted }} {{ end
+          }}{{ if gt .StashCount 0 }}{{ .StashCount }} {{ end
+          }}{{ if gt .Ahead 0 }}{{ .Ahead }} {{ end
+          }}{{ if gt .Behind 0 }}{{ .Behind }} {{ end
           }}"
         properties:
           fetch_status: true
           source: cli
-          branch_icon: " "
+          branch_icon: " "
       - type: root
         style: plain
         foreground: "#FF0000"
@@ -75,5 +75,5 @@ tooltips:
       - docker
     style: plain
     foreground: "#0B59E7"
-    template: "  {{ .Context }} "
+    template: "  {{ .Context }} "
 version: 3
