@@ -1,16 +1,22 @@
-**.log
-**.tmp
-**.bak
-**.swp
-**.DS_Store
-**.idea/
-**.vscode/
-**.env
-**.cache/
-**dist/
-.config/alacritty/os.toml
-.config/nvim/lazy-lock.json
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Tmux plugins (installed by TPM)
 .config/tmux/plugins/
-node_modules/
-package.json
-package-lock.json
+
+# Neovim plugin lock (managed by lazy.nvim)
+.config/nvim/lazy-lock.json
+
+# Stow internal
+.stow-local-ignore.tmp

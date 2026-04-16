@@ -1,33 +1,15 @@
-# Comments and blank lines are allowed.
-
-RCS
-.+,v
-
-CVS
-\.\#.+       # CVS conflict files / emacs lock files
-\.cvsignore
-
-\.svn
-_darcs
-\.hg
-
-\.git
-\.gitignore
-\.gitmodules
-
-.+~          # emacs backup files
-\#.*\#       # emacs autosave files
-
-^/README.*
-^/LICENSE.*
-^/COPYING
-
-# Ignore everything in my dotfiles repo that isn't needed in ~
-^/TODO.*
-^/Makefile.*
-^/install.*
-^/uninstall.*
-^/stow-local-ignore.*
-^/CLAUDE.*
-^/os-detect.*
-^/scripts.*
+^scripts
+^packages
+^theme
+^test
+^install\.sh
+^uninstall\.sh
+^Makefile
+^README\.md
+^CLAUDE\.md
+^TODO\.md
+^\.git
+^\.gitignore
+^\.stow-local-ignore
+^\.github
+^\.venv
