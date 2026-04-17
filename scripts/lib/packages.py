@@ -16,7 +16,7 @@ from .os_detect import Platform
 class PackageSpec:
     key: str
     category: str
-    install_type: str  # "default" | "yay" | "cask" | "tap" | "script" | "github-release" | "npm" | "cargo" | "apt-repo"
+    install_type: str  # "default" | "yay" | "cask" | "tap" | "script" | "github-release" | "npm" | "cargo" | "apt-repo" | "git"
     name: str
     check: Optional[str] = None
     repo: Optional[str] = None
@@ -25,6 +25,7 @@ class PackageSpec:
     url: Optional[str] = None
     setup: Optional[str] = None
     tap: Optional[str] = None
+    target: Optional[str] = None
 
 
 @dataclass
@@ -108,6 +109,7 @@ def _resolve_spec(key: str, category: str, raw) -> Optional[PackageSpec]:
             url=raw.get("url"),
             setup=raw.get("setup"),
             tap=raw.get("tap"),
+            target=raw.get("target"),
         )
 
     return None
@@ -221,6 +223,12 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
         case "apt-repo":
             # Setup is run separately, then install via apt
             return ["sudo", "apt", "install", "-y", spec.name]
+
+        case "git":
+            if not spec.repo or not spec.target:
+                return None
+            target = spec.target.replace("$HOME", "\"$HOME\"")
+            return f'mkdir -p "$(dirname {target})" && git clone --no-tags https://github.com/{spec.repo} {target}'
 
         case _:
             return None

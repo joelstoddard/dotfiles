@@ -35,6 +35,28 @@ core:
     ubuntu: ~
     macos: ~
 
+  tpm:
+    arch:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    debian:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    ubuntu:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    macos:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+
   neovim:
     arch: ~
     debian:
@@ -336,7 +358,11 @@ desktop:
     ubuntu:
       type: cargo
     macos:
-      type: cask
+      type: github-release
+      repo: alacritty/alacritty
+      asset: "Alacritty-v*.dmg"
+      check: "test -d /Applications/Alacritty.app"
+      install: 'MOUNT=$(mktemp -d) && hdiutil attach -nobrowse -quiet {asset} -mountpoint "$MOUNT" && rm -rf /Applications/Alacritty.app && cp -R "$MOUNT/Alacritty.app" /Applications/ && hdiutil detach -quiet "$MOUNT" && rm -rf "$MOUNT" && mkdir -p "$HOME/.local/bin" && ln -sf /Applications/Alacritty.app/Contents/MacOS/alacritty "$HOME/.local/bin/alacritty"'
 
   raycast:
     macos:
@@ -547,33 +573,6 @@ development:
     debian: lua5.4
     ubuntu: lua5.4
     macos: ~
-
-  vscode:
-    check: "code --version"
-    arch:
-      type: yay
-      name: visual-studio-code-bin
-    debian:
-      type: apt-repo
-      name: code
-      setup: |
-        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
-        sudo install -D -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
-        rm -f /tmp/packages.microsoft.gpg
-        sudo apt update
-    ubuntu:
-      type: apt-repo
-      name: code
-      setup: |
-        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
-        sudo install -D -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
-        rm -f /tmp/packages.microsoft.gpg
-        sudo apt update
-    macos:
-      type: cask
-      name: visual-studio-code
 
 work:
   granted:
