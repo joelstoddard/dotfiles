@@ -39,6 +39,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Alacritty OS config**: `os.toml` symlink created by installer pointing to `macos.toml`, `arch.toml`, or `linux.toml`
 - **Neovim**: git subtree from `~/personal/nvim` — DO NOT edit `.config/nvim/` directly
 - **Stow adopt**: `stow . --adopt` is used, which pulls existing `$HOME` files into the repo before symlinking — be careful with pre-existing configs
+- **oh-my-posh theme files** (`.config/oh-my-posh/*.yaml`): templates contain Nerd Font glyphs in the Unicode Private Use Area (e.g. `U+E0A0` branch, `U+EA7F`/`U+EB43`/`U+EA81` git status, `U+F0C7`, `U+EAA1`, `U+EA9A`). The Read tool renders these as blank spaces — they are NOT whitespace. When copying templates between theme files, inspect raw bytes with `od -c <file>` or `python3 -c "[print(f'U+{ord(c):04X}') for c in open(sys.argv[1]).read() if ord(c) > 127]"`, or copy via `sed`/Python rather than re-typing. Always round-trip through byte inspection to confirm icons are preserved.
 
 ## packages.yaml Reference
 
