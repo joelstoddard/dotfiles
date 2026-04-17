@@ -22,7 +22,7 @@ blocks:
         style: plain
         foreground: "#8a8a8a"
         foreground_templates:
-          - "{{ if and (.Env.VIRTUAL_ENV) (eq (.Env.VIRTUAL_ENV | dir) .Pwd) }}#FFDE57{{ end }}"
+          - "{{ if and (.Env.VIRTUAL_ENV) (eq (.Env.VIRTUAL_ENV | dir) .Location) }}#FFDE57{{ end }}"
         properties:
           style: folder
       - type: git
