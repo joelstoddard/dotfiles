@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+version: 3
+final_space: false
+blocks:
+  - type: prompt
+    alignment: left
+    segments:
+      - type: path
+        style: plain
+        foreground: "#8a8a8a"
+        properties:
+          style: folder
+      - type: git
+        style: plain
+        foreground: "#F79625"
+        template: "{{ .HEAD }}
+          {{ if .Working.Untracked }}{{ .Working.Untracked }} {{ end
+          }}{{ if .Working.Modified }}{{ .Working.Modified }} {{ end
+          }}{{ if .Working.Deleted }}{{ .Working.Deleted }} {{ end
+          }}{{ if gt .StashCount 0 }}{{ .StashCount }} {{ end
+          }}{{ if gt .Ahead 0 }}{{ .Ahead }} {{ end
+          }}{{ if gt .Behind 0 }}{{ .Behind }} {{ end
+          }}"
+        properties:
+          fetch_status: true
+          source: cli
+          branch_icon: " "
+  # Note: oh-my-posh's `claude` subcommand does not support `alignment: right` or
+  # `rprompt` — it has no terminal-width awareness at render time, so blocks just
+  # concatenate left-to-right. Use inline `|` separators instead.
+  - type: prompt
+    alignment: left
+    segments:
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: '                                   󰯉  {{ $p := .TokenUsagePercent.String | atoi }}{{ $f := div $p 10 }}{{ range $i, $_ := until 10 }}{{ if lt $i $f }}█{{ else }}▒{{ end }}{{ end }} {{ $p }}%'
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: " |  {{ .FormattedDuration }}"
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: " |  {{ .FormattedCost }}"
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: " |  {{ .Model.DisplayName }}"
