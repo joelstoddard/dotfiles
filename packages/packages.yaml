@@ -35,6 +35,28 @@ core:
     ubuntu: ~
     macos: ~
 
+  tpm:
+    arch:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    debian:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    ubuntu:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+    macos:
+      type: git
+      repo: tmux-plugins/tpm
+      target: "$HOME/.config/tmux/plugins/tpm"
+      check: "test -d $HOME/.config/tmux/plugins/tpm"
+
   neovim:
     arch: ~
     debian:
