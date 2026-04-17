@@ -358,7 +358,11 @@ desktop:
     ubuntu:
       type: cargo
     macos:
-      type: cask
+      type: github-release
+      repo: alacritty/alacritty
+      asset: "Alacritty-v*.dmg"
+      check: "test -d /Applications/Alacritty.app"
+      install: 'MOUNT=$(mktemp -d) && hdiutil attach -nobrowse -quiet {asset} -mountpoint "$MOUNT" && rm -rf /Applications/Alacritty.app && cp -R "$MOUNT/Alacritty.app" /Applications/ && hdiutil detach -quiet "$MOUNT" && rm -rf "$MOUNT" && mkdir -p "$HOME/.local/bin" && ln -sf /Applications/Alacritty.app/Contents/MacOS/alacritty "$HOME/.local/bin/alacritty"'
 
   raycast:
     macos:
