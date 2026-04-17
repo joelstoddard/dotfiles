@@ -152,3 +152,6 @@ aws_profiles() {
         | grep -v '^granted_registry_' \
         | sort -u
 }
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/bin/terraform terraform
