@@ -74,7 +74,7 @@ def resolve(data: dict, platform: Platform) -> dict[str, list[PackageSpec]]:
                 continue
 
             raw = pkg_data[os_key]
-            spec = _resolve_spec(key, category, raw)
+            spec = _resolve_spec(key, category, raw, package_check=pkg_data.get("check"))
             if spec:
                 specs.append(spec)
         if specs:
@@ -83,15 +83,19 @@ def resolve(data: dict, platform: Platform) -> dict[str, list[PackageSpec]]:
     return categories
 
 
-def _resolve_spec(key: str, category: str, raw) -> Optional[PackageSpec]:
-    """Resolve a single OS entry into a PackageSpec."""
+def _resolve_spec(key: str, category: str, raw, package_check: Optional[str] = None) -> Optional[PackageSpec]:
+    """Resolve a single OS entry into a PackageSpec.
+
+    package_check is the top-level check from the package dict, used as a fallback
+    when the per-OS entry doesn't specify its own check.
+    """
     if raw is None:
         # ~ means default package manager, name = key
-        return PackageSpec(key=key, category=category, install_type="default", name=key)
+        return PackageSpec(key=key, category=category, install_type="default", name=key, check=package_check)
 
     if isinstance(raw, str):
         # Bare string means default package manager, custom name
-        return PackageSpec(key=key, category=category, install_type="default", name=raw)
+        return PackageSpec(key=key, category=category, install_type="default", name=raw, check=package_check)
 
     if isinstance(raw, dict):
         install_type = raw.get("type", "default")
@@ -102,7 +106,7 @@ def _resolve_spec(key: str, category: str, raw) -> Optional[PackageSpec]:
             category=category,
             install_type=install_type,
             name=raw.get("name", key),
-            check=raw.get("check"),
+            check=raw.get("check", package_check),
             repo=raw.get("repo"),
             asset=raw.get("asset"),
             install_cmd=raw.get("install"),
