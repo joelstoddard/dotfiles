@@ -2,15 +2,13 @@
 
 ## Oh-My-Posh Segments
 - [x] [SSH](https://ohmyposh.dev/docs/segments/system/session) — show hostname when connected via SSH
-- [ ] [Helm](https://ohmyposh.dev/docs/segments/cli/helm) — show chart icon in helm directories
-- [ ] [ArgoCD](https://ohmyposh.dev/docs/segments/cli/argocd) — show current context
-- [ ] Tailscale — custom command segment showing connection status
-- [ ] Claude — show current model/context (pending CLI support)
 - [ ] Context-aware icons — show tool icons when in relevant repo directories:
   - [ ] AWS (when in AWS repo/folder)
   - [ ] Terraform (when .terraform/ exists)
   - [ ] Kubernetes (when in k8s repo/folder)
   - [ ] Docker (when Dockerfile exists)
+  - [ ] Helm (when Chart.yaml exists)
+  - [ ] Claude 󰯉 (when CLAUDE.md exists)
 
 ## Shell
 - [ ] `chpwd` hook for auto-activating Python venvs on directory change
