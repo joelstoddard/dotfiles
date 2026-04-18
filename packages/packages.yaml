@@ -396,7 +396,7 @@ desktop:
       name: font-blex-mono-nerd-font
 
   atkinson-hyperlegible:
-    check: "fc-list | grep -qi 'Atkinson Hyperlegible' || test -d /Users/*/Library/Fonts/Atkinson*"
+    check: "fc-list 2>/dev/null | grep -qi 'Atkinson Hyperlegible' || ls $HOME/Library/Fonts/AtkinsonHyperlegible* >/dev/null 2>&1"
     arch:
       type: yay
       name: ttf-atkinson-hyperlegible-nerd
@@ -411,10 +411,8 @@ desktop:
       asset: "AtkinsonHyperlegibleMono.tar.xz"
       install: "mkdir -p $HOME/.local/share/fonts && tar -xJf {asset} -C $HOME/.local/share/fonts && fc-cache -fv"
     macos:
-      type: github-release
-      repo: ryanoasis/nerd-fonts
-      asset: "AtkinsonHyperlegibleMono.tar.xz"
-      install: "mkdir -p $HOME/Library/Fonts && tar -xJf {asset} -C $HOME/Library/Fonts"
+      type: cask
+      name: font-atkinson-hyperlegible-next
 
 gaming:
   discord:
@@ -430,6 +428,7 @@ gaming:
       asset: "discord-*.deb"
     macos:
       type: cask
+      check: "test -d /Applications/Discord.app"
 
   steam:
     arch: ~
