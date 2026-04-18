@@ -35,7 +35,7 @@ blocks:
       - type: claude
         style: plain
         foreground: "#D97757"
-        template: '                                   󰯉  {{ $p := .TokenUsagePercent.String | atoi }}{{ $f := div $p 10 }}{{ range $i, $_ := until 10 }}{{ if lt $i $f }}█{{ else }}▒{{ end }}{{ end }} {{ $p }}%'
+        template: '󰯉  {{ $p := .TokenUsagePercent.String | atoi }}{{ $f := div $p 10 }}{{ range $i, $_ := until 10 }}{{ if lt $i $f }}█{{ else }}▒{{ end }}{{ end }} {{ $p }}%'
       - type: claude
         style: plain
         foreground: "#D97757"
