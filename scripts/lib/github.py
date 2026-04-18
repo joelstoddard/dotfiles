@@ -2,6 +2,7 @@
 
 import fnmatch
 import json
+import os
 import urllib.request
 from urllib.error import HTTPError
 
@@ -20,7 +21,13 @@ def fetch_latest_asset(repo: str, asset_pattern: str) -> str:
         RuntimeError: If no matching asset is found or the API request fails.
     """
     url = f"https://api.github.com/repos/{repo}/releases/latest"
-    req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json"})
+    headers = {"Accept": "application/vnd.github+json"}
+    # Authenticated requests get 5000/hour vs. 60/hour anonymous — important
+    # on shared-IP CI runners where the anonymous limit is easily exhausted.
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, headers=headers)
 
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:

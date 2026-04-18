@@ -27,4 +27,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run test for ${{ matrix.target }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ${{ matrix.command }}
