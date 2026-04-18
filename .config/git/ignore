@@ -3,3 +3,7 @@
 .pytest_cache/
 __pycache__/
 **/.claude/settings.local.json
+
+# Claude Code specs and plans (kept local, not versioned)
+**/.claude/specs/
+**/.claude/plans/
