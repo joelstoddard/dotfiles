@@ -179,7 +179,19 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
                     return None
 
         case "yay":
-            return ["yay", "-S", "--noconfirm", "--needed", spec.name]
+            # AUR packages often fetch sources from third-party origins that
+            # can be transiently unreachable (e.g. the sipcalc PKGBUILD pulls
+            # from routemeister.net). yay's own retries are ~3s apart, too
+            # tight for brief origin outages; an outer loop with 30s backoff
+            # covers a wider window.
+            return (
+                f'for i in 1 2 3; do '
+                f'yay -S --noconfirm --needed {spec.name} && break; '
+                f'[ "$i" -eq 3 ] && echo "yay install of {spec.name} failed after 3 attempts" && exit 1; '
+                f'echo "yay install of {spec.name} failed (attempt $i), retrying in 30s..."; '
+                f'sleep 30; '
+                f'done'
+            )
 
         case "cask":
             return ["brew", "install", "--cask", spec.name]
