@@ -44,6 +44,15 @@ blocks:
         style: plain
         foreground: "#AC4242"
         template: "❯"
+  - type: rprompt
+    segments:
+      - type: executiontime
+        style: plain
+        foreground: "#8a8a8a"
+        template: "{{ .FormattedMs }}"
+        properties:
+          threshold: 5000
+          style: round
 secondary_prompt:
   background: transparent
   foreground: "#8a8a8a"
