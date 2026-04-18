@@ -1,7 +1,7 @@
 # TODO
 
 ## Oh-My-Posh Segments
-- [ ] [SSH](https://ohmyposh.dev/docs/segments/system/session) — show hostname when connected via SSH
+- [x] [SSH](https://ohmyposh.dev/docs/segments/system/session) — show hostname when connected via SSH
 - [ ] [Helm](https://ohmyposh.dev/docs/segments/cli/helm) — show chart icon in helm directories
 - [ ] [ArgoCD](https://ohmyposh.dev/docs/segments/cli/argocd) — show current context
 - [ ] Tailscale — custom command segment showing connection status
