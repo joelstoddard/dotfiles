@@ -179,7 +179,19 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
                     return None
 
         case "yay":
-            return ["yay", "-S", "--noconfirm", "--needed", spec.name]
+            # AUR packages often fetch sources from third-party origins that
+            # can be transiently unreachable (e.g. the sipcalc PKGBUILD pulls
+            # from routemeister.net). yay's own retries are ~3s apart, too
+            # tight for brief origin outages; an outer loop with 30s backoff
+            # covers a wider window.
+            return (
+                f'for i in 1 2 3; do '
+                f'yay -S --noconfirm --needed {spec.name} && break; '
+                f'[ "$i" -eq 3 ] && echo "yay install of {spec.name} failed after 3 attempts" && exit 1; '
+                f'echo "yay install of {spec.name} failed (attempt $i), retrying in 30s..."; '
+                f'sleep 30; '
+                f'done'
+            )
 
         case "cask":
             return ["brew", "install", "--cask", spec.name]
@@ -208,13 +220,18 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
                 print(f"  [error] {spec.key}: {e}")
                 return None
 
+            # --fail turns HTTP errors into non-zero exits (otherwise we'd write
+            # a 5xx HTML body to disk and fail later with a confusing downstream
+            # error). Retries handle transient 5xx from GitHub Releases.
+            curl = 'curl --fail --retry 3 --retry-delay 5 --retry-all-errors -sSL'
+
             if spec.install_cmd:
                 # Download to temp, then run install command
-                return f'tmpfile=$(mktemp) && curl -sL "{url}" -o "$tmpfile" && {spec.install_cmd.replace("{asset}", "$tmpfile")} && rm -f "$tmpfile"'
+                return f'tmpfile=$(mktemp) && {curl} "{url}" -o "$tmpfile" && {spec.install_cmd.replace("{asset}", "$tmpfile")} && rm -f "$tmpfile"'
             elif url.endswith(".deb"):
-                return f'tmpfile=$(mktemp --suffix=.deb) && curl -sL "{url}" -o "$tmpfile" && sudo dpkg -i "$tmpfile"; sudo apt-get install -f -y && rm -f "$tmpfile"'
+                return f'tmpfile=$(mktemp --suffix=.deb) && {curl} "{url}" -o "$tmpfile" && sudo dpkg -i "$tmpfile"; sudo apt-get install -f -y && rm -f "$tmpfile"'
             elif url.endswith(".tar.gz"):
-                return f'curl -sL "{url}" | sudo tar -xzf - -C /usr/local/bin'
+                return f'{curl} "{url}" | sudo tar -xzf - -C /usr/local/bin'
             else:
                 return None
 

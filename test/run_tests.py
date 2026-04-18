@@ -12,9 +12,15 @@ TARGETS = ["debian", "ubuntu", "arch"]
 
 
 def main() -> int:
+    targets = sys.argv[1:] or TARGETS
+    unknown = [t for t in targets if t not in TARGETS]
+    if unknown:
+        print(f"Unknown target(s): {', '.join(unknown)}. Valid: {', '.join(TARGETS)}")
+        return 2
+
     failures = []
 
-    for target in TARGETS:
+    for target in targets:
         dockerfile = TEST_DIR / f"Dockerfile.{target}"
         if not dockerfile.exists():
             print(f"[skip] {target}: Dockerfile not found")
