@@ -9,12 +9,28 @@ RUN mkdir -p /home/testuser/dotfiles && chown testuser:testuser /home/testuser/d
 
 USER testuser
 
+# yay-bin pulls the yay binary from GitHub Releases, which occasionally 504s on
+# GHA runners. makepkg retries internally (~10s window); outer loop stretches
+# coverage across a ~2min window of transient errors.
 RUN git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin \
-    && cd /tmp/yay-bin && makepkg -si --noconfirm \
+    && cd /tmp/yay-bin \
+    && for i in 1 2 3; do \
+         makepkg -si --noconfirm && break; \
+         [ "$i" -eq 3 ] && echo "yay-bin build failed after 3 attempts" && exit 1; \
+         echo "yay-bin build failed (attempt $i), retrying in 30s..."; \
+         sleep 30; \
+       done \
     && rm -rf /tmp/yay-bin
 
 WORKDIR /home/testuser/dotfiles
-COPY --chown=testuser:testuser . .
+
+# Copy only the inputs install.sh reads so edits elsewhere (.config, theme/,
+# docs) don't invalidate the install layer.
+COPY --chown=testuser:testuser install.sh ./
+COPY --chown=testuser:testuser scripts ./scripts
+COPY --chown=testuser:testuser packages ./packages
 
 RUN ./install.sh --yes --skip-stow --include core
+
+COPY --chown=testuser:testuser . .
 RUN .venv/bin/python scripts/verify.py || true
