@@ -51,6 +51,8 @@ def main() -> int:
         ".config/tmux/tmux.conf",
         ".config/oh-my-posh/theme.yaml",
         ".config/alacritty/alacritty.toml",
+        ".config/btop/btop.conf",
+        ".config/btop/themes/ash-plus.theme",
     ]
     for rel in symlinks:
         target = HOME / rel
@@ -62,7 +64,7 @@ def main() -> int:
             v.check(f"{rel} points to repo", in_repo)
 
     print("\n=== Verifying binaries ===")
-    binaries = ["zsh", "tmux", "nvim", "oh-my-posh", "git", "stow"]
+    binaries = ["zsh", "tmux", "nvim", "oh-my-posh", "git", "stow", "btop"]
     for binary in binaries:
         v.check(f"{binary} on PATH", shutil.which(binary) is not None)
 
@@ -100,6 +102,15 @@ def main() -> int:
     # Colors.toml exists
     colors_toml = HOME / ".config" / "alacritty" / "colors.toml"
     v.check("alacritty colors.toml exists", colors_toml.exists())
+
+    # btop theme generated and populated
+    btop_theme = HOME / ".config" / "btop" / "themes" / "ash-plus.theme"
+    if btop_theme.exists():
+        content = btop_theme.read_text()
+        v.check("btop ash-plus theme has main_bg", "theme[main_bg]=" in content)
+        v.check("btop ash-plus theme has cpu_end", "theme[cpu_end]=" in content)
+    else:
+        v.warn("btop ash-plus theme not found (run make generate-theme)")
 
     # Zsh plugins
     print("\n=== Verifying zsh plugins ===")
