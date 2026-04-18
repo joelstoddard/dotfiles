@@ -3,6 +3,7 @@
 
 Produces:
   - .config/alacritty/colors.toml
+  - .config/btop/themes/ash-plus.theme
   - Validates oh-my-posh and git configs use matching palette colors (warns on mismatch)
 """
 
@@ -81,6 +82,46 @@ white   = "{base.get('fg-bright', '#ffffff')}"
 """
 
 
+def generate_btop_theme(palette: dict) -> str:
+    """Generate btop theme from palette. Monochrome chrome; accents only on load."""
+    b, a = palette["base"], palette["accent"]
+    bg, fg, fg_br, muted, dim = b["bg"], b["fg"], b["fg-bright"], b["muted"], b["dim"]
+    red, orange = a["red"], a["orange"]
+
+    # Non-gradient UI chrome, all from the grayscale base.
+    chrome = {
+        "main_bg": bg, "main_fg": fg, "title": fg_br, "hi_fg": fg_br,
+        "selected_bg": b["bg-soft"], "selected_fg": fg_br, "inactive_fg": dim,
+        "graph_text": muted, "meter_bg": b["bg-soft"], "proc_misc": muted,
+        "div_line": dim,
+        "cpu_box": muted, "mem_box": muted, "net_box": muted, "proc_box": muted,
+    }
+    # Gradients: (name, start, mid, end). btop interpolates linearly through
+    # the three stops. Load signals (cpu/used/temp/process) stay flat gray
+    # until the upper half of the range and only fade to red near max.
+    # Network peaks at orange. free/available/cached stay monochrome.
+    gradients = [
+        ("cpu",       muted, muted, red),
+        ("used",      muted, muted, red),
+        ("temp",      muted, muted, red),
+        ("process",   muted, muted, red),
+        ("download",  dim,   muted, orange),
+        ("upload",    dim,   muted, orange),
+        ("free",      dim,   muted, fg),
+        ("available", dim,   muted, fg),
+        ("cached",    dim,   muted, fg),
+    ]
+
+    lines = ["# Generated from theme/palette.yaml - do not edit manually",
+             "# Regenerate with: make generate-theme", ""]
+    lines += [f'theme[{k}]="{v}"' for k, v in chrome.items()]
+    for name, start, mid, end in gradients:
+        lines += [f'theme[{name}_start]="{start}"',
+                  f'theme[{name}_mid]="{mid}"',
+                  f'theme[{name}_end]="{end}"']
+    return "\n".join(lines) + "\n"
+
+
 def validate_config_colors(flat: dict[str, str]) -> list[str]:
     """Check that oh-my-posh and git configs use colors from the palette.
 
@@ -119,6 +160,12 @@ def main() -> None:
     alacritty_out.parent.mkdir(parents=True, exist_ok=True)
     alacritty_out.write_text(generate_alacritty_colors(palette))
     print(f"  Generated: {alacritty_out}")
+
+    # Generate btop theme
+    btop_out = REPO_DIR / ".config" / "btop" / "themes" / "ash-plus.theme"
+    btop_out.parent.mkdir(parents=True, exist_ok=True)
+    btop_out.write_text(generate_btop_theme(palette))
+    print(f"  Generated: {btop_out}")
 
     # Validate other configs
     warnings = validate_config_colors(flat)
