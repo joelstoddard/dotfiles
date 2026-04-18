@@ -6,13 +6,25 @@ on:
 
 jobs:
   make-test:
-    name: test (${{ matrix.distro }})
-    runs-on: ubuntu-latest
+    name: test (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        distro: [debian, ubuntu, arch]
+        include:
+          - target: debian
+            runner: ubuntu-latest
+            command: python3 test/run_tests.py debian
+          - target: ubuntu
+            runner: ubuntu-latest
+            command: python3 test/run_tests.py ubuntu
+          - target: arch
+            runner: ubuntu-latest
+            command: python3 test/run_tests.py arch
+          - target: macos
+            runner: macos-latest
+            command: ./install.sh --yes --skip-stow --include core
     steps:
       - uses: actions/checkout@v4
-      - name: Run test for ${{ matrix.distro }}
-        run: python3 test/run_tests.py ${{ matrix.distro }}
+      - name: Run test for ${{ matrix.target }}
+        run: ${{ matrix.command }}
