@@ -14,19 +14,33 @@ jobs:
         include:
           - target: debian
             runner: ubuntu-latest
-            command: python3 test/run_tests.py debian
+            os: linux
+            dockerfile: test/Dockerfile.debian
           - target: ubuntu
             runner: ubuntu-latest
-            command: python3 test/run_tests.py ubuntu
+            os: linux
+            dockerfile: test/Dockerfile.ubuntu
           - target: arch
             runner: ubuntu-latest
-            command: python3 test/run_tests.py arch
+            os: linux
+            dockerfile: test/Dockerfile.arch
           - target: macos
             runner: macos-latest
-            command: ./install.sh --yes --skip-stow --include core
+            os: macos
     steps:
-      - uses: actions/checkout@v4
-      - name: Run test for ${{ matrix.target }}
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - if: matrix.os == 'linux'
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4.0.0
+      - if: matrix.os == 'linux'
+        name: Build test image for ${{ matrix.target }}
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.target }}
+      - if: matrix.os == 'macos'
+        name: Run install.sh on macOS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ${{ matrix.command }}
+        run: ./install.sh --yes --skip-stow --include core
