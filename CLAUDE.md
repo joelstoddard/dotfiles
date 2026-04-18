@@ -23,6 +23,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Git Worktrees
 
 - Use `.claude/worktrees/<branch-name>` for all git worktrees (already in `.gitignore`)
+- **Never re-stow from a worktree.** Do not run `stow .` or `stow . --adopt` from inside a worktree — it will overwrite the existing `$HOME` symlinks that point at `~/personal/dotfiles` and cause churn across unrelated configs.
+- **Testing changes from a worktree**: create targeted `ln -s` symlinks only for the specific new/changed files under test. Point them at the worktree path. Minimal disruption, easy to revert.
+- **Restoring after testing**: `cd ~/personal/dotfiles && git pull && ./install.sh --skip-packages` re-stows from the main repo and replaces any worktree-pointing symlinks back to main.
 
 ## Platform Support
 
