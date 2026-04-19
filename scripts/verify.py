@@ -42,8 +42,12 @@ class Verifier:
 def main() -> int:
     v = Verifier()
 
-    print("=== Verifying symlinks ===")
-    symlinks = [
+    print("=== Verifying stow-linked configs ===")
+    # Each path should resolve (through any folded parent-dir symlinks) to the
+    # corresponding file in the repo. Stow folds directories when only one
+    # package has entries under them, so the leaf may be a real file reached
+    # via a symlinked parent rather than a direct symlink itself.
+    linked = [
         ".zshrc",
         ".config/git/config",
         ".config/git/ignore",
@@ -54,14 +58,13 @@ def main() -> int:
         ".config/btop/btop.conf",
         ".config/btop/themes/ash-plus.theme",
     ]
-    for rel in symlinks:
+    for rel in linked:
         target = HOME / rel
-        is_link = target.is_symlink()
-        v.check(f"{rel} is symlink", is_link)
-        if is_link:
+        v.check(f"{rel} exists", target.exists())
+        if target.exists():
             resolved = target.resolve()
-            in_repo = str(resolved).startswith(str(REPO_DIR))
-            v.check(f"{rel} points to repo", in_repo)
+            expected = (REPO_DIR / rel).resolve()
+            v.check(f"{rel} resolves to repo", resolved == expected)
 
     print("\n=== Verifying binaries ===")
     binaries = ["zsh", "tmux", "nvim", "oh-my-posh", "git", "stow", "btop"]
