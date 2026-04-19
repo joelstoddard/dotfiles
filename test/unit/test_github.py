@@ -1,16 +1,11 @@
 """Tests for scripts/lib/github.py release asset resolution."""
 
 import json
-import sys
 import unittest
 from io import BytesIO
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-REPO_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_DIR))
-
-from scripts.lib import github  # noqa: E402
+from scripts.lib import github
 
 
 SAMPLE_RELEASE = {
@@ -27,7 +22,6 @@ SAMPLE_RELEASE = {
 
 
 def _mock_urlopen(body: dict):
-    """Return a context-manager mock matching urllib.request.urlopen."""
     cm = MagicMock()
     cm.__enter__ = MagicMock(return_value=BytesIO(json.dumps(body).encode()))
     cm.__exit__ = MagicMock(return_value=False)

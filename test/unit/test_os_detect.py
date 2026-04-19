@@ -1,17 +1,12 @@
 """Tests for scripts/lib/os_detect.py."""
 
 import os
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
-REPO_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_DIR))
+from scripts.lib import os_detect
 
-from scripts.lib import os_detect  # noqa: E402
-
-FIXTURES = Path(__file__).parent / "fixtures"
+from . import FIXTURES
 
 
 def _read_fixture(name: str) -> dict:

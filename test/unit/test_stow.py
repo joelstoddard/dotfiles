@@ -1,21 +1,18 @@
 """Tests for scripts/lib/stow.py against a real stow binary."""
 
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-REPO_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_DIR))
-
-from scripts.lib import stow  # noqa: E402
+from scripts.lib import stow
 
 
 @unittest.skipIf(shutil.which("stow") is None, "stow not installed")
 class StowLifecycle(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         self.repo = self.tmp / "repo"
         self.home = self.tmp / "home"
         self.repo.mkdir()
@@ -25,9 +22,6 @@ class StowLifecycle(unittest.TestCase):
         (self.repo / ".config" / "foo").mkdir()
         (self.repo / ".config" / "foo" / "bar.conf").write_text("x=1\n")
 
-    def tearDown(self):
-        shutil.rmtree(self.tmp)
-
     def test_apply_creates_symlinks(self):
         stow.apply(self.repo, target=self.home)
         self.assertTrue((self.home / ".zshrc").is_symlink())
@@ -35,13 +29,6 @@ class StowLifecycle(unittest.TestCase):
             (self.home / ".zshrc").resolve(),
             (self.repo / ".zshrc").resolve(),
         )
-        # Stow folds: either the leaf file is a symlink, or the parent dir is
-        link_or_fold = (
-            (self.home / ".config" / "foo" / "bar.conf").is_symlink()
-            or (self.home / ".config" / "foo").is_symlink()
-            or (self.home / ".config").is_symlink()
-        )
-        self.assertTrue(link_or_fold)
         self.assertEqual(
             (self.home / ".config" / "foo" / "bar.conf").resolve(),
             (self.repo / ".config" / "foo" / "bar.conf").resolve(),

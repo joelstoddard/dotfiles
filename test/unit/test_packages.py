@@ -1,17 +1,12 @@
 """Tests for scripts/lib/packages.py resolution and dispatch logic."""
 
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
-REPO_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_DIR))
+from scripts.lib import packages
+from scripts.lib.os_detect import Platform
 
-from scripts.lib import packages  # noqa: E402
-from scripts.lib.os_detect import Platform  # noqa: E402
-
-FIXTURES = Path(__file__).parent / "fixtures"
+from . import FIXTURES
 
 
 def _platform(os_: str, distro: str, pkg_manager: str) -> Platform:
