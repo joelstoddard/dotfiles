@@ -56,6 +56,11 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
       - if: matrix.os == 'macos'
+        name: Install core packages via install.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./install.sh --yes --skip-stow --include core
+      - if: matrix.os == 'macos'
         name: Run e2e harness on macOS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
