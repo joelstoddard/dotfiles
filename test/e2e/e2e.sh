@@ -9,6 +9,11 @@
 
 set -euo pipefail
 
+# Installers place tools in $HOME/.local/bin (oh-my-posh, nvm shims, etc).
+# zshrc adds that to PATH at shell-init time, but we run verify.py from a
+# bare bash so we need to prepend it ourselves.
+export PATH="$HOME/.local/bin:$PATH"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SNAP="$SCRIPT_DIR/snapshot.py"
