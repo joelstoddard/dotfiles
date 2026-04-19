@@ -16,9 +16,11 @@ SNAP="$SCRIPT_DIR/snapshot.py"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-# Paths uninstall.sh cannot restore (not stow-managed). See
-# .claude/specs/2026-04-19-ci-e2e-unit-tests-design.md for rationale.
-EXCLUDE=".venv,.local,.local/share,.local/share/zsh,.local/share/zsh/plugins,.local/share/zsh/plugins/zsh-completions,.local/share/zsh/plugins/zsh-autosuggestions,.local/share/zsh/completions,.config/tmux/plugins,.config/tmux/plugins/tpm,.config/alacritty/os.toml"
+# Everything stow does not manage (venv, zsh plugins in ~/.local, os.toml, tpm)
+# is filtered at the source via .stow-local-ignore — the snapshot tool walks
+# the repo for its path list, so install artifacts outside that tree never
+# appear in a snapshot. No extra exclusions needed here.
+EXCLUDE=""
 
 echo "=== e2e: capturing pre-install snapshot ==="
 python3 "$SNAP" capture "$WORK/pre.json"

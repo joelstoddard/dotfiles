@@ -10,56 +10,54 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
 REPO_DIR = Path(__file__).resolve().parent.parent.parent
 STOW_IGNORE_FILE = REPO_DIR / ".stow-local-ignore"
 
-# Top-level repo entries that .stow-local-ignore does not list but which stow
-# also does not manage in practice: agent-tooling, editor caches, etc. Treat as
-# ignored so snapshot diffs focus on user-facing dotfiles.
-EXTRA_SKIP = {".claude", ".worktrees", ".DS_Store"}
 
+def _load_stow_patterns() -> list[re.Pattern]:
+    """Parse .stow-local-ignore into compiled regexes.
 
-def _load_stow_ignore() -> list[str]:
+    Per stow(1): each non-blank line is a Perl regex applied to every path
+    segment. A path is ignored if any segment matches any pattern.
+    """
     if not STOW_IGNORE_FILE.exists():
         return []
-    patterns: list[str] = []
+    out: list[re.Pattern] = []
     for raw in STOW_IGNORE_FILE.read_text().splitlines():
         raw = raw.strip()
         if not raw or raw.startswith("#"):
             continue
-        patterns.append(raw)
-    return patterns
+        out.append(re.compile(raw))
+    return out
 
 
-def _is_ignored(first_segment: str, patterns: list[str]) -> bool:
-    for p in patterns:
-        stripped = p.lstrip("^").rstrip("$").replace("\\.", ".")
-        if first_segment == stripped:
-            return True
-    return False
+def _segment_ignored(segment: str, patterns: list[re.Pattern]) -> bool:
+    return any(p.search(segment) for p in patterns)
+
+
+def _path_ignored(relpath: str, patterns: list[re.Pattern]) -> bool:
+    return any(_segment_ignored(seg, patterns) for seg in relpath.split("/"))
 
 
 def _stowable_paths() -> list[str]:
     """Enumerate repo-root-relative paths that stow would link into $HOME."""
-    patterns = _load_stow_ignore()
+    patterns = _load_stow_patterns()
     out: list[str] = []
     for root, dirs, files in os.walk(REPO_DIR):
         rel_root = os.path.relpath(root, REPO_DIR)
-        if rel_root == ".":
-            dirs[:] = [
-                d for d in dirs
-                if not _is_ignored(d, patterns)
-                and d != ".git"
-                and d not in EXTRA_SKIP
-            ]
+        # Prune ignored directories so we don't descend into them.
+        dirs[:] = [
+            d for d in dirs
+            if d != ".git" and not _segment_ignored(d, patterns)
+        ]
         for f in files:
             rel = f if rel_root == "." else os.path.join(rel_root, f)
             rel = rel.replace(os.sep, "/")
-            first = rel.split("/", 1)[0]
-            if _is_ignored(first, patterns) or first in EXTRA_SKIP:
+            if _path_ignored(rel, patterns):
                 continue
             out.append(rel)
     return sorted(out)
