@@ -28,6 +28,22 @@ _AUTOENV_HANDLERS=()
 
 _autoenv_chpwd() {
     [[ -n "${AUTOENV_DISABLE:-}" ]] && return 0
+    local h wanted owned
+    for h in $_AUTOENV_HANDLERS; do
+        wanted=$(_autoenv_${h}_detect 2>/dev/null) || wanted=
+        owned=${_AUTOENV_ACTIVE[$h]-}
+        if [[ $wanted == $owned ]]; then
+            continue
+        fi
+        if [[ -n $owned ]]; then
+            "_autoenv_${h}_deactivate"
+            unset "_AUTOENV_ACTIVE[$h]"
+        fi
+        if [[ -n $wanted ]]; then
+            "_autoenv_${h}_activate" "$wanted"
+            _AUTOENV_ACTIVE[$h]=$wanted
+        fi
+    done
     return 0
 }
 

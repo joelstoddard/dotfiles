@@ -184,6 +184,64 @@ test_discovery_skips_underscore_prefixed_files() {
 run_test "discovery finds python"                test_discovery_finds_python_handler
 run_test "discovery skips underscore-prefixed"   test_discovery_skips_underscore_prefixed_files
 
+test_dispatch_activates_on_enter() {
+    local tmp=$(mktemp -d)
+    make_fake_venv "$tmp/.venv"
+    source "$AUTOENV_SCRIPT"
+    cd "$tmp"
+    [[ ${VIRTUAL_ENV:-} == "$tmp/.venv" ]] \
+        || die "VIRTUAL_ENV should be $tmp/.venv, got '${VIRTUAL_ENV:-}'"
+    [[ ${_AUTOENV_ACTIVE[python]:-} == "$tmp/.venv" ]] \
+        || die "_AUTOENV_ACTIVE[python] should be $tmp/.venv, got '${_AUTOENV_ACTIVE[python]:-}'"
+    rm -rf "$tmp"
+}
+
+test_dispatch_deactivates_on_leave() {
+    local tmp=$(mktemp -d)
+    local empty=$(mktemp -d)
+    make_fake_venv "$tmp/.venv"
+    source "$AUTOENV_SCRIPT"
+    cd "$tmp"
+    cd "$empty"
+    [[ -z ${VIRTUAL_ENV:-} ]] \
+        || die "VIRTUAL_ENV should be unset after leaving, got '${VIRTUAL_ENV:-}'"
+    [[ -z ${_AUTOENV_ACTIVE[python]:-} ]] \
+        || die "_AUTOENV_ACTIVE[python] should be unset after leaving"
+    rm -rf "$tmp" "$empty"
+}
+
+test_dispatch_switches_between_projects() {
+    local a=$(mktemp -d) b=$(mktemp -d)
+    make_fake_venv "$a/.venv"
+    make_fake_venv "$b/.venv"
+    source "$AUTOENV_SCRIPT"
+    cd "$a"
+    [[ ${VIRTUAL_ENV:-} == "$a/.venv" ]] || die "should be in A, got '${VIRTUAL_ENV:-}'"
+    cd "$b"
+    [[ ${VIRTUAL_ENV:-} == "$b/.venv" ]] || die "should switch to B, got '${VIRTUAL_ENV:-}'"
+    [[ ${_AUTOENV_ACTIVE[python]:-} == "$b/.venv" ]] \
+        || die "_AUTOENV_ACTIVE[python] should be $b/.venv"
+    rm -rf "$a" "$b"
+}
+
+test_dispatch_noop_when_state_matches() {
+    local tmp=$(mktemp -d)
+    make_fake_venv "$tmp/.venv"
+    source "$AUTOENV_SCRIPT"
+    cd "$tmp"
+    local before=$VIRTUAL_ENV
+    # Firing chpwd again (cd to same dir) should be a no-op, not a re-source.
+    cd "$tmp"
+    [[ $VIRTUAL_ENV == $before ]] \
+        || die "VIRTUAL_ENV changed on redundant chpwd: '$before' -> '$VIRTUAL_ENV'"
+    rm -rf "$tmp"
+}
+
+run_test "dispatch: activates on enter"         test_dispatch_activates_on_enter
+run_test "dispatch: deactivates on leave"       test_dispatch_deactivates_on_leave
+run_test "dispatch: switches between projects"  test_dispatch_switches_between_projects
+run_test "dispatch: no-op when state matches"   test_dispatch_noop_when_state_matches
+
 # === summary ===
 print
 print "Passed: $PASSED"
