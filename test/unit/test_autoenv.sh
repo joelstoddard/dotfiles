@@ -155,6 +155,35 @@ run_test "python activate sources activate"       test_python_activate_sources_a
 run_test "python deactivate calls deactivate"     test_python_deactivate_calls_deactivate
 run_test "python deactivate safe when unset"      test_python_deactivate_is_safe_when_no_deactivate_defined
 
+test_discovery_finds_python_handler() {
+    source "$AUTOENV_SCRIPT"
+    [[ " ${_AUTOENV_HANDLERS[*]} " == *" python "* ]] \
+        || die "python not in handlers: ${_AUTOENV_HANDLERS[*]}"
+}
+
+test_discovery_skips_underscore_prefixed_files() {
+    # Copy autoenv.zsh + a custom autoenv.d into tmp so we can stage files.
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    mkdir -p "$tmp/autoenv.d"
+    echo "_autoenv_live_detect()     { return 1 }" >  "$tmp/autoenv.d/live.zsh"
+    echo "_autoenv_live_active()     { }"         >> "$tmp/autoenv.d/live.zsh"
+    echo "_autoenv_live_activate()   { }"         >> "$tmp/autoenv.d/live.zsh"
+    echo "_autoenv_live_deactivate() { }"         >> "$tmp/autoenv.d/live.zsh"
+    echo "LOADED_DISABLED=1" > "$tmp/autoenv.d/_disabled.zsh"
+    source "$tmp/autoenv.zsh"
+    [[ " ${_AUTOENV_HANDLERS[*]} " == *" live "* ]] \
+        || die "live handler not discovered"
+    [[ " ${_AUTOENV_HANDLERS[*]} " != *" _disabled "* ]] \
+        || die "_disabled should not be registered"
+    [[ -z ${LOADED_DISABLED:-} ]] \
+        || die "_disabled.zsh was sourced when it shouldn't be"
+    rm -rf "$tmp"
+}
+
+run_test "discovery finds python"                test_discovery_finds_python_handler
+run_test "discovery skips underscore-prefixed"   test_discovery_skips_underscore_prefixed_files
+
 # === summary ===
 print
 print "Passed: $PASSED"
