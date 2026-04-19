@@ -53,3 +53,4 @@ _autoenv_chpwd() {
 }
 
 add-zsh-hook chpwd _autoenv_chpwd
+_autoenv_chpwd

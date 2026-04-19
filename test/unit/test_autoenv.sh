@@ -187,6 +187,7 @@ run_test "discovery skips underscore-prefixed"   test_discovery_skips_underscore
 test_dispatch_activates_on_enter() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
+    cd "$(mktemp -d)"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     [[ ${VIRTUAL_ENV:-} == "$tmp/.venv" ]] \
@@ -200,6 +201,7 @@ test_dispatch_deactivates_on_leave() {
     local tmp=$(mktemp -d)
     local empty=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
+    cd "$(mktemp -d)"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     cd "$empty"
@@ -214,6 +216,7 @@ test_dispatch_switches_between_projects() {
     local a=$(mktemp -d) b=$(mktemp -d)
     make_fake_venv "$a/.venv"
     make_fake_venv "$b/.venv"
+    cd "$(mktemp -d)"
     source "$AUTOENV_SCRIPT"
     cd "$a"
     [[ ${VIRTUAL_ENV:-} == "$a/.venv" ]] || die "should be in A, got '${VIRTUAL_ENV:-}'"
@@ -227,6 +230,7 @@ test_dispatch_switches_between_projects() {
 test_dispatch_noop_when_state_matches() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
+    cd "$(mktemp -d)"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     local before=$VIRTUAL_ENV
@@ -247,6 +251,7 @@ test_dispatch_respects_manual_activation() {
     make_fake_venv "$proj/.venv"
     # Pretend the user manually activated some unrelated venv before sourcing.
     export VIRTUAL_ENV=/some/manual/path
+    cd "$(mktemp -d)"
     source "$AUTOENV_SCRIPT"
     cd "$proj"
     [[ $VIRTUAL_ENV == /some/manual/path ]] \
@@ -257,6 +262,19 @@ test_dispatch_respects_manual_activation() {
 }
 
 run_test "dispatch: respects manual activation" test_dispatch_respects_manual_activation
+
+test_bootstrap_runs_on_source() {
+    local tmp=$(mktemp -d)
+    make_fake_venv "$tmp/.venv"
+    cd "$tmp"
+    # Source from inside a venv dir WITHOUT issuing a subsequent cd.
+    source "$AUTOENV_SCRIPT"
+    [[ ${VIRTUAL_ENV:-} == "$tmp/.venv" ]] \
+        || die "bootstrap should activate starting dir, VIRTUAL_ENV='${VIRTUAL_ENV:-}'"
+    rm -rf "$tmp"
+}
+
+run_test "bootstrap runs on source" test_bootstrap_runs_on_source
 
 # === summary ===
 print
