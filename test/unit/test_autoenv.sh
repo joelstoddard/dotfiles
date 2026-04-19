@@ -276,6 +276,24 @@ test_bootstrap_runs_on_source() {
 
 run_test "bootstrap runs on source" test_bootstrap_runs_on_source
 
+test_missing_functions_warn_and_skip() {
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    mkdir -p "$tmp/autoenv.d"
+    # Handler defines only _detect; missing active/activate/deactivate.
+    cat >"$tmp/autoenv.d/broken.zsh" <<'EOF'
+_autoenv_broken_detect() { return 1 }
+EOF
+    local stderr_file=$(mktemp)
+    source "$tmp/autoenv.zsh" 2>"$stderr_file"
+    grep -q broken "$stderr_file" || die "expected warning mentioning 'broken' on stderr, got: $(cat "$stderr_file")"
+    [[ " ${_AUTOENV_HANDLERS[*]} " != *" broken "* ]] \
+        || die "broken handler should be skipped, but is in: ${_AUTOENV_HANDLERS[*]}"
+    rm -rf "$tmp" "$stderr_file"
+}
+
+run_test "missing functions warn and skip" test_missing_functions_warn_and_skip
+
 # === summary ===
 print
 print "Passed: $PASSED"

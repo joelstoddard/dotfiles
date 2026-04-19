@@ -17,11 +17,19 @@ _AUTOENV_HANDLERS=()
     local self_dir="${${(%):-%x}:A:h}"
     local handler_dir="$self_dir/autoenv.d"
     [[ -d $handler_dir ]] || return 0
-    local f name
+    local f name fn missing
     for f in $handler_dir/*.zsh(N); do
         name=${f:t:r}
         [[ $name == _* ]] && continue
         source "$f"
+        missing=()
+        for fn in _detect _active _activate _deactivate; do
+            typeset -f "_autoenv_${name}${fn}" >/dev/null || missing+=("${fn}")
+        done
+        if (( ${#missing} > 0 )); then
+            print -u2 "autoenv: handler '$name' missing functions: ${missing[*]} — skipping"
+            continue
+        fi
         _AUTOENV_HANDLERS+=("$name")
     done
 }
