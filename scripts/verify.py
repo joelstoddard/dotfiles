@@ -110,14 +110,17 @@ def main() -> int:
     else:
         v.warn("btop ash-plus theme not found (run make generate-theme)")
 
-    # Zsh plugins
+    # Zsh plugins (cloned from GitHub at install time; warn if absent, don't fail)
     print("\n=== Verifying zsh plugins ===")
     plugins = [
         ".local/share/zsh/plugins/zsh-completions",
         ".local/share/zsh/plugins/zsh-autosuggestions",
     ]
     for rel in plugins:
-        v.check(f"{rel} exists", (HOME / rel).is_dir())
+        if (HOME / rel).is_dir():
+            v.check(f"{rel} exists", True)
+        else:
+            v.warn(f"{rel} not found (clone may have been skipped)")
 
     return v.summary()
 

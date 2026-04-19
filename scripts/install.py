@@ -88,7 +88,10 @@ def setup_zsh_plugins() -> None:
             print(f"  [ok] {name} (already cloned)")
         else:
             print(f"  [clone] {name}...")
-            subprocess.run(["git", "clone", "--depth=1", url, str(dest)], check=True)
+            try:
+                subprocess.run(["git", "clone", "--depth=1", url, str(dest)], check=True, timeout=120)
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+                print(f"  [warn] {name}: clone failed ({e}), skipping")
 
 
 def setup_completions_dir() -> None:
@@ -143,12 +146,16 @@ def setup_tpm() -> None:
         print("  [ok] TPM (already installed)")
     else:
         print("  [clone] TPM...")
-        subprocess.run(
-            ["git", "clone", "--depth=1",
-             "https://github.com/tmux-plugins/tpm", str(tpm_dir)],
-            check=True,
-        )
-        print("  Run 'prefix + I' in tmux to install plugins.")
+        try:
+            subprocess.run(
+                ["git", "clone", "--depth=1",
+                 "https://github.com/tmux-plugins/tpm", str(tpm_dir)],
+                check=True,
+                timeout=120,
+            )
+            print("  Run 'prefix + I' in tmux to install plugins.")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            print(f"  [warn] TPM: clone failed ({e}), skipping")
 
 
 def generate_theme() -> None:
