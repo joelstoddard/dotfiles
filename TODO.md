@@ -25,7 +25,7 @@
     - [ ] change default browser
 
 ## Shell
-- [ ] `chpwd` hook for auto-activating venvs on directory change
+- [x] `chpwd` hook for auto-activating venvs on directory change
 - [ ] Explore [sheldon](https://github.com/rossmacarthur/sheldon) as alternative to manual plugin loading
 
 ## Tmux

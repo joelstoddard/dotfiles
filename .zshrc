@@ -155,3 +155,8 @@ aws_profiles() {
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
+
+# ============================================================================
+# Auto-activate project environments on chpwd
+# ============================================================================
+[[ -r "$HOME/.config/zsh/autoenv.zsh" ]] && source "$HOME/.config/zsh/autoenv.zsh"
