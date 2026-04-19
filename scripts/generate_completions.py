@@ -22,6 +22,8 @@ TOOLS = [
     ("uv",        ["uv", "generate-shell-completion", "zsh"],        "_uv"),
 ]
 
+_TIMEOUT = 30
+
 
 def main() -> None:
     COMPLETIONS_DIR.mkdir(parents=True, exist_ok=True)
@@ -33,19 +35,19 @@ def main() -> None:
         if output_file is None:
             # Self-installing completion (terraform)
             try:
-                subprocess.run(cmd, capture_output=True)
+                subprocess.run(cmd, capture_output=True, timeout=_TIMEOUT)
                 print(f"  [ok] {binary} (self-installed)")
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
                 pass
             continue
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=_TIMEOUT)
             out_path = COMPLETIONS_DIR / output_file
             out_path.write_text(result.stdout)
             print(f"  [ok] {binary} -> {output_file}")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print(f"  [skip] {binary} (completion command failed)")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+            print(f"  [skip] {binary} (completion command failed or timed out)")
 
 
 if __name__ == "__main__":

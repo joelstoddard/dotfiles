@@ -1,0 +1,22 @@
+core:
+  git:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
+  ripgrep:
+    arch: ~
+    debian:
+      type: default
+      name: ripgrep
+    ubuntu:
+      type: default
+      name: ripgrep
+    macos: ~
+
+  linux-only-tool:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    # macos key intentionally missing; should be skipped on macOS

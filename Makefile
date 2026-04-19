@@ -1,4 +1,4 @@
-.PHONY: install uninstall generate-theme verify test
+.PHONY: install uninstall generate-theme generate-completions verify test test-unit test-e2e-local
 
 install:
 	./install.sh
@@ -17,3 +17,11 @@ verify:
 
 test:
 	python3 test/run_tests.py
+
+PYTHON := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
+
+test-unit:
+	$(PYTHON) -m unittest discover -s test/unit -t . -v
+
+test-e2e-local:
+	HOME=$$(mktemp -d) ./test/e2e/e2e.sh

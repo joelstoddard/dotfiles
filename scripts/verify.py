@@ -42,8 +42,8 @@ class Verifier:
 def main() -> int:
     v = Verifier()
 
-    print("=== Verifying symlinks ===")
-    symlinks = [
+    print("=== Verifying stow-linked configs ===")
+    linked = [
         ".zshrc",
         ".config/git/config",
         ".config/git/ignore",
@@ -54,14 +54,12 @@ def main() -> int:
         ".config/btop/btop.conf",
         ".config/btop/themes/ash-plus.theme",
     ]
-    for rel in symlinks:
+    for rel in linked:
         target = HOME / rel
-        is_link = target.is_symlink()
-        v.check(f"{rel} is symlink", is_link)
-        if is_link:
-            resolved = target.resolve()
-            in_repo = str(resolved).startswith(str(REPO_DIR))
-            v.check(f"{rel} points to repo", in_repo)
+        exists = target.exists()
+        v.check(f"{rel} exists", exists)
+        if exists:
+            v.check(f"{rel} resolves to repo", target.resolve() == (REPO_DIR / rel).resolve())
 
     print("\n=== Verifying binaries ===")
     binaries = ["zsh", "tmux", "nvim", "oh-my-posh", "git", "stow", "btop"]
@@ -112,14 +110,17 @@ def main() -> int:
     else:
         v.warn("btop ash-plus theme not found (run make generate-theme)")
 
-    # Zsh plugins
+    # Zsh plugins (cloned from GitHub at install time; warn if absent, don't fail)
     print("\n=== Verifying zsh plugins ===")
     plugins = [
         ".local/share/zsh/plugins/zsh-completions",
         ".local/share/zsh/plugins/zsh-autosuggestions",
     ]
     for rel in plugins:
-        v.check(f"{rel} exists", (HOME / rel).is_dir())
+        if (HOME / rel).is_dir():
+            v.check(f"{rel} exists", True)
+        else:
+            v.warn(f"{rel} not found (clone may have been skipped)")
 
     return v.summary()
 

@@ -13,3 +13,5 @@
 ^\.stow-local-ignore
 ^\.github
 ^\.venv
+^\.claude
+^os\.toml$
