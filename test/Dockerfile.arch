@@ -33,4 +33,4 @@ COPY --chown=testuser:testuser packages ./packages
 RUN ./install.sh --yes --skip-stow --include core
 
 COPY --chown=testuser:testuser . .
-RUN .venv/bin/python scripts/verify.py || true
+RUN test/e2e/e2e.sh
