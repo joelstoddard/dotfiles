@@ -43,10 +43,6 @@ def main() -> int:
     v = Verifier()
 
     print("=== Verifying stow-linked configs ===")
-    # Each path should resolve (through any folded parent-dir symlinks) to the
-    # corresponding file in the repo. Stow folds directories when only one
-    # package has entries under them, so the leaf may be a real file reached
-    # via a symlinked parent rather than a direct symlink itself.
     linked = [
         ".zshrc",
         ".config/git/config",
@@ -60,11 +56,10 @@ def main() -> int:
     ]
     for rel in linked:
         target = HOME / rel
-        v.check(f"{rel} exists", target.exists())
-        if target.exists():
-            resolved = target.resolve()
-            expected = (REPO_DIR / rel).resolve()
-            v.check(f"{rel} resolves to repo", resolved == expected)
+        exists = target.exists()
+        v.check(f"{rel} exists", exists)
+        if exists:
+            v.check(f"{rel} resolves to repo", target.resolve() == (REPO_DIR / rel).resolve())
 
     print("\n=== Verifying binaries ===")
     binaries = ["zsh", "tmux", "nvim", "oh-my-posh", "git", "stow", "btop"]
