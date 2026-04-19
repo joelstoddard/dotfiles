@@ -88,7 +88,7 @@ def setup_zsh_plugins() -> None:
             print(f"  [ok] {name} (already cloned)")
         else:
             print(f"  [clone] {name}...")
-            subprocess.run(["git", "clone", "--depth=1", url, str(dest)], check=True)
+            subprocess.run(["git", "clone", "--depth=1", url, str(dest)], check=True, timeout=120)
 
 
 def setup_completions_dir() -> None:
@@ -147,6 +147,7 @@ def setup_tpm() -> None:
             ["git", "clone", "--depth=1",
              "https://github.com/tmux-plugins/tpm", str(tpm_dir)],
             check=True,
+            timeout=120,
         )
         print("  Run 'prefix + I' in tmux to install plugins.")
 
