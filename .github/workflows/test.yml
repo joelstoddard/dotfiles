@@ -5,6 +5,22 @@ on:
     branches: [main]
 
 jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: '3.12'
+      - name: Install stow and PyYAML
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow
+          pip install pyyaml
+      - name: Run unit tests
+        run: make test-unit
+
   make-test:
     name: test (${{ matrix.target }})
     runs-on: ${{ matrix.runner }}
@@ -40,7 +56,14 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
       - if: matrix.os == 'macos'
-        name: Run install.sh on macOS
+        name: Install core packages via install.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./install.sh --yes --skip-stow --include core
+      - if: matrix.os == 'macos'
+        name: Run e2e harness on macOS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export HOME=$(mktemp -d)
+          ./test/e2e/e2e.sh
