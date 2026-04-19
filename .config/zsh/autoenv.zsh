@@ -28,10 +28,15 @@ _AUTOENV_HANDLERS=()
 
 _autoenv_chpwd() {
     [[ -n "${AUTOENV_DISABLE:-}" ]] && return 0
-    local h wanted owned
+    local h wanted owned external
     for h in $_AUTOENV_HANDLERS; do
         wanted=$(_autoenv_${h}_detect 2>/dev/null) || wanted=
         owned=${_AUTOENV_ACTIVE[$h]-}
+        external=$(_autoenv_${h}_active 2>/dev/null)
+        # Respect manual activation: if something is active that we didn't set, stay out.
+        if [[ -n $external && $external != $owned ]]; then
+            continue
+        fi
         if [[ $wanted == $owned ]]; then
             continue
         fi

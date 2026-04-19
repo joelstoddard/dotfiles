@@ -242,6 +242,22 @@ run_test "dispatch: deactivates on leave"       test_dispatch_deactivates_on_lea
 run_test "dispatch: switches between projects"  test_dispatch_switches_between_projects
 run_test "dispatch: no-op when state matches"   test_dispatch_noop_when_state_matches
 
+test_dispatch_respects_manual_activation() {
+    local proj=$(mktemp -d)
+    make_fake_venv "$proj/.venv"
+    # Pretend the user manually activated some unrelated venv before sourcing.
+    export VIRTUAL_ENV=/some/manual/path
+    source "$AUTOENV_SCRIPT"
+    cd "$proj"
+    [[ $VIRTUAL_ENV == /some/manual/path ]] \
+        || die "manual VIRTUAL_ENV was overwritten: got '$VIRTUAL_ENV'"
+    [[ -z ${_AUTOENV_ACTIVE[python]:-} ]] \
+        || die "_AUTOENV_ACTIVE[python] should remain unset when manual active"
+    rm -rf "$proj"
+}
+
+run_test "dispatch: respects manual activation" test_dispatch_respects_manual_activation
+
 # === summary ===
 print
 print "Passed: $PASSED"
