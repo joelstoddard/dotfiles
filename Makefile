@@ -18,12 +18,10 @@ verify:
 test:
 	python3 test/run_tests.py
 
+PYTHON := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
+
 test-unit:
-	@if [ -x .venv/bin/python ]; then \
-		.venv/bin/python -m unittest discover -s test/unit -v; \
-	else \
-		python3 -m unittest discover -s test/unit -v; \
-	fi
+	$(PYTHON) -m unittest discover -s test/unit -t . -v
 
 test-e2e-local:
 	HOME=$$(mktemp -d) ./test/e2e/e2e.sh
