@@ -13,5 +13,9 @@
 ^\.stow-local-ignore
 ^\.github
 ^\.venv
-^\.claude
+\.claude/settings\.json$
+\.claude/CLAUDE\.md$
+\.claude/worktrees
+\.claude/specs
+\.claude/plans
 ^os\.toml$
