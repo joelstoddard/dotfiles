@@ -16,7 +16,7 @@ jobs:
       - name: Install stow and PyYAML
         run: |
           sudo apt-get update
-          sudo apt-get install -y stow
+          sudo apt-get install -y stow zsh
           pip install pyyaml
       - name: Run unit tests
         run: make test-unit
