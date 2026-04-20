@@ -82,7 +82,11 @@ tooltips:
       - terraform
     style: plain
     foreground: "#FFA400"
-    template: " 󰸏 {{.Profile}}{{if .Region }} {{ if or (hasPrefix \"us-\" .Region) (hasPrefix \"ca-\" .Region) (hasPrefix \"sa-\" .Region) }}{{ else if hasPrefix \"eu-\" .Region }}{{ else if or (hasPrefix \"ap-\" .Region) (hasPrefix \"cn-\" .Region) }}{{ else if or (hasPrefix \"af-\" .Region) (hasPrefix \"me-\" .Region) (hasPrefix \"il-\" .Region) }}{{ else }}󰇧{{ end }} {{ .Region }}{{end}}"
+    template: " 󰸏 {{.Profile}}{{if .Region }}
+          {{ if or (hasPrefix \"us-\" .Region) (hasPrefix \"ca-\" .Region) (hasPrefix \"sa-\" .Region) }}{{ else if hasPrefix \"eu-\" .Region
+          }}{{ else if or (hasPrefix \"ap-\" .Region) (hasPrefix \"cn-\" .Region)
+          }}{{ else if or (hasPrefix \"af-\" .Region) (hasPrefix \"me-\" .Region) (hasPrefix \"il-\" .Region)
+          }}{{ else }}󰇧{{ end }} {{ .Region }}{{end}}"
   - type: docker
     tips:
       - docker
