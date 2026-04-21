@@ -4,6 +4,7 @@
 __pycache__/
 **/.claude/settings.local.json
 
-# Claude Code specs and plans (kept local, not versioned)
+# Claude Code worktrees, specs and plans (kept local, not versioned)
 **/.claude/specs/
 **/.claude/plans/
+**/.claude/worktrees/
