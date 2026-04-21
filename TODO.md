@@ -16,5 +16,4 @@
 - [ ] Reduce/remove GRUB timeout
 - [ ] Disable swap
 - [ ] Workspace switching keybinds
-- [ ] ddccontrol brightness automation (day/evening/night)
 - [ ] fprintd fingerprint setup
