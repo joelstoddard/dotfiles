@@ -35,7 +35,15 @@ blocks:
       - type: claude
         style: plain
         foreground: "#D97757"
-        template: '󰯉  {{ $p := .TokenUsagePercent.String | atoi }}{{ $f := div $p 10 }}{{ range $i, $_ := until 10 }}{{ if lt $i $f }}█{{ else }}▒{{ end }}{{ end }} {{ $p }}%'
+        template: '󰯉  5h {{ $u := .RateLimits.FiveHour.UsedPercentage }}{{ $r := sub .RateLimits.FiveHour.ResetsAt now.Unix }}{{ $e := div (mul (sub 18000 $r) 100) 18000 }}{{ $uc := div $u 10 }}{{ $ec := div $e 10 }}{{ range $i, $_ := until 10 }}{{ if eq $i $ec }}│{{ else if lt $i $uc }}█{{ else }}▒{{ end }}{{ end }} {{ $u }}% → {{ printf "%dh%02dm" (div $r 3600) (div (mod $r 3600) 60) }}  |  '
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: '7d {{ $u := .RateLimits.SevenDay.UsedPercentage }}{{ $r := sub .RateLimits.SevenDay.ResetsAt now.Unix }}{{ $e := div (mul (sub 604800 $r) 100) 604800 }}{{ $uc := div $u 10 }}{{ $ec := div $e 10 }}{{ range $i, $_ := until 10 }}{{ if eq $i $ec }}│{{ else if lt $i $uc }}█{{ else }}▒{{ end }}{{ end }} {{ $u }}% → {{ printf "%dd%dh" (div $r 86400) (div (mod $r 86400) 3600) }}  |  '
+      - type: claude
+        style: plain
+        foreground: "#D97757"
+        template: '{{ $p := .TokenUsagePercent.String | atoi }}{{ $f := div $p 10 }}{{ range $i, $_ := until 10 }}{{ if lt $i $f }}█{{ else }}▒{{ end }}{{ end }} {{ $p }}%'
       - type: claude
         style: plain
         foreground: "#D97757"
