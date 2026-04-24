@@ -6,11 +6,6 @@ blocks:
   - type: prompt
     alignment: left
     segments:
-      - type: path
-        style: plain
-        foreground: "#8a8a8a"
-        properties:
-          style: folder
       - type: git
         style: plain
         foreground: "#F79625"
