@@ -166,6 +166,12 @@ core:
     debian: ~
     ubuntu: ~
 
+  nmap:
+    arch: ~
+    debian: ~
+    ubuntu: ~
+    macos: ~
+
   ttl:
     check: "test -x $HOME/.local/bin/ttl || test -x /usr/local/bin/ttl"
     arch:
