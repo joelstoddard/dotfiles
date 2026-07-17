@@ -14,7 +14,7 @@ run_hook() {
 make_repo() {
   local d; d="$(mktemp -d)"
   git -C "$d" init -q -b "$1"
-  git -C "$d" -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
+  git -C "$d" -c user.email=t@t -c user.name=t -c commit.gpgsign=false commit -q --allow-empty -m init
   printf '%s\n' "$d"
 }
 
