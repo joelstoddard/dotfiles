@@ -207,9 +207,8 @@ core:
       type: script
       url: https://ohmyposh.dev/install.sh
     macos:
-      type: tap
-      tap: jandedobbeleer/oh-my-posh
-      name: oh-my-posh
+      type: script
+      url: https://ohmyposh.dev/install.sh
 
   bitwarden-cli:
     check: "bw --version"
