@@ -63,7 +63,7 @@ The `check` field overrides the default `command -v <key>` existence check.
 
 ## Committing
 
-Always use the `commit` skill for all git commits — invoke it via the Skill tool. Applies to all agents including sub-agents.
+Always use the `guardrails:commit` skill for all git commits — invoke it via the Skill tool. Applies to all agents including sub-agents.
 
 ## Commands
 
