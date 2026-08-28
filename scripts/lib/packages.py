@@ -179,11 +179,9 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
                     return None
 
         case "yay":
-            # AUR packages often fetch sources from third-party origins that
-            # can be transiently unreachable (e.g. the sipcalc PKGBUILD pulls
-            # from routemeister.net). yay's own retries are ~3s apart, too
-            # tight for brief origin outages; an outer loop with 30s backoff
-            # covers a wider window.
+            # AUR sources come from third-party origins that go transiently down, and
+            # yay's own ~3s retries are too tight to ride that out.
+            # See docs/package-install-retries.md.
             return (
                 f'for i in 1 2 3; do '
                 f'yay -S --noconfirm --needed {spec.name} && break; '

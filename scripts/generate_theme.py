@@ -96,10 +96,8 @@ def generate_btop_theme(palette: dict) -> str:
         "div_line": dim,
         "cpu_box": muted, "mem_box": muted, "net_box": muted, "proc_box": muted,
     }
-    # Gradients: (name, start, mid, end). btop interpolates linearly through
-    # the three stops. Load signals (cpu/used/temp/process) stay flat gray
-    # until the upper half of the range and only fade to red near max.
-    # Network peaks at orange. free/available/cached stay monochrome.
+    # Gradients: (name, start, mid, end). btop interpolates linearly through the
+    # three stops.
     gradients = [
         ("cpu",       muted, muted, red),
         ("used",      muted, muted, red),
