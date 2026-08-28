@@ -2,6 +2,7 @@
 ^packages
 ^theme
 ^test
+^docs
 ^install\.sh
 ^uninstall\.sh
 ^Makefile

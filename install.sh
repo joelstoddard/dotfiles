@@ -3,10 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Locate a Python interpreter that supports the features used by scripts/ (match statements → 3.10+)
-# AND has the stdlib modules venv creation needs. We validate rather than trust, because a broken
-# brew bottle (e.g. pyexpat linked against a too-old system libexpat) can leave `python3` importable
-# but unable to `-m venv`.
+# Locate a Python interpreter that is 3.10+ AND can actually create a venv. We validate
+# rather than trust: a broken brew bottle stays importable but fails `-m venv`.
+# See docs/python-interpreter-selection.md.
 PYTHON_BIN=""
 for candidate in python3.13 python3.12 python3.11 python3.10 python3.14 python3; do
     if command -v "$candidate" &>/dev/null; then
