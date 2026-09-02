@@ -121,6 +121,30 @@ def setup_alacritty_os_symlink(platform) -> None:
     print(f"  Alacritty os.toml -> {target}")
 
 
+def setup_claude_settings_symlink() -> None:
+    """Point ~/.claude/settings.json at the tracked user-settings.json.
+
+    Not stowed: the repo's .claude/settings.json is this project's own settings,
+    so the user-level copy needs a different name. See docs/design/claude-settings-split.md
+    """
+    target = REPO_DIR / ".claude" / "user-settings.json"
+    link = Path.home() / ".claude" / "settings.json"
+
+    if link.is_symlink():
+        if link.resolve() == target.resolve():
+            return
+        link.unlink()
+    elif link.exists():
+        backup = link.with_name("settings.json.bak-pre-symlink")
+        link.rename(backup)
+        print(f"  Backed up existing settings.json -> {backup.name}")
+        print("  Work-specific keys belong in settings.local.json, not the tracked file")
+
+    link.parent.mkdir(parents=True, exist_ok=True)
+    link.symlink_to(target)
+    print(f"  Claude settings.json -> {target}")
+
+
 def remove_omarchy_conflicts() -> None:
     """Remove conflicting Omarchy config files before stowing."""
     home = Path.home()
@@ -244,6 +268,9 @@ def main() -> int:
         print("\n=== Applying stow ===")
         stow.apply(REPO_DIR)
         print("  Configs symlinked to $HOME")
+
+        print("\n=== Configuring Claude Code ===")
+        setup_claude_settings_symlink()
 
         # Alacritty os.toml
         alacritty_dir = Path.home() / ".config" / "alacritty"

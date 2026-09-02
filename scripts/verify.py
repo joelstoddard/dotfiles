@@ -90,6 +90,18 @@ def main() -> int:
     else:
         v.warn("oh-my-posh theme.yaml not found")
 
+    # Claude user settings symlink
+    claude_settings = HOME / ".claude" / "settings.json"
+    if claude_settings.exists():
+        v.check("claude settings.json is symlink", claude_settings.is_symlink())
+        if claude_settings.is_symlink():
+            v.check(
+                "claude settings.json resolves to repo",
+                claude_settings.resolve() == (REPO_DIR / ".claude" / "user-settings.json").resolve(),
+            )
+    else:
+        v.warn("claude settings.json not found (run installer to link)")
+
     # Alacritty os.toml symlink
     os_toml = HOME / ".config" / "alacritty" / "os.toml"
     if os_toml.exists():
