@@ -181,7 +181,7 @@ def _build_install_command(spec: PackageSpec, platform: Platform):
         case "yay":
             # AUR sources come from third-party origins that go transiently down, and
             # yay's own ~3s retries are too tight to ride that out.
-            # See docs/package-install-retries.md.
+            # See docs/design/package-install-retries.md.
             return (
                 f'for i in 1 2 3; do '
                 f'yay -S --noconfirm --needed {spec.name} && break; '
