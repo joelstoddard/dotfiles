@@ -1,11 +1,4 @@
 {
-  "model": "opus[1m]",
-  "skipAutoPermissionPrompt": true,
-  "statusLine": {
-    "type": "command",
-    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml",
-    "padding": 0
-  },
   "permissions": {
     "allow": [
       "Bash(git branch:*)",
@@ -22,5 +15,15 @@
       "Bash(gh run view:*)",
       "Bash(gh run watch:*)"
     ]
+  },
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml",
+    "padding": 0
+  },
+  "skipAutoPermissionPrompt": true,
+  "enabledPlugins": {
+    "ponytail@ponytail": true
   }
 }
