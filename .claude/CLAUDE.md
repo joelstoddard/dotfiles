@@ -1,13 +1,12 @@
 # Claude.md
 
-## Spec and plan locations
+## Spec, plan and design doc locations
 
 Override superpowers skill defaults:
 
-- **Specs** (from `superpowers:brainstorming`): save to `.claude/specs/YYYY-MM-DD-<topic>-design.md`
-- **Plans** (from `superpowers:writing-plans`): save to `.claude/plans/YYYY-MM-DD-<feature-name>.md`
-
-Never save specs or plans to `docs/`. These paths are excluded from git via the global gitignore (`~/.config/git/ignore`).
+- **Specs** (from `superpowers:brainstorming`): save to `docs/specs/YYYY-MM-DD-<topic>-design.md`. Committed — specs are context for future agents.
+- **Plans** (from `superpowers:writing-plans`): save to `.claude/plans/YYYY-MM-DD-<feature-name>.md`. Never committed, never in `docs/` — a plan is spent once executed. Excluded from git via `~/.config/git/ignore`.
+- **Design docs** (from `guardrails:concise-comments`): save to `docs/design/<concept>.md`. Committed, and cited from the code that depends on them.
 
 ## Code change workflow
 
