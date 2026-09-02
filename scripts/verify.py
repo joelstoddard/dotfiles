@@ -53,6 +53,7 @@ def main() -> int:
         ".config/alacritty/alacritty.toml",
         ".config/btop/btop.conf",
         ".config/btop/themes/ash-plus.theme",
+        ".claude/CLAUDE.md",
     ]
     for rel in linked:
         target = HOME / rel
