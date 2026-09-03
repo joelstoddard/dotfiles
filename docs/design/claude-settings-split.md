@@ -75,6 +75,22 @@ runtime — it simply never enters git.
   returns the moment a `/permissions` change lands between syncs — the failure
   this design exists to end.
 
+## `autoMode` never belongs in the tracked file
+
+Claude Code generates `autoMode.environment` — a description of the current
+repo's org, cloud, branch protection and sensitive-data locations — and writes it
+to the **user-level** settings file. Since that path is a symlink into this repo,
+each new repo worked in dirties the tracked file with another repo's context.
+
+That is a leak path, not just churn: generate it while working in an employer
+repo and employer infrastructure lands in a file staged for a public commit. It
+is also pointless to track, because `settings.local.json` overrides the key
+wholesale, so a tracked copy never takes effect.
+
+So `autoMode` lives only in `settings.local.json`. `verify.py` fails if the
+tracked file contains the key, because the drift is silent and a reviewer will
+not notice another 25 lines of prose in a large JSON diff.
+
 ## Failure mode to watch
 
 Claude Code rewrites user settings when `/permissions` or `/config` changes, or

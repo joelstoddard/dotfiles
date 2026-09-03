@@ -102,6 +102,19 @@ def main() -> int:
     else:
         v.warn("claude settings.json not found (run installer to link)")
 
+    # Claude Code writes autoMode into the user-level file, which is this repo's
+    # tracked one. See docs/design/claude-settings-split.md
+    user_settings = REPO_DIR / ".claude" / "user-settings.json"
+    if user_settings.exists():
+        try:
+            import json
+            keys = json.loads(user_settings.read_text())
+            v.check("user-settings.json has no autoMode", "autoMode" not in keys)
+        except json.JSONDecodeError:
+            v.check("user-settings.json is valid JSON", False)
+    else:
+        v.warn("user-settings.json not found")
+
     # Alacritty os.toml symlink
     os_toml = HOME / ".config" / "alacritty" / "os.toml"
     if os_toml.exists():
