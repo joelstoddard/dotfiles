@@ -87,7 +87,7 @@ repo and employer infrastructure lands in a file staged for a public commit. It
 is also pointless to track, because `settings.local.json` overrides the key
 wholesale, so a tracked copy never takes effect.
 
-So `autoMode` lives only in `settings.local.json`. `verify.py` fails if the
+So `autoMode` lives only in `settings.local.json`. The `no-automode` flake check fails if the
 tracked file contains the key, because the drift is silent and a reviewer will
 not notice another 25 lines of prose in a large JSON diff.
 

@@ -46,6 +46,17 @@
           ]
           ++ modules;
         };
+
+      # Claude Code writes autoMode — a description of the current environment —
+      # into the user-level file, which is this repo's tracked one, in a public
+      # repo. Evaluated by `nix flake check`, so --no-build still catches it.
+      # See docs/design/claude-settings-split.md
+      noAutoMode =
+        pkgs:
+        if (builtins.fromJSON (builtins.readFile ./.claude/user-settings.json)) ? autoMode then
+          throw "autoMode found in .claude/user-settings.json — it belongs in settings.local.json (docs/design/claude-settings-split.md)"
+        else
+          pkgs.runCommand "no-automode" { } "touch $out";
     in
     {
       homeConfigurations = {
@@ -84,9 +95,11 @@
         home-linux = self.homeConfigurations."${username}@linux".activationPackage;
         home-linux-desktop = self.homeConfigurations."${username}@linux-desktop".activationPackage;
         home-omarchy = self.homeConfigurations."${username}@omarchy".activationPackage;
+        no-automode = noAutoMode (mkPkgs "x86_64-linux");
       };
       checks.aarch64-darwin = {
         home-macos = self.homeConfigurations."${username}@macos".activationPackage;
+        no-automode = noAutoMode (mkPkgs "aarch64-darwin");
       };
 
       formatter.x86_64-linux = (mkPkgs "x86_64-linux").nixfmt;
