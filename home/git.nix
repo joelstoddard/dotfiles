@@ -42,8 +42,7 @@ in
       "__pycache__/"
       "**/.claude/settings.local.json"
       ""
-      "# Claude Code worktrees, specs and plans (kept local, not versioned)"
-      "**/.claude/specs/"
+      "# Claude Code worktrees and plans (kept local, not versioned; specs live in docs/specs/)"
       "**/.claude/plans/"
       "**/.claude/worktrees/"
     ];
@@ -125,7 +124,6 @@ in
         fsckObjects = true;
       };
 
-      remote.origin.fetch = "+refs/tags/*:refs/tags/*";
       help.autocorrect = "prompt";
       branch.sort = "-committerdate";
       tag.sort = "version:refname";
