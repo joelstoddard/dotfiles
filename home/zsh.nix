@@ -58,9 +58,14 @@
       # Tool Init
       # ==========================================================================
 
-      # Homebrew (macOS — still used for GUI casks)
+      # Homebrew (macOS — still used for GUI casks). shellenv prepends
+      # /opt/homebrew/bin, which would shadow the CLI tools nixpkgs owns, so put
+      # the Nix profile back in front. typeset -U keeps the re-add from
+      # duplicating entries on a nested shell.
       if [[ -f "/opt/homebrew/bin/brew" ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
+        typeset -U path
+        path=("$HOME/.nix-profile/bin" "/nix/var/nix/profiles/default/bin" $path)
       fi
 
       # GPG
