@@ -37,7 +37,7 @@ in
     extraConfig = ''
       # General Options
       set -sg terminal-overrides ",*:RGB"
-      unbind -T copy-mode-vi MouseDragEnd1Pane
+      set -g set-clipboard on
       bind -T copy-mode-vi WheelUpPane   send-keys -X -N 2 scroll-up
       bind -T copy-mode-vi WheelDownPane send-keys -X -N 2 scroll-down
       set -g renumber-windows on
