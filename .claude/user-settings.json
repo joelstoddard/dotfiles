@@ -157,5 +157,10 @@
   "skipWorkflowUsageWarning": true,
   "preferredNotifChannel": "notifications_disabled",
   "autoCompactEnabled": false,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "xhigh"
+    }
+  }
 }
