@@ -43,6 +43,20 @@ name must differ from the project file. `install.py::setup_claude_settings_symli
 links `~/.claude/settings.json` to it instead, the same pattern Alacritty's
 `os.toml` uses. `verify.py` asserts the link exists and resolves into the repo.
 
+The tracked file holds no absolute paths, because it is stowed to macOS, Arch
+and Debian alike. Two entries needed changing for that:
+
+- The home read grant is `Read(~/**)`, not `Read(//Users/joel/**)`.
+- This repo's own plugin marketplace is no longer declared there. Claude Code
+  normalises a marketplace path to absolute when it stores one — verified by
+  running `claude plugin marketplace add` with a `~`-relative path and reading
+  back what it wrote — so no single stored value is correct on every machine.
+  `install.py::register_local_marketplace` runs
+  `claude plugin marketplace add --scope local` instead, which writes the path
+  for the machine it runs on into `.claude/settings.local.json`. That file is
+  gitignored and already stowed to `~/.claude/`, so the declaration lands in
+  both places it is needed and in none that git tracks.
+
 Claude Code merges the user and local files, so the work context still applies at
 runtime — it simply never enters git.
 

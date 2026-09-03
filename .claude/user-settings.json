@@ -63,7 +63,7 @@
       "WebFetch(domain:docs.blacksmith.sh)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.conventionalcommits.org)",
-      "Read(//Users/joel/**)",
+      "Read(~/**)",
       "Bash(git push:*)",
       "Bash(gh pr create --draft:*)"
     ],
@@ -145,12 +145,6 @@
     "frontend-design@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
-    "personal": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/joel/personal/dotfiles/.claude/marketplace"
-      }
-    },
     "ponytail": {
       "source": {
         "source": "github",
