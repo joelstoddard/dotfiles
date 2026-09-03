@@ -19,7 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `home/pkgs/ttl.nix` — custom derivation for tools missing from nixpkgs
 - `home/files/` — files kept byte-for-byte and linked, not rewritten in Nix
 - `.claude/agents/` and `.claude/rules/` — the seven personas, and the rules they share (`core.md` and `delegation.md` always load; the rest load by `paths:`). `test/unit/test_personas.py` keeps them consistent with the guardrails plugin. See `docs/specs/2026-10-02-personas-design.md`
-- `.claude/user-settings.json` — user-level Claude Code settings; `.claude/settings.json` is this repo's own project settings. The two are different files, see `docs/design/claude-settings-split.md`. Nothing links them into `~/.claude/` yet — the installer used to
+- `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by `home/claude.nix`. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Patterns
 

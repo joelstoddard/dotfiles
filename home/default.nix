@@ -12,6 +12,7 @@
     ./btop.nix
     ./nvim.nix
     ./fonts.nix
+    ./claude.nix
   ];
 
   options.dotfiles = {

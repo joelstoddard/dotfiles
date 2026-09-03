@@ -49,6 +49,7 @@ flake.nix                 # inputs (nixpkgs, home-manager) + one config per host
        ├─ btop.nix        # was .config/btop/
        ├─ nvim.nix        # links .config/nvim (git subtree) out-of-store
        ├─ fonts.nix       # nerd fonts (Linux GUI)
+       ├─ claude.nix      # links .claude/ user config into ~/.claude/
        └─ pkgs/ttl.nix    # custom package not in nixpkgs
 ```
 
@@ -101,6 +102,9 @@ zsh test/unit/test_autoenv.sh         # autoenv shell unit tests
 
 - GNU Stow, `install.sh`, the Python installer, `packages.yaml`, and the
   theme/completions generators are gone — Nix + Home Manager replace all of it.
+- One manual step per machine: `claude plugin marketplace add --scope local`
+  (the stored path is absolute, so it cannot be tracked — see
+  `docs/design/claude-settings-split.md`).
 - nvm was dropped in favor of a Nix-managed Node.js; use per-project flake
   devShells or direnv for version pinning.
 - On macOS, GUI apps (Firefox, Bitwarden, Spotify, Raycast, LinearMouse,
