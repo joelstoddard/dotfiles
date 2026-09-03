@@ -69,6 +69,11 @@ Always use the `guardrails:commit` skill for all git commits — invoke it via t
 
 ## Commands
 
+- **Test:** `make test-unit`
+
+`make test-unit` is what CI runs and what the guardrails push gate resolves, so
+it stays fast. `make test` is the Docker matrix and is run on demand.
+
 ```bash
 ./install.sh [--gui] [--yes] [--dry-run]                  # Full install
 ./install.sh --include core,development --skip-stow        # Packages only, specific categories
