@@ -27,6 +27,26 @@ nix run home-manager/master -- switch --flake .#joel@linux      # Debian/Ubuntu 
 
 After the first switch, `home-manager switch --flake .#<host>` is on PATH.
 
+### Migrating from the stow setup
+
+Remove the stow symlinks **before** the first switch. Home Manager backs up
+regular files it would clobber (`-b`), but it never backs up a symlink, and a
+surviving `~/.config/<tool>` *directory* symlink is worse: activation writes
+through it into the repo working tree rather than into `$HOME`.
+
+```bash
+find ~/.config -maxdepth 2 -type l | while read -r l; do
+  case "$(readlink "$l")" in *personal/dotfiles*) rm "$l";; esac
+done
+[ -L ~/.zshrc ] && rm ~/.zshrc
+
+nix run home-manager/master -- switch -b hm-bak --flake .#joel@macos
+```
+
+`-b hm-bak` handles the regular files that remain (`.zprofile`, `.zshenv`).
+If a switch does write into the repo, `git status` shows the config files as
+type-changed with `.hm-bak` siblings; `git checkout -- .config/` restores them.
+
 ## Uninstall
 
 ```bash
@@ -102,6 +122,9 @@ zsh test/unit/test_autoenv.sh         # autoenv shell unit tests
 
 - GNU Stow, `install.sh`, the Python installer, `packages.yaml`, and the
   theme/completions generators are gone — Nix + Home Manager replace all of it.
+- Homebrew stays on macOS for GUI casks. `brew shellenv` prepends
+  `/opt/homebrew/bin`, so `home/zsh.nix` re-prepends the Nix profile after it —
+  otherwise leftover Homebrew CLI formulae shadow the nixpkgs ones.
 - One manual step per machine: `claude plugin marketplace add --scope local`
   (the stored path is absolute, so it cannot be tracked — see
   `docs/design/claude-settings-split.md`).
