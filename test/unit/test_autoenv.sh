@@ -7,6 +7,11 @@
 
 set -u
 
+# The tests assert on VIRTUAL_ENV from an empty start. A venv active in the
+# caller's shell leaks in and fails four of them.
+unset VIRTUAL_ENV
+unfunction deactivate 2>/dev/null
+
 typeset REPO_ROOT="${${(%):-%x}:A:h:h:h}"
 typeset AUTOENV_SCRIPT="$REPO_ROOT/.config/zsh/autoenv.zsh"
 
