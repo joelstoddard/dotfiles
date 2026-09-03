@@ -6,62 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-- **GNU Stow** manages symlinks from this repo to `$HOME`. The repo root mirrors `$HOME` structure.
-- **Python installer** (`scripts/install.py`) reads `packages/packages.yaml` and installs packages directly — no code generation pipeline.
-- **Flat layout**: `.config/`, `.zshrc` at repo root. Non-config dirs (`scripts/`, `packages/`, `theme/`, `test/`) excluded via `.stow-local-ignore`.
+- **Nix flake + Home Manager** manage packages and configs declaratively. No stow, no installer scripts.
+- `flake.nix` defines one `homeConfigurations` entry per host; behavior is driven by the `dotfiles.*` module options (`gui`, `omarchy`, `work`, `repoPath`).
+- All modules live in `home/`. Verbatim config files (oh-my-posh themes, btop theme, autoenv zsh scripts) live in `home/files/` and are linked with `xdg.configFile`.
 
 ## Key Files
 
-- `install.sh` — bash shim that bootstraps Python venv and runs `scripts/install.py`
-- `scripts/lib/` — shared Python modules: `os_detect.py`, `packages.py`, `stow.py`, `github.py`
-- `packages/packages.yaml` — single source of truth for all packages across all OSes
-- `theme/palette.yaml` — central color definitions, generates `.config/alacritty/colors.toml`
-- `.zshrc` — manual plugin loading (sources from `~/.local/share/zsh/plugins/`), NVM lazy-loaded
-- `scripts/verify.py` — post-install sanity checks (symlinks, binaries, config syntax)
-- `scripts/generate_completions.py` — generates zsh completions for kubectl, helm, gh, docker, etc.
-- `.claude/CLAUDE.md` — stowed to `~/.claude/CLAUDE.md`, so it is the user-global memory file on every repo
-- `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by the installer. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
+- `flake.nix` — inputs (nixpkgs unstable, home-manager) and host configs
+- `home/default.nix` — module imports + `dotfiles.*` option declarations
+- `home/palette.nix` — ash-plus colors, single source of truth (consumed by alacritty/git/tmux modules)
+- `home/packages.nix` — every package for all platforms (was `packages/packages.yaml`)
+- `home/pkgs/ttl.nix` — custom derivation for tools missing from nixpkgs
+- `home/files/` — files kept byte-for-byte and linked, not rewritten in Nix
+- `.claude/user-settings.json` — user-level Claude Code settings; `.claude/settings.json` is this repo's own project settings. The two are different files, see `docs/design/claude-settings-split.md`. Nothing links them into `~/.claude/` yet — the installer used to
+
+## Patterns
+
+- **Rewrite, don't link**: tool configs are native Home Manager options (`programs.zsh`, `programs.git`, …). Only files that must be preserved byte-for-byte (Nerd Font glyphs) or that are code (autoenv handlers) live in `home/files/`.
+- **Platform differences** use `pkgs.stdenv.isDarwin` / `isLinux` conditionals, not separate files.
+- **Neovim**: `.config/nvim/` is a git subtree from `~/personal/nvim` — DO NOT edit it here. It is linked out-of-store (`mkOutOfStoreSymlink`) so lazy.nvim can write `lazy-lock.json`; the link target comes from `dotfiles.repoPath`.
+- **oh-my-posh theme files** (`home/files/oh-my-posh/*.yaml`): templates contain Nerd Font glyphs in the Unicode Private Use Area (e.g. `U+E0A0` branch, `U+EA7F`/`U+EB43`/`U+EA81` git status). The Read tool renders these as blank spaces — they are NOT whitespace. Never retype these files; copy with `sed`/Python and round-trip through `od -c` byte inspection.
+- **btop**: Home Manager owns `btop.conf` as a read-only symlink, so `save_config_on_exit` stays false and in-app tweaks must be ported into `home/btop.nix`.
 
 ## Git Worktrees
 
 - Use `.claude/worktrees/<branch-name>` for all git worktrees (already in `.gitignore`)
-- **Never re-stow from a worktree.** Do not run `stow .` or `stow . --adopt` from inside a worktree — it will overwrite the existing `$HOME` symlinks that point at `~/personal/dotfiles` and cause churn across unrelated configs.
-- **Testing changes from a worktree**: create targeted `ln -s` symlinks only for the specific new/changed files under test. Point them at the worktree path. Minimal disruption, easy to revert.
-- **Restoring after testing**: `cd ~/personal/dotfiles && git pull && ./install.sh --skip-packages` re-stows from the main repo and replaces any worktree-pointing symlinks back to main.
+- Testing changes from a worktree is safe: `home-manager switch --flake /path/to/worktree#<host>` activates that worktree's config; switching back from the main checkout restores it.
 
 ## Platform Support
 
-| Platform | Package Manager | Notes |
-|----------|----------------|-------|
-| macOS | Homebrew | Primary dev machine |
-| Arch Linux | pacman + yay | Omarchy integration |
-| Debian/Ubuntu | apt | Server + desktop |
-
-## Patterns
-
-- **Idempotent installs**: every package checks `command -v` or custom `check` before installing
-- **GitHub Releases API**: `github-release` type in packages.yaml fetches latest URLs at install time
-- **Alacritty OS config**: `os.toml` symlink created by installer pointing to `macos.toml`, `arch.toml`, or `linux.toml`
-- **Neovim**: git subtree from `~/personal/nvim` — DO NOT edit `.config/nvim/` directly
-- **Stow adopt**: `stow . --adopt` is used, which pulls existing `$HOME` files into the repo before symlinking — be careful with pre-existing configs
-- **oh-my-posh theme files** (`.config/oh-my-posh/*.yaml`): templates contain Nerd Font glyphs in the Unicode Private Use Area (e.g. `U+E0A0` branch, `U+EA7F`/`U+EB43`/`U+EA81` git status, `U+F0C7`, `U+EAA1`, `U+EA9A`). The Read tool renders these as blank spaces — they are NOT whitespace. When copying templates between theme files, inspect raw bytes with `od -c <file>` or `python3 -c "[print(f'U+{ord(c):04X}') for c in open(sys.argv[1]).read() if ord(c) > 127]"`, or copy via `sed`/Python rather than re-typing. Always round-trip through byte inspection to confirm icons are preserved.
-
-## packages.yaml Reference
-
-**Categories**: `core`, `development`, `work` (always installed); `desktop`, `gaming`, `3d-modelling`, `streaming-video-production` (with `--gui`)
-
-**Install types** (per-OS field value):
-- `~` (tilde) — native package manager (pacman/apt/brew), package name = key
-- `string` — native package manager with a different package name
-- `type: default` — native package manager with extra options
-- `type: github-release` — downloads latest release asset (requires `repo`, `asset` glob, `install` command)
-- `type: script` — runs a URL-based installer (`url` field)
-- `type: cask` / `type: tap` — Homebrew cask/tap (macOS only)
-- `type: yay` — AUR (Arch only)
-- `type: apt-repo` — adds a custom apt repo first (`setup` script), then installs
-- `type: cargo` — installs via `cargo install`
-
-The `check` field overrides the default `command -v <key>` existence check.
+| Platform | Host config | Notes |
+|----------|-------------|-------|
+| macOS | `joel@macos` | Primary dev machine; GUI apps stay in Homebrew casks |
+| Arch Linux | `joel@omarchy` | Omarchy integration via `dotfiles.omarchy` |
+| Debian/Ubuntu | `joel@linux`, `joel@linux-desktop` | Server + desktop |
 
 ## Committing
 
@@ -69,20 +47,16 @@ Always use the `guardrails:commit` skill for all git commits — invoke it via t
 
 ## Commands
 
-- **Test:** `make test-unit`
+- **Test:** `zsh test/unit/test_autoenv.sh`
 
-`make test-unit` is what CI runs and what the guardrails push gate resolves, so
-it stays fast. `make test` is the Docker matrix and is run on demand.
+The autoenv suite is what the guardrails push gate resolves, so it stays fast
+and needs no Nix. CI additionally evaluates every host with `nix flake check`.
 
 ```bash
-./install.sh [--gui] [--yes] [--dry-run]                  # Full install
-./install.sh --include core,development --skip-stow        # Packages only, specific categories
-./install.sh --skip-packages                               # Stow symlinks only
-./uninstall.sh                                             # Remove symlinks (does not uninstall packages)
-make generate-theme                                        # Regenerate Alacritty colors from palette.yaml
-make generate-completions                                  # Regenerate zsh completions
-make verify                                                # Post-install sanity checks
-make test                                                  # Docker-based integration tests (Debian/Ubuntu/Arch)
+home-manager switch --flake .#<host>       # apply configuration
+nix flake check --no-build                 # evaluate all host configs
+nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
+nix flake update                           # bump inputs
+nix fmt                                    # format Nix files (nixfmt-rfc-style)
+zsh test/unit/test_autoenv.sh              # autoenv shell unit tests
 ```
-
-Tests spin up Docker containers per distro, run `install.sh --yes --skip-stow --include core`, then verify — no unit tests exist.
