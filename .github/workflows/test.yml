@@ -5,65 +5,40 @@ on:
     branches: [main]
 
 jobs:
-  unit:
-    name: unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
-        with:
-          python-version: '3.12'
-      - name: Install stow and PyYAML
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y stow zsh
-          pip install pyyaml
-      - name: Run unit tests
-        run: make test-unit
-
-  make-test:
-    name: test (${{ matrix.target }})
+  flake:
+    name: flake (${{ matrix.host }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: debian
+          - host: joel@linux
             runner: ubuntu-latest
-            os: linux
-            dockerfile: test/Dockerfile.debian
-          - target: ubuntu
+          - host: joel@linux-desktop
             runner: ubuntu-latest
-            os: linux
-            dockerfile: test/Dockerfile.ubuntu
-          - target: arch
+          - host: joel@omarchy
             runner: ubuntu-latest
-            os: linux
-            dockerfile: test/Dockerfile.arch
-          - target: macos
+          - host: joel@macos
             runner: macos-latest
-            os: macos
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - if: matrix.os == 'linux'
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4.0.0
-      - if: matrix.os == 'linux'
-        name: Build test image for ${{ matrix.target }}
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
+      - uses: cachix/install-nix-action@2126ae7fc54c9df00dd18f7f18754393182c73cd  # v31.9.1
         with:
-          context: .
-          file: ${{ matrix.dockerfile }}
-          cache-from: type=gha,scope=${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.target }}
-      - if: matrix.os == 'macos'
-        name: Install core packages via install.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./install.sh --yes --skip-stow --include core
-      - if: matrix.os == 'macos'
-        name: Run e2e harness on macOS
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Evaluate flake
+        run: nix flake check --no-build
+      - name: Dry-run build activation package
+        run: nix build --dry-run '.#homeConfigurations."${{ matrix.host }}".activationPackage'
+
+  unit:
+    name: unit (autoenv)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Install zsh
         run: |
-          export HOME=$(mktemp -d)
-          ./test/e2e/e2e.sh
+          sudo apt-get update
+          sudo apt-get install -y zsh
+      - name: Run autoenv unit tests
+        run: zsh test/unit/test_autoenv.sh
