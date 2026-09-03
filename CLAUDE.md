@@ -19,6 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `.zshrc` — manual plugin loading (sources from `~/.local/share/zsh/plugins/`), NVM lazy-loaded
 - `scripts/verify.py` — post-install sanity checks (symlinks, binaries, config syntax)
 - `scripts/generate_completions.py` — generates zsh completions for kubectl, helm, gh, docker, etc.
+- `.claude/CLAUDE.md` — stowed to `~/.claude/CLAUDE.md`, so it is the user-global memory file on every repo
+- `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by the installer. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Git Worktrees
 

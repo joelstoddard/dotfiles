@@ -7,7 +7,7 @@
 ^uninstall\.sh
 ^Makefile
 ^README\.md
-^CLAUDE\.md
+^/CLAUDE\.md$
 ^TODO\.md
 ^\.git
 ^\.gitignore
@@ -15,8 +15,7 @@
 ^\.github
 ^\.venv
 \.claude/settings\.json$
-\.claude/CLAUDE\.md$
+\.claude/user-settings\.json$
 \.claude/worktrees
-\.claude/specs
 \.claude/plans
 ^os\.toml$
