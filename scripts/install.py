@@ -121,14 +121,14 @@ def setup_alacritty_os_symlink(platform) -> None:
     print(f"  Alacritty os.toml -> {target}")
 
 
-def setup_claude_settings_symlink() -> None:
+def setup_claude_settings_symlink(home: Path | None = None) -> None:
     """Point ~/.claude/settings.json at the tracked user-settings.json.
 
     Not stowed: the repo's .claude/settings.json is this project's own settings,
     so the user-level copy needs a different name. See docs/design/claude-settings-split.md
     """
     target = REPO_DIR / ".claude" / "user-settings.json"
-    link = Path.home() / ".claude" / "settings.json"
+    link = (home or Path.home()) / ".claude" / "settings.json"
 
     if link.is_symlink():
         if link.resolve() == target.resolve():
