@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `home/packages.nix` — every package for all platforms (was `packages/packages.yaml`)
 - `home/pkgs/ttl.nix` — custom derivation for tools missing from nixpkgs
 - `home/files/` — files kept byte-for-byte and linked, not rewritten in Nix
-- `.claude/user-settings.json` — user-level Claude Code settings; `.claude/settings.json` is this repo's own project settings. The two are different files, see `docs/design/claude-settings-split.md`. Nothing links them into `~/.claude/` yet — the installer used to
+- `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by `home/claude.nix`. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Patterns
 
