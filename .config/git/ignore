@@ -1,9 +1,0 @@
-# Python specific
-.venv/
-.pytest_cache/
-__pycache__/
-**/.claude/settings.local.json
-
-# Claude Code worktrees and plans (kept local, not versioned; specs live in docs/specs/)
-**/.claude/plans/
-**/.claude/worktrees/

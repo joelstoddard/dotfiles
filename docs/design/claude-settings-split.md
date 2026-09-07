@@ -8,12 +8,12 @@ Claude Code reads settings from three places, in increasing precedence:
 2. `<project>/.claude/settings.json` — project level, committed with the repo.
 3. `<project>/.claude/settings.local.json` — project level, machine-local.
 
-This repo mirrors `$HOME`, and GNU Stow links its contents into `$HOME`. That
-makes one repo path serve two different roles at once: `.claude/settings.json` is
-this project's own settings file *and* the thing stow would link to
-`~/.claude/settings.json`. Both are real files with different content. Stow
-cannot express that, so the user-level file went untracked and drifted — 214
-lines live against a 29-line project file that was mistaken for a stale copy.
+This repo links its contents into `$HOME`. That makes one repo path serve two
+different roles at once: `.claude/settings.json` is this project's own settings
+file *and* the obvious source for `~/.claude/settings.json`. Both are real files
+with different content, and one path cannot be both, so the user-level file went
+untracked and drifted — 214 lines live against a 29-line project file that was
+mistaken for a stale copy.
 
 ## The constraint
 
@@ -38,12 +38,12 @@ Three files, split by audience rather than by scope:
 | `.claude/settings.json` | yes | this project's own settings — dotfiles-specific git/gh permissions, `opus[1m]`, the oh-my-posh statusline |
 | `.claude/settings.local.json` | no (gitignored) | employer environment context, work marketplaces and their plugins, machine-local permission grants |
 
-`user-settings.json` is excluded from stow (`.stow-local-ignore`) because its
-name must differ from the project file. `install.py::setup_claude_settings_symlink`
-links `~/.claude/settings.json` to it instead, the same pattern Alacritty's
-`os.toml` uses. `verify.py` asserts the link exists and resolves into the repo.
+`user-settings.json` carries a different name from the project file for exactly
+that reason. `home/claude.nix` links `~/.claude/settings.json` to it with
+`mkOutOfStoreSymlink`, not a read-only store copy, because Claude Code writes
+this file in place — the same reason `home/nvim.nix` links out-of-store.
 
-The tracked file holds no absolute paths, because it is stowed to macOS, Arch
+The tracked file holds no absolute paths, because it is linked on macOS, Arch
 and Debian alike. Two entries needed changing for that:
 
 - The home read grant is `Read(~/**)`, not `Read(//Users/joel/**)`.
@@ -51,19 +51,20 @@ and Debian alike. Two entries needed changing for that:
   normalises a marketplace path to absolute when it stores one — verified by
   running `claude plugin marketplace add` with a `~`-relative path and reading
   back what it wrote — so no single stored value is correct on every machine.
-  `install.py::register_local_marketplace` runs
-  `claude plugin marketplace add --scope local` instead, which writes the path
-  for the machine it runs on into `.claude/settings.local.json`. That file is
-  gitignored and already stowed to `~/.claude/`, so the declaration lands in
-  both places it is needed and in none that git tracks.
+  Run `claude plugin marketplace add --scope local` once per machine instead: it
+  writes that machine's path into `.claude/settings.local.json`. That file is
+  gitignored, and `home/claude.nix` links it to `~/.claude/` as well, so the
+  declaration lands in both places it is needed and in none that git tracks.
+  Nothing runs this for you — it is the one manual step of a fresh setup.
 
 Claude Code merges the user and local files, so the work context still applies at
 runtime — it simply never enters git.
 
 ## Rejected alternatives
 
-- **Un-exclude `.claude/settings.json` from stow.** Collides with the project
-  settings file, as above. One of the two would have to lose its content.
+- **Link `.claude/settings.json` to `~/.claude/settings.json` directly.**
+  Collides with the project settings file, as above. One of the two would have
+  to lose its content.
 - **Rename the project settings file instead.** Claude Code fixes that name; only
   the user-level file is free to move.
 - **Commit the user file whole and make the repo private.** Solves the leak,
@@ -87,7 +88,7 @@ repo and employer infrastructure lands in a file staged for a public commit. It
 is also pointless to track, because `settings.local.json` overrides the key
 wholesale, so a tracked copy never takes effect.
 
-So `autoMode` lives only in `settings.local.json`. `verify.py` fails if the
+So `autoMode` lives only in `settings.local.json`. The `no-automode` flake check fails if the
 tracked file contains the key, because the drift is silent and a reviewer will
 not notice another 25 lines of prose in a large JSON diff.
 
@@ -99,9 +100,8 @@ follows the symlink and lands in the repo, which is the intent. A write that
 instead creates a temporary file and renames it over the target would replace the
 symlink with a regular file, and drift would resume silently.
 
-`verify.py` catches that: `claude settings.json is symlink` fails once the link is
-gone. Run `make verify` after any bulk permissions change, and re-run
-`./install.sh --skip-packages` to restore the link.
+Check with `readlink ~/.claude/settings.json` after any bulk permissions change;
+`home-manager switch --flake .#<host>` restores the link.
 
 Adding a key to the tracked file also means deciding it is publishable. Anything
 naming an employer, an internal host, a private repo or a credential belongs in
