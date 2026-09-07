@@ -70,6 +70,7 @@ let
       uv
       bash
       lua5_4
+      rtk
     ]
     ++ lib.optionals isDarwin [
       colima
