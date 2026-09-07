@@ -16,6 +16,10 @@ in
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/user-settings.json";
 
+  # rtk regenerates this on `rtk init`, so it is linked in place like the two
+  # files above rather than served read-only from the store.
+  home.file.".claude/RTK.md".source = config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/RTK.md";
+
   # Gitignored, so the flake cannot see it — but mkOutOfStoreSymlink only needs
   # the path. The link is what puts the repo-local marketplace registration in
   # user scope too; the target is created on first write if absent.
