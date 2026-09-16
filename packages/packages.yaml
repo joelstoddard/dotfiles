@@ -578,6 +578,17 @@ development:
     ubuntu: lua5.4
     macos: ~
 
+  rtk:
+    arch:
+      type: yay
+    debian:
+      type: script
+      url: https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh
+    ubuntu:
+      type: script
+      url: https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh
+    macos: ~
+
 work:
   granted:
     check: "assume --version"
