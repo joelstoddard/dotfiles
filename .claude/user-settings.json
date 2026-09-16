@@ -68,7 +68,6 @@
       "Bash(gh pr create --draft:*)"
     ],
     "deny": [
-      "Bash(gh api:*)",
       "Bash(gh pr comment:*)",
       "Bash(gh pr review:*)",
       "Bash(gh pr merge:*)",
@@ -106,6 +105,7 @@
       "Bash(git push origin master:*)"
     ],
     "ask": [
+      "Bash(gh api:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr ready:*)",
@@ -162,5 +162,19 @@
     "claude-opus-5": {
       "effortLevel": "xhigh"
     }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "jq -c 'if ((.tool_input.command // \"\") | test(\"^gh api --method GET repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pulls/[0-9]+/comments( --paginate)?( --jq \\\\x27[^\\\\x27]*\\\\x27)?$\")) then {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"allow\",permissionDecisionReason:\"read-only GET of PR inline review comments\"}} else empty end'"
+          }
+        ]
+      }
+    ]
   }
 }
