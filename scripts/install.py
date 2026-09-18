@@ -23,6 +23,10 @@ from scripts.lib import stow
 REPO_DIR = Path(__file__).resolve().parent.parent
 PACKAGES_YAML = REPO_DIR / "packages" / "packages.yaml"
 
+# Drops the model Claude Code records after each session and sorts keys, so its
+# rewrites of user-settings.json produce an identical blob. See .gitattributes.
+SETTINGS_CLEAN_FILTER = "jq -S 'del(.model)'"
+
 # Categories included without --gui
 CLI_CATEGORIES = {"core", "development", "work"}
 
@@ -144,6 +148,27 @@ def setup_claude_settings_symlink(home: Path | None = None) -> None:
     link.parent.mkdir(parents=True, exist_ok=True)
     link.symlink_to(target)
     print(f"  Claude settings.json -> {target}")
+
+
+def configure_settings_filter(repo: Path | None = None) -> None:
+    """Register the clean filter that keeps session state out of user-settings.json.
+
+    The filter lives in git config, which is per-machine, so .gitattributes alone
+    does nothing on a fresh clone. See docs/design/claude-settings-split.md
+    """
+    if shutil.which("jq") is None:
+        print("  jq not on PATH — skipping settings filter")
+        return
+
+    result = subprocess.run(
+        ["git", "config", "filter.claude-settings.clean", SETTINGS_CLEAN_FILTER],
+        cwd=repo or REPO_DIR,
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        print("  Claude settings clean filter registered")
+    else:
+        print(f"  Could not register settings filter: {result.stderr.decode().strip()}")
 
 
 def register_local_marketplace() -> None:
@@ -293,6 +318,7 @@ def main() -> int:
 
         print("\n=== Configuring Claude Code ===")
         setup_claude_settings_symlink()
+        configure_settings_filter()
         register_local_marketplace()
 
         # Alacritty os.toml
