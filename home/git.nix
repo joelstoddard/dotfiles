@@ -45,6 +45,10 @@ in
       "# Claude Code worktrees and plans (kept local, not versioned; specs live in docs/specs/)"
       "**/.claude/plans/"
       "**/.claude/worktrees/"
+      ""
+      "# Agent lessons, kept local while the pattern is on trial (see"
+      "# docs/specs/2026-09-07-guardrails-autonomy-design.md)"
+      "**/.claude/docs/lessons/"
     ];
 
     settings = {
