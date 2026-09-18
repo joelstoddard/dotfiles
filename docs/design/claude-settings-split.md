@@ -127,17 +127,21 @@ the live `model` still applies in every repo that does not pin one — it simply
 never reaches a commit.
 
 The filter lives in git config, which is per-machine, so `.gitattributes` alone
-does nothing on a fresh clone. `install.py::configure_settings_filter` registers
-it, and `SETTINGS_CLEAN_FILTER` holds the one definition both it and the tests
-read. A clone without it gets the committed file — sorted, no `model` — which is
-valid: Claude Code picks a default and records it again. The filter is a
-convenience, never a correctness dependency.
+does nothing on a fresh clone. `home/git.nix` declares it, so activation writes
+it to `~/.config/git/config` and it applies without an install step. Being
+global costs nothing: `.gitattributes` binds it to one path in this repo, so it
+never touches another. A clone on a machine that has not activated gets the
+committed file — sorted, no `model` — which is valid: Claude Code picks a
+default and records it again. The filter is a convenience, never a correctness
+dependency.
 
 **What it does not fix.** `git status` still lists the file after a model
 switch. Git decides that from stat alone and does not run the filter, so the
 tree looks dirty while `git diff` is empty and a commit records nothing.
-`test_settings_filter.py` asserts exactly that, so a future git that closes the
-gap will show up as a failing test rather than a silent behaviour change.
+`test_settings_filter.sh` asserts exactly that, so a future git that closes the
+gap will show up as a failing test rather than a silent behaviour change. It
+reads the filter definition out of `home/git.nix`, so that file and
+`.gitattributes` cannot drift apart unnoticed.
 
 Filtering a key is a decision that it is session state. A key that is genuinely
 configuration belongs in the file and in the diff.
