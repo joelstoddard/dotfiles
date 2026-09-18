@@ -1,6 +1,27 @@
 {
+  "autoCompactEnabled": false,
+  "effortLevel": "xhigh",
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "guardrails@personal": true,
+    "slack@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
   "env": {
     "EDITOR": "nvim"
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "repo": "DietrichGebert/ponytail",
+        "source": "github"
+      }
+    }
+  },
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "xhigh"
+    }
   },
   "permissions": {
     "allow": [
@@ -67,6 +88,31 @@
       "Bash(git push:*)",
       "Bash(gh pr create --draft:*)"
     ],
+    "ask": [
+      "Bash(gh api:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr ready:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh run rerun:*)",
+      "mcp__linear-server__save_issue",
+      "mcp__claude_ai_Linear__save_issue",
+      "mcp__claude_ai_Linear__save_project",
+      "mcp__claude_ai_Linear__save_document",
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "mcp__claude_ai_Notion__notion-update-page",
+      "mcp__claude_ai_Gmail__create_draft",
+      "mcp__claude_ai_Gmail__update_draft",
+      "mcp__plugin_slack_slack__slack_send_message_draft",
+      "mcp__claude_ai_Google_Calendar__create_event",
+      "mcp__claude_ai_Google_Calendar__update_event",
+      "mcp__claude_ai_Google_Calendar__delete_event",
+      "mcp__claude_ai_Google_Drive__create_file",
+      "mcp__claude_ai_Google_Drive__update_file",
+      "mcp__claude_ai_Google_Drive__trash_file",
+      "Artifact"
+    ],
+    "defaultMode": "auto",
     "deny": [
       "Bash(gh pr comment:*)",
       "Bash(gh pr review:*)",
@@ -105,64 +151,17 @@
       "Bash(git commit --no-verify:*)",
       "Bash(git push origin main:*)",
       "Bash(git push origin master:*)"
-    ],
-    "ask": [
-      "Bash(gh api:*)",
-      "Bash(gh pr create:*)",
-      "Bash(gh pr edit:*)",
-      "Bash(gh pr ready:*)",
-      "Bash(gh workflow run:*)",
-      "Bash(gh run rerun:*)",
-      "mcp__linear-server__save_issue",
-      "mcp__claude_ai_Linear__save_issue",
-      "mcp__claude_ai_Linear__save_project",
-      "mcp__claude_ai_Linear__save_document",
-      "mcp__claude_ai_Notion__notion-create-pages",
-      "mcp__claude_ai_Notion__notion-update-page",
-      "mcp__claude_ai_Gmail__create_draft",
-      "mcp__claude_ai_Gmail__update_draft",
-      "mcp__plugin_slack_slack__slack_send_message_draft",
-      "mcp__claude_ai_Google_Calendar__create_event",
-      "mcp__claude_ai_Google_Calendar__update_event",
-      "mcp__claude_ai_Google_Calendar__delete_event",
-      "mcp__claude_ai_Google_Drive__create_file",
-      "mcp__claude_ai_Google_Drive__update_file",
-      "mcp__claude_ai_Google_Drive__trash_file",
-      "Artifact"
-    ],
-    "defaultMode": "auto"
+    ]
   },
-  "model": "claude-fable-5-1[1m]",
+  "preferredNotifChannel": "notifications_disabled",
+  "skipAutoPermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml",
+    "type": "command"
+  },
+  "tui": "fullscreen",
   "worktree": {
     "baseRef": "fresh"
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml"
-  },
-  "enabledPlugins": {
-    "slack@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "guardrails@personal": true,
-    "frontend-design@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "ponytail": {
-      "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    }
-  },
-  "effortLevel": "xhigh",
-  "tui": "fullscreen",
-  "skipWorkflowUsageWarning": true,
-  "preferredNotifChannel": "notifications_disabled",
-  "autoCompactEnabled": false,
-  "skipAutoPermissionPrompt": true,
-  "modelSettings": {
-    "claude-opus-5": {
-      "effortLevel": "xhigh"
-    }
   }
 }

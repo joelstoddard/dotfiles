@@ -106,3 +106,38 @@ gone. Run `make verify` after any bulk permissions change, and re-run
 Adding a key to the tracked file also means deciding it is publishable. Anything
 naming an employer, an internal host, a private repo or a credential belongs in
 `settings.local.json`.
+
+## Session state in a tracked file
+
+Those same rewrites also record state nobody chose. `model` is the clearest
+case: Claude Code does not read it as intent, it writes it to remember the model
+last used, and each rewrite reorders every key as well. Neither is
+configuration, and both landed in `git status` after every session.
+
+A clean filter strips them at the git boundary:
+
+```
+.gitattributes                    .claude/user-settings.json filter=claude-settings
+git config filter.…clean          jq -S 'del(.model)'
+```
+
+`del(.model)` drops the session state; `-S` makes key order canonical so a
+rewrite alone produces a byte-identical blob. The working file is untouched, so
+the live `model` still applies in every repo that does not pin one — it simply
+never reaches a commit.
+
+The filter lives in git config, which is per-machine, so `.gitattributes` alone
+does nothing on a fresh clone. `install.py::configure_settings_filter` registers
+it, and `SETTINGS_CLEAN_FILTER` holds the one definition both it and the tests
+read. A clone without it gets the committed file — sorted, no `model` — which is
+valid: Claude Code picks a default and records it again. The filter is a
+convenience, never a correctness dependency.
+
+**What it does not fix.** `git status` still lists the file after a model
+switch. Git decides that from stat alone and does not run the filter, so the
+tree looks dirty while `git diff` is empty and a commit records nothing.
+`test_settings_filter.py` asserts exactly that, so a future git that closes the
+gap will show up as a failing test rather than a silent behaviour change.
+
+Filtering a key is a decision that it is session state. A key that is genuinely
+configuration belongs in the file and in the diff.
