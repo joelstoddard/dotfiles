@@ -20,13 +20,16 @@ test:
 
 PYTHON := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-test-unit: test-unit-py test-unit-shell
+test-unit: test-unit-py test-unit-shell test-unit-guardrails
 
 test-unit-py:
 	$(PYTHON) -m unittest discover -s test/unit -t . -v
 
 test-unit-shell:
 	zsh test/unit/test_autoenv.sh
+
+test-unit-guardrails:
+	bash .claude/marketplace/plugins/guardrails/tests/run.sh
 
 test-e2e-local:
 	HOME=$$(mktemp -d) ./test/e2e/e2e.sh

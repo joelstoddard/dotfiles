@@ -68,7 +68,6 @@
       "Bash(gh pr create --draft:*)"
     ],
     "deny": [
-      "Bash(gh api:*)",
       "Bash(gh pr comment:*)",
       "Bash(gh pr review:*)",
       "Bash(gh pr merge:*)",
@@ -108,6 +107,7 @@
       "Bash(git push origin master:*)"
     ],
     "ask": [
+      "Bash(gh api:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr ready:*)",
