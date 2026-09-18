@@ -40,7 +40,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y zsh
-      - name: Run autoenv unit tests
-        run: zsh test/unit/test_autoenv.sh
+      - name: Run shell unit tests
+        run: bash test/unit/run.sh
       - name: Run guardrails plugin tests
         run: bash .claude/marketplace/plugins/guardrails/tests/run.sh

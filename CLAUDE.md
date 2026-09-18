@@ -47,7 +47,7 @@ Always use the `guardrails:commit` skill for all git commits — invoke it via t
 
 ## Commands
 
-- **Test:** `zsh test/unit/test_autoenv.sh && bash .claude/marketplace/plugins/guardrails/tests/run.sh`
+- **Test:** `bash test/unit/run.sh && bash .claude/marketplace/plugins/guardrails/tests/run.sh`
 
 These are the two shell suites in the repo; both are fast and need no Nix, which
 is what the guardrails push gate resolves. CI runs the same pair and additionally
@@ -59,6 +59,6 @@ nix flake check --no-build                 # evaluate all host configs
 nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
 nix flake update                           # bump inputs
 nix fmt                                    # format Nix files (nixfmt-rfc-style)
-zsh test/unit/test_autoenv.sh              # autoenv shell unit tests
+bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
 bash .claude/marketplace/plugins/guardrails/tests/run.sh   # guardrails plugin tests
 ```
