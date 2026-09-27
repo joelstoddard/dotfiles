@@ -56,12 +56,7 @@ vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile" }, {
 	desc = "Disable persistent undo for sops-encrypted file paths",
 })
 
-return {
-	"prismatic-koi/nvim-sops",
-	event = { "BufReadPost" },
-	opts = {},
-	keys = {
-		{ "<leader>Sd", "<cmd>SopsDecrypt<cr>", desc = "Sops: decrypt buffer" },
-		{ "<leader>Se", "<cmd>SopsEncrypt<cr>", desc = "Sops: encrypt buffer" },
-	},
-}
+require("nvim_sops").setup({})
+
+vim.keymap.set("n", "<leader>Sd", "<cmd>SopsDecrypt<cr>", { desc = "Sops: decrypt buffer" })
+vim.keymap.set("n", "<leader>Se", "<cmd>SopsEncrypt<cr>", { desc = "Sops: encrypt buffer" })

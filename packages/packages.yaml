@@ -71,6 +71,21 @@ core:
       install: "sudo tar -xzf {asset} --strip-components=1 --overwrite -C /usr"
     macos: ~
 
+  tree-sitter-cli:
+    check: "tree-sitter --version"
+    arch: ~
+    debian:
+      type: github-release
+      repo: tree-sitter/tree-sitter
+      asset: "tree-sitter-linux-x64.gz"
+      install: "gzip -dc < {asset} > /tmp/tree-sitter && sudo install -m 755 /tmp/tree-sitter /usr/local/bin/tree-sitter && rm -f /tmp/tree-sitter"
+    ubuntu:
+      type: github-release
+      repo: tree-sitter/tree-sitter
+      asset: "tree-sitter-linux-x64.gz"
+      install: "gzip -dc < {asset} > /tmp/tree-sitter && sudo install -m 755 /tmp/tree-sitter /usr/local/bin/tree-sitter && rm -f /tmp/tree-sitter"
+    macos: ~
+
   jq:
     arch: ~
     debian: ~
@@ -576,6 +591,12 @@ development:
     arch: ~
     debian: lua5.4
     ubuntu: lua5.4
+    macos: ~
+
+  luacheck:
+    arch: ~
+    debian: lua-check
+    ubuntu: lua-check
     macos: ~
 
   rtk:

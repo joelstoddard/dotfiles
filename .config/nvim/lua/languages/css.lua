@@ -1,10 +1,12 @@
 -- ================================================================================================
--- TITLE : vim-fugitive
--- ABOUT : A Git wrapper plugin for Vim and Neovim. Provides powerful Git integration and commands.
--- LINKS :
---   > github : https://github.com/tpope/vim-fugitive
+-- TITLE : CSS
+-- ABOUT : css parser, cssls and prettierd.
 -- ================================================================================================
 
 return {
-	"tpope/vim-fugitive",
+	filetypes = { "css" },
+	parsers = { "css" },
+	servers = { cssls = {} },
+	format = { "prettier_d" },
+	mason = { "css-lsp", "prettierd" },
 }

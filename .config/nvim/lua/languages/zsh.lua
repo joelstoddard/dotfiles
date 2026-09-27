@@ -1,11 +1,9 @@
 -- ================================================================================================
--- TITLE : gitsigns.nvim
--- LINKS :
---   > github : https://github.com/lewis6991/gitsigns.nvim
--- ABOUT : deep buffer integration for git.
+-- TITLE : Zsh
+-- ABOUT : highlights with the bash parser; bashls (bash.lua) also serves zsh.
 -- ================================================================================================
 
+-- shellcheck does not support zsh, so zsh only borrows the bash parser.
 return {
-	"lewis6991/gitsigns.nvim",
-	opts = {},
+	register = { bash = { "zsh" } },
 }
