@@ -1,15 +1,8 @@
 -- ================================================================================================
--- TITLE : gruvbox.nvim
--- ABOUT : A port of gruvbox community theme to lua with treesitter and semantic highlights support!
+-- TITLE : ash.nvim
+-- ABOUT : a minimal, largely monochromatic colorscheme.
 -- LINKS :
---   > github : https://github.com/ellisonleao/gruvbox.nvim
+--   > github : https://github.com/bjarneo/ash.nvim
 -- ================================================================================================
 
-return {
-  "bjarneo/ash.nvim",
-  lazy = false,
-  priority = 1000,
-  config = function()
-    vim.cmd("colorscheme ash")
-  end,
-}
+vim.cmd.colorscheme("ash")

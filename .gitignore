@@ -1,2 +1,5 @@
 plugged/
 .claude/worktrees/
+
+# vim.pack lockfile: kept local until Renovate manages plugin updates
+nvim-pack-lock.json
