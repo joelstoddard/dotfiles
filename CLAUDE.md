@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Rewrite, don't link**: tool configs are native Home Manager options (`programs.zsh`, `programs.git`, …). Only files that must be preserved byte-for-byte (Nerd Font glyphs) or that are code (autoenv handlers) live in `home/files/`.
 - **Platform differences** use `pkgs.stdenv.isDarwin` / `isLinux` conditionals, not separate files.
-- **Neovim**: `.config/nvim/` is a git subtree from `~/personal/nvim` — DO NOT edit it here. It is linked out-of-store (`mkOutOfStoreSymlink`) so lazy.nvim can write `lazy-lock.json`; the link target comes from `dotfiles.repoPath`.
+- **Neovim**: `.config/nvim/` is a git subtree from `~/personal/nvim` — DO NOT edit it here. It is linked out-of-store (`mkOutOfStoreSymlink`) so vim.pack can write `nvim-pack-lock.json`; the link target comes from `dotfiles.repoPath`.
 - **oh-my-posh theme files** (`home/files/oh-my-posh/*.yaml`): templates contain Nerd Font glyphs in the Unicode Private Use Area (e.g. `U+E0A0` branch, `U+EA7F`/`U+EB43`/`U+EA81` git status). The Read tool renders these as blank spaces — they are NOT whitespace. Never retype these files; copy with `sed`/Python and round-trip through `od -c` byte inspection.
 - **btop**: Home Manager owns `btop.conf` as a read-only symlink, so `save_config_on_exit` stays false and in-app tweaks must be ported into `home/btop.nix`.
 

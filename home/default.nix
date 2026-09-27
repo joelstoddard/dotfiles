@@ -39,7 +39,7 @@
       default = "personal/dotfiles";
       description = ''
         Path of this repo checkout relative to $HOME. Used for the Neovim
-        config out-of-store symlink so lazy.nvim can write lazy-lock.json.
+        config out-of-store symlink so vim.pack can write nvim-pack-lock.json.
       '';
     };
   };
