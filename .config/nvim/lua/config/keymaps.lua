@@ -3,6 +3,10 @@
 -- ABOUT: sets some quality-of-life keymaps
 -- ================================================================================================
 
+-- Leader keys first, so every mapping below and in plugins sees them
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 -- Center screen when jumping
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" })
@@ -34,12 +38,24 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 -- Better J behavior
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
+-- Toggle comments with Ctrl+/ (some terminals send it as <C-_>)
+for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
+    vim.keymap.set("n", lhs, "gcc", { remap = true, desc = "Toggle comment" })
+    vim.keymap.set("x", lhs, "gc", { remap = true, desc = "Toggle comment" })
+end
+
 -- Quick config editing
 vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
 
 -- File Explorer
 vim.keymap.set("n", "<leader>m", "<Cmd>NvimTreeFocus<CR>", { desc = "Focus on File Explorer" })
 vim.keymap.set("n", "<leader>e", "<Cmd>NvimTreeToggle<CR>", { desc = "Toggle File Explorer" })
+
+-- Undo tree is built into nvim 0.12; packadd on first use keeps it out of startup.
+vim.keymap.set("n", "<leader>u", function()
+    vim.cmd.packadd("nvim.undotree")
+    require("undotree").open()
+end, { desc = "Toggle undo tree" })
 
 -- The Primeagen keymaps
 vim.keymap.set({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete without yanking" })
