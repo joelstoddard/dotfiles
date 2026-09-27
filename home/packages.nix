@@ -23,6 +23,7 @@ let
       zsh
       tmux
       neovim
+      tree-sitter # nvim-treesitter builds parsers with this CLI
       jq
       yq-go
       ripgrep
@@ -71,6 +72,7 @@ let
       uv
       bash
       lua5_4
+      lua54Packages.luacheck
       rtk
     ]
     ++ lib.optionals isDarwin [
