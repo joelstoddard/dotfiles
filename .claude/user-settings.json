@@ -110,7 +110,17 @@
       "mcp__claude_ai_Google_Drive__create_file",
       "mcp__claude_ai_Google_Drive__update_file",
       "mcp__claude_ai_Google_Drive__trash_file",
-      "Artifact"
+      "Artifact",
+      "Bash(gh issue create:*)",
+      "Bash(terraform apply:*)",
+      "Bash(tofu apply:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(helm install:*)",
+      "Bash(helm upgrade:*)",
+      "Bash(helm uninstall:*)",
+      "Bash(pulumi up:*)",
+      "Bash(git tag:*)"
     ],
     "defaultMode": "auto",
     "deny": [
@@ -118,7 +128,6 @@
       "Bash(gh pr review:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh issue comment:*)",
-      "Bash(gh issue create:*)",
       "Bash(gh issue close:*)",
       "Bash(gh release:*)",
       "Bash(gh gist:*)",
