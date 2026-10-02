@@ -5,6 +5,7 @@
 
 return {
 	filetypes = { "typescript", "typescriptreact" },
+	line_length = 80, -- prettier's print width
 	parsers = { "typescript", "tsx" },
 	servers = {
 		ts_ls = {
@@ -17,7 +18,7 @@ return {
 			},
 		},
 	},
-	lint = { "eslint_d" },
+	lint = require("languages.javascript").lint,
 	format = { "prettier_d" },
 	mason = { "typescript-language-server", "eslint_d", "prettierd" },
 }

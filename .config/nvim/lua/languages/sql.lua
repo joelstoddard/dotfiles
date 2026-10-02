@@ -8,6 +8,7 @@ local lint = require("efmls-configs.linters.sqlfluff")
 
 return {
 	filetypes = { "sql" },
+	line_length = 80, -- sqlfluff's LT05 limit
 	parsers = { "sql" },
 	servers = {
 		-- Upstream requires a postgres-language-server.jsonc; without one it still parses and lints.
