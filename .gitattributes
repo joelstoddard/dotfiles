@@ -1,4 +1,4 @@
-# Strips the session state Claude Code writes here. Inert until
-# scripts/install.py::configure_settings_filter registers the filter — see
+# Strips the session state Claude Code writes here. Inert until the filter is
+# registered in git config, which home/git.nix does — see
 # docs/design/claude-settings-split.md
 .claude/user-settings.json filter=claude-settings
