@@ -20,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `scripts/verify.py` — post-install sanity checks (symlinks, binaries, config syntax)
 - `scripts/generate_completions.py` — generates zsh completions for kubectl, helm, gh, docker, etc.
 - `.claude/CLAUDE.md` — stowed to `~/.claude/CLAUDE.md`, so it is the user-global memory file on every repo
+- `.claude/agents/` and `.claude/rules/` — stowed to `~/.claude/`: the seven personas, and the rules they share (`core.md` and `delegation.md` always load; the rest load by `paths:`). `test/unit/test_personas.py` keeps them consistent with the guardrails plugin. See `docs/specs/2026-10-02-personas-design.md`
 - `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by the installer. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Git Worktrees
