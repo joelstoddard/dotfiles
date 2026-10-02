@@ -54,6 +54,8 @@ def main() -> int:
         ".config/btop/btop.conf",
         ".config/btop/themes/ash-plus.theme",
         ".claude/CLAUDE.md",
+        ".claude/agents",
+        ".claude/rules",
     ]
     for rel in linked:
         target = HOME / rel
