@@ -6,6 +6,7 @@
 -- luacheck comes from the system package manager: Mason's build needs luarocks.
 return {
 	filetypes = { "lua" },
+	line_length = 120, -- stylua's column width
 	parsers = { "lua", "luadoc" },
 	servers = {
 		lua_ls = {

@@ -23,9 +23,7 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
--- Splitting (resize with the built-in <C-w>+, <C-w>-, <C-w>< and <C-w>>)
-vim.keymap.set("n", "<leader>sv", "<Cmd>vsplit<CR>", { desc = "Split window vertically" })
-vim.keymap.set("n", "<leader>sh", "<Cmd>split<CR>", { desc = "Split window horizontally" })
+-- Splits and resizing use the built-in <C-w> keys (v, s, +, -, <, >), which keeps <leader>s free for replace-word.
 
 -- Word jumps that stop at punctuation. macOS keeps Ctrl+Arrow for switching Spaces, so it uses Option+Arrow.
 local word_mod = vim.fn.has("mac") == 1 and "M" or "C"
@@ -78,7 +76,7 @@ vim.keymap.set(
 )
 vim.keymap.set(
     "n",
-    "<leader>x",
+    "<leader>X",
     "<cmd>!chmod +x %<CR>",
     {
         silent = true,

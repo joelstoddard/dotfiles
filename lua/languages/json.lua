@@ -3,6 +3,11 @@
 -- ABOUT : json parser, and jsonls with schemastore schemas (also formats).
 -- ================================================================================================
 
+-- JSONC and hujson allow trailing commas; jsonls warns about them unless a matching schema allows them.
+-- The list is copied because schemastore returns one shared list, which yaml.lua also reads.
+local schemas = vim.list_extend({}, require("schemastore").json.schemas())
+table.insert(schemas, { fileMatch = { "*.jsonc", "*.hujson" }, schema = { allowTrailingCommas = true } })
+
 -- nvim-treesitter has no jsonc parser, so jsonc and hujson reuse json's.
 return {
 	filetypes = { "json", "jsonc" },
@@ -13,7 +18,7 @@ return {
 			filetypes = { "json", "jsonc" },
 			settings = {
 				json = {
-					schemas = require("schemastore").json.schemas(),
+					schemas = schemas,
 					validate = { enable = true },
 				},
 			},

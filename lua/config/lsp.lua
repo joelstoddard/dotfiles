@@ -58,10 +58,7 @@ local function on_attach(event)
 	keymap("n", "<leader>rn", vim.lsp.buf.rename, opts) -- Rename symbol
 	keymap("n", "<leader>D", function()
 		vim.diagnostic.open_float({ scope = "line" })
-	end, opts) -- Line diagnostics (float)
-	keymap("n", "<leader>d", function()
-		vim.diagnostic.open_float({ scope = "cursor" })
-	end, opts) -- Cursor diagnostics
+	end, opts) -- Line diagnostics (float); the built-in <C-w>d shows the cursor's, as <leader>d deletes without yanking
 	keymap("n", "<leader>pd", function()
 		vim.diagnostic.jump({ count = -1, on_jump = show_diagnostic })
 	end, opts) -- previous diagnostic

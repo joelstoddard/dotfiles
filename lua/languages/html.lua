@@ -5,6 +5,7 @@
 
 return {
 	filetypes = { "html" },
+	line_length = 80, -- prettier's print width
 	parsers = { "html" },
 	servers = { html = {} },
 	format = { "prettier_d" },
