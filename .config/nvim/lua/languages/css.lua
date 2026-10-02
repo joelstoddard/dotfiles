@@ -5,6 +5,7 @@
 
 return {
 	filetypes = { "css" },
+	line_length = 80, -- prettier's print width
 	parsers = { "css" },
 	servers = { cssls = {} },
 	format = { "prettier_d" },
