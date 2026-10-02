@@ -18,11 +18,12 @@ Loaded with test files. The testing charter, gates, TDD, AND static analysis rul
 *Tier: EDIT*
 
 * ALWAYS keep unit tests fast, isolated, AND deterministic.
-* NEVER touch external dependencies in a unit test (network, filesystem, database, clock, randomness, environment, OR other processes). ALWAYS inject them behind abstractions AND substitute test doubles.
+* NEVER touch the network, a shared OR real database, OR state another test can see in a unit test.
+* WHEN a test depends on the clock, randomness, the filesystem, OR the environment, control it the cheapest way: a temp dir, a fixed seed, a pinned value, OR an injected fake. Add an abstraction ONLY WHEN the test cannot control it otherwise.
 * ALWAYS assert one behaviour per test.
 * NEVER let tests depend on execution order OR shared state.
 * ALWAYS name tests after the behaviour they verify, NOT the method they call.
-* NEVER mock what you don't own, AND NEVER mock the thing under test.
+* NEVER mock what you don't own; use the real thing, a fake, OR a temp resource instead. NEVER mock the thing under test.
 * ALWAYS prefer fakes AND stubs over interaction-verifying mocks.
 * NEVER write a test that cannot fail.
 
