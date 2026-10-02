@@ -8,7 +8,6 @@
 ^Makefile
 ^README\.md
 ^/CLAUDE\.md$
-^TODO\.md
 ^\.git
 ^\.gitignore
 ^\.stow-local-ignore
