@@ -64,8 +64,13 @@ vim.keymap.set("n", "<leader>hb", git.show_at_cursor, { desc = "Git blame/show a
 
 local move = require("mini.move")
 move.setup()
--- mini.move accepts one key for each action. These maps add Alt+Arrow and keep the default Alt+hjkl.
-for key, dir in pairs({ Left = "left", Down = "down", Up = "up", Right = "right" }) do
+-- mini.move accepts one key for each action, so these maps add Alt+Arrow and keep the default Alt+hjkl.
+-- macOS leaves out Option+Left/Right, which jump by word there (see config/keymaps.lua).
+local arrows = { Down = "down", Up = "up" }
+if vim.fn.has("mac") == 0 then
+	arrows.Left, arrows.Right = "left", "right"
+end
+for key, dir in pairs(arrows) do
 	vim.keymap.set("n", "<M-" .. key .. ">", function()
 		move.move_line(dir)
 	end, { desc = "Move line " .. dir })
