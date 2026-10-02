@@ -23,13 +23,22 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
--- Splitting & Resizing
+-- Splitting (resize with the built-in <C-w>+, <C-w>-, <C-w>< and <C-w>>)
 vim.keymap.set("n", "<leader>sv", "<Cmd>vsplit<CR>", { desc = "Split window vertically" })
 vim.keymap.set("n", "<leader>sh", "<Cmd>split<CR>", { desc = "Split window horizontally" })
-vim.keymap.set("n", "<C-Up>", "<Cmd>resize +2<CR>", { desc = "Increase window height" })
-vim.keymap.set("n", "<C-Down>", "<Cmd>resize -2<CR>", { desc = "Decrease window height" })
-vim.keymap.set("n", "<C-Left>", "<Cmd>vertical resize -2<CR>", { desc = "Decrease window width" })
-vim.keymap.set("n", "<C-Right>", "<Cmd>vertical resize +2<CR>", { desc = "Increase window width" })
+
+-- Word jumps that stop at punctuation. macOS keeps Ctrl+Arrow for switching Spaces, so it uses Option+Arrow.
+local word_mod = vim.fn.has("mac") == 1 and "M" or "C"
+vim.keymap.set({ "n", "x", "o" }, "<" .. word_mod .. "-Left>", "b", { desc = "Previous word" })
+vim.keymap.set({ "n", "x", "o" }, "<" .. word_mod .. "-Right>", "w", { desc = "Next word" })
+vim.keymap.set("i", "<" .. word_mod .. "-Left>", "<S-Left>", { desc = "Previous word" })
+vim.keymap.set("i", "<" .. word_mod .. "-Right>", "<S-Right>", { desc = "Next word" })
+
+-- Delete the previous word with the same modifier. Terminals without the kitty keyboard protocol send Ctrl+Backspace as Ctrl+h.
+local word_delete_keys = vim.fn.has("mac") == 1 and { "<M-BS>" } or { "<C-BS>", "<C-h>" }
+for _, lhs in ipairs(word_delete_keys) do
+    vim.keymap.set({ "i", "c" }, lhs, "<C-w>", { desc = "Delete previous word" })
+end
 
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
@@ -45,7 +54,9 @@ for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
 end
 
 -- Quick config editing
-vim.keymap.set("n", "<leader>rc", "<Cmd>e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
+vim.keymap.set("n", "<leader>rc", function()
+    vim.cmd.edit(vim.fn.fnameescape(vim.fn.stdpath("config") .. "/init.lua"))
+end, { desc = "Edit config" })
 
 -- File Explorer
 vim.keymap.set("n", "<leader>m", "<Cmd>NvimTreeFocus<CR>", { desc = "Focus on File Explorer" })
