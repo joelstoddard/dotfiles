@@ -34,14 +34,27 @@ regular files it would clobber (`-b`), but it never backs up a symlink, and a
 surviving `~/.config/<tool>` *directory* symlink is worse: activation writes
 through it into the repo working tree rather than into `$HOME`.
 
+Checking this branch out makes many of those links dangle immediately — it
+deletes `.config/{zsh,oh-my-posh,btop}` from the repo, so the links pointing
+there resolve to nothing. Activation then fails on the first one with
+`mkdir: cannot create directory '…': File exists`, because a dangling symlink
+is neither a usable directory nor something `-b` will move aside.
+
 ```bash
-find ~/.config -maxdepth 2 -type l | while read -r l; do
-  case "$(readlink "$l")" in *personal/dotfiles*) rm "$l";; esac
-done
+# Dangling links point at nothing, so removing them is always safe.
+find ~/.config ~/.claude -maxdepth 2 -type l ! -exec test -e {} \; -exec rm {} +
+
+# Plus any live stow link into the repo, whatever path it uses.
+find ~/.config ~/.claude -maxdepth 2 -type l \
+  -exec sh -c 'case "$(readlink "$1")" in *dotfiles*) rm "$1";; esac' _ {} \;
+
 [ -L ~/.zshrc ] && rm ~/.zshrc
 
 nix run home-manager/master -- switch -b hm-bak --flake .#joel@macos
 ```
+
+Both sweeps cover `~/.claude` as well as `~/.config` — the plugin skills are
+linked out of the repo too, and they dangle for the same reason.
 
 `-b hm-bak` handles the regular files that remain (`.zprofile`, `.zshenv`).
 If a switch does write into the repo, `git status` shows the config files as
