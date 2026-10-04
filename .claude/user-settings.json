@@ -31,6 +31,17 @@
         "matcher": "permission_prompt|elicitation_dialog|agent_needs_input"
       }
     ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state asking",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "hooks": [
@@ -69,8 +80,8 @@
       {
         "hooks": [
           {
-            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state done",
-            "timeout": 5,
+            "async": true,
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state stop",
             "type": "command"
           }
         ]
