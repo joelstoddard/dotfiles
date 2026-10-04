@@ -49,11 +49,17 @@ Always use the `building:commit` skill for all git commits — invoke it via the
 ## Commands
 
 - **Test:** `bash test/unit/run.sh`
+- **Lint:** `bash test/lint.sh`
 - **Coverage:** `bash test/coverage.sh`
 
 The unit suite is fast and needs no Nix, which is what the push gate resolves. CI
 runs it, additionally checks coverage floors and that they only rise, and evaluates
 every host with `nix flake check`.
+
+Lint needs Nix: it takes its tools from the flake's locked nixpkgs, so local runs and
+CI use the same versions. It runs the Nix formatter's check, shellcheck on bash,
+`zsh -n` on zsh (shellcheck has no zsh mode), actionlint and ruff. CI runs it in the
+`joel@linux` flake job.
 
 Coverage is a separate command, because tracing makes it slower than the Test
 command the push gate runs.
@@ -65,5 +71,6 @@ nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
 nix flake update                           # bump inputs
 nix fmt                                    # format every Nix file in the repo (nixfmt-tree)
 bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
+bash test/lint.sh                          # formatting, shellcheck, zsh -n, actionlint, ruff
 bash test/coverage.sh                      # line coverage vs test/coverage-floor.tsv (--update raises floors)
 ```
