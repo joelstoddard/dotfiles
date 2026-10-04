@@ -17,7 +17,13 @@ return {
 			workspace_required = false,
 		},
 	},
-	lint = { vim.tbl_extend("force", lint, { lintCommand = (lint.lintCommand:gsub("%-%-dialect ansi", "--dialect postgres")) }) },
+	lint = {
+		vim.tbl_extend(
+			"force",
+			lint,
+			{ lintCommand = (lint.lintCommand:gsub("%-%-dialect ansi", "--dialect postgres")) }
+		),
+	},
 	-- Not efmls-configs' formatter: its `--ignore ${INPUT}` swallows the path, so sqlfluff rewrites every SQL file in
 	-- the directory. Formatting the buffer through stdin touches nothing else.
 	format = {

@@ -6,7 +6,9 @@
 local yamllint = require("efmls-configs.linters.yamllint")
 local line_length = 120
 -- yamllint's defaults flag every file without a "---" line and treat lines past 80 columns as errors.
-local yamllint_config = ("{extends: default, rules: {document-start: disable, line-length: {max: %d, level: warning}}}"):format(line_length)
+local yamllint_config = ("{extends: default, rules: {document-start: disable, line-length: {max: %d, level: warning}}}"):format(
+	line_length
+)
 
 return {
 	filetypes = { "yaml" },
