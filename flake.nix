@@ -57,6 +57,27 @@
           throw "autoMode found in .claude/user-settings.json — it belongs in settings.local.json (docs/design/claude-settings-split.md)"
         else
           pkgs.runCommand "no-automode" { } "touch $out";
+
+      # tmux-continuum saves through a #() job that it appends to status-right as it loads.
+      # Nothing after its run-shell may reset status-right. See #130
+      continuumKeepsStatusRight =
+        pkgs: home:
+        let
+          inherit (pkgs) lib;
+          tmuxConf = home.config.xdg.configFile."tmux/tmux.conf".text;
+          afterContinuum =
+            if lib.hasInfix "continuum.tmux" tmuxConf then
+              lib.last (lib.splitString "continuum.tmux" tmuxConf)
+            else
+              "";
+          resets = builtins.filter (
+            line: builtins.match " *set(-option)? +-g +status-right +.*" line != null
+          ) (lib.splitString "\n" afterContinuum);
+        in
+        if resets != [ ] then
+          throw "tmux.conf resets status-right after tmux-continuum loads, which disables auto-save (#130): ${builtins.head resets}"
+        else
+          pkgs.runCommand "continuum-keeps-status-right" { } "touch $out";
     in
     {
       homeConfigurations = {
@@ -96,10 +117,16 @@
         home-linux-desktop = self.homeConfigurations."${username}@linux-desktop".activationPackage;
         home-omarchy = self.homeConfigurations."${username}@omarchy".activationPackage;
         no-automode = noAutoMode (mkPkgs "x86_64-linux");
+        continuum-autosave =
+          continuumKeepsStatusRight (mkPkgs "x86_64-linux")
+            self.homeConfigurations."${username}@linux";
       };
       checks.aarch64-darwin = {
         home-macos = self.homeConfigurations."${username}@macos".activationPackage;
         no-automode = noAutoMode (mkPkgs "aarch64-darwin");
+        continuum-autosave =
+          continuumKeepsStatusRight (mkPkgs "aarch64-darwin")
+            self.homeConfigurations."${username}@macos";
       };
 
       formatter.x86_64-linux = (mkPkgs "x86_64-linux").nixfmt;

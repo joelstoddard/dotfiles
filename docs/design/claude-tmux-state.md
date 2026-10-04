@@ -52,6 +52,6 @@ appear, allow Script Editor in System Settings → Notifications.
 - A background subagent's tool call sets `working`, which can replace the main
   session's `blocked` while its permission prompt is still open. The notification
   has already fired by then.
-- tmux-continuum's auto-save job lives in `status-right`. Once #130 restores it,
-  `status-interval 1` will run that job every second.
+- tmux-continuum's auto-save job lives in `status-right`, so `status-interval 1`
+  starts it every second. The job exits at once until its save interval passes.
 - On a zoomed window the Claude colour replaces the zoom orange.
