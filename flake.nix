@@ -151,7 +151,7 @@
             self.homeConfigurations."${username}@macos";
       };
 
-      formatter.x86_64-linux = (mkPkgs "x86_64-linux").nixfmt;
-      formatter.aarch64-darwin = (mkPkgs "aarch64-darwin").nixfmt;
+      formatter.x86_64-linux = (mkPkgs "x86_64-linux").nixfmt-tree;
+      formatter.aarch64-darwin = (mkPkgs "aarch64-darwin").nixfmt-tree;
     };
 }

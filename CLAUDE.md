@@ -59,7 +59,7 @@ home-manager switch --flake .#<host>       # apply configuration
 nix flake check --no-build                 # evaluate all host configs
 nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
 nix flake update                           # bump inputs
-nix fmt                                    # format Nix files (nixfmt-rfc-style)
+nix fmt                                    # format every Nix file in the repo (nixfmt-tree)
 bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
 bash .claude/marketplace/plugins/guardrails/tests/run.sh   # guardrails plugin tests
 ```
