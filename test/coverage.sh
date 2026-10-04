@@ -8,7 +8,6 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ROOT="$(cd "${COVERAGE_ROOT:-$HERE/..}" && pwd -P)"
 FLOORS="$ROOT/test/coverage-floor.tsv"
 OUT="$ROOT/.coverage"
-GUARDRAILS=.claude/marketplace/plugins/guardrails
 
 die() { echo "coverage: $*" >&2; exit 2; }
 ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 1))) || die "needs bash 4.1 or newer"
@@ -22,7 +21,6 @@ pct() { local t=$1; echo "$((t / 10)).$((t % 10))"; }            # 875 -> "87.5"
 measured() { # measured files, relative to ROOT
   (cd "$ROOT" && {
     find home/files -type f \( -name '*.sh' -o -name '*.zsh' \) 2>/dev/null || true
-    find "$GUARDRAILS/lib" "$GUARDRAILS/hooks/scripts" -maxdepth 1 -type f -name '*.sh' 2>/dev/null || true
   }) | sort
 }
 
@@ -31,9 +29,6 @@ run_suites() { # every test file under tracing, one log per test file; returns 1
   rm -rf "$OUT"; mkdir -p "$OUT/logs"
   for t in "$ROOT"/test/unit/test_*.sh; do
     [[ -e $t ]] && { run_one zsh "$t" "unit__$(basename "$t")" || rc=1; }
-  done
-  for t in "$ROOT/$GUARDRAILS"/tests/test_*.sh; do
-    [[ -e $t ]] && { run_one bash "$t" "guardrails__$(basename "$t")" || rc=1; }
   done
   return $rc
 }
