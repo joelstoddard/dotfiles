@@ -287,12 +287,13 @@ the agent checks):
 
 - Every hook test suite, ported into `tests/`, then with renamed references.
 - Manifest validation on the marketplace and each plugin. This filter passes a plugin
-  whose only warning is the missing `version`, and fails the current plugin on its 12:
+  or marketplace whose only warnings are missing versions (a marketplace reports them as
+  `plugins[0] plugin.json → version`), and fails the current plugin on its 12:
 
   ```bash
   claude plugin validate --json "$target" | jq -e '
     [.. | objects | .errors? // empty | .[]] == [] and
-    [.. | objects | .warnings? // empty | .[] | select(.path != "version")] == []'
+    [.. | objects | .warnings? // empty | .[] | select(.path | test("(^|→ )version$") | not)] == []'
   ```
 
   A separate check fails if any `plugin.json` or marketplace entry sets `version`.
