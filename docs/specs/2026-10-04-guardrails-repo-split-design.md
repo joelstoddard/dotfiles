@@ -20,30 +20,30 @@ That layout has three costs:
 
 ## Decisions
 
-| Decision | Choice | Why |
-|---|---|---|
-| Repo | Public `joelstoddard/guardrails`; marketplace `name: "guardrails"` | Generic on purpose, installable without the dotfiles |
-| Purpose of the split | Organise by responsibility, wire with `dependencies` | The only consumers are the user's machines. Do not design for outside adopters yet, but keep each plugin installable on its own |
-| Plugins | `building`, `recording`, `personas` | One job each. Names describe the job, so `/building:commit` and `/recording:adr` read as what they do |
-| Standing rules | Each plugin injects its own rules from `SessionStart` AND `SubagentStart` hooks | Plugins cannot ship `CLAUDE.md` or `.claude/rules/` files. Hook output reaches context, as ponytail and `nbl-guardrails` already do |
-| Hook output cap | Every injected file under 10,000 characters, enforced by a test | Hook output over 10,000 characters is saved to a file, and Claude sees only a 2,000-character preview. `core.md` is 15,626 |
-| Path-scoped rules | Stay in the dotfiles (`.claude/rules/*.md` with `paths:`) | Plugins have no path-scoped equivalent; they also serve the main session when it edits matching files |
-| Personal context | The `~/work` convention stays in the dotfiles as an unscoped `.claude/rules/context.md` | It is the user's convention, not the plugin's |
-| Shared code | Each group of hooks that shares `lib/` lands in one plugin | No symlinks or duplicated helpers needed at runtime |
-| Versions | No `version` field; `autoUpdate: true` on the marketplace entry | Every push to `main` reaches each machine at the next session, with no bump to forget |
-| Validation | `claude plugin validate --json` in CI, failing on any error or any warning except the missing `version` | `--strict` rejects a plugin with no `version`, so it cannot coexist with the decision above. The current plugin's 12 warnings (unquoted `${CLAUDE_PLUGIN_ROOT}`) still fail the filter, so the move must fix them |
-| Plugin dependencies | `personas` depends on `building` AND `recording` | Personas assume the conduct and engineering rules, file findings under recording's Findings rule, and default to its `rfc`, `adr` and `mistakes`; `findings-capture` parses the persona report |
-| Tests | One repo-root `tests/` with a single helper and runner | Tests stay out of the plugins, so they are not copied into the plugin cache, and the helper is not duplicated |
-| History | `git filter-repo` from a clone of the dotfiles, then restructure commits | Keeps `git log --follow` for every moved file, including its earlier paths |
-| Cut-over | Ordered steps below; one dotfiles PR swaps the plugins | Plugin hooks have no namespace, so both enabled at once runs every hook twice |
-| Work layer | `nbl-guardrails` stands alone and overrides "any other" RFC/ADR/post-mortem skill | Done separately (`nbl-guardrails` 0.2.1); it names nothing from this plugin, so the renames do not break it |
-| `pre-pr-check` + `pre-pr-review` | Merge AFTER the move, as its own change | Keeps the move a pure move |
+| Decision                         | Choice                                                                                                  | Why                                                                                                                                                                                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repo                             | Public `joelstoddard/guardrails`; marketplace `name: "guardrails"`                                      | Generic on purpose, installable without the dotfiles                                                                                                                                                              |
+| Purpose of the split             | Organise by responsibility, wire with `dependencies`                                                    | The only consumers are the user's machines. Do not design for outside adopters yet, but keep each plugin installable on its own                                                                                   |
+| Plugins                          | `building`, `recording`, `personas`                                                                     | One job each. Names describe the job, so `/building:commit` and `/recording:adr` read as what they do                                                                                                             |
+| Standing rules                   | Each plugin injects its own rules from `SessionStart` AND `SubagentStart` hooks                         | Plugins cannot ship `CLAUDE.md` or `.claude/rules/` files. Hook output reaches context, as ponytail and `nbl-guardrails` already do                                                                               |
+| Hook output cap                  | Every injected file under 10,000 characters, enforced by a test                                         | Hook output over 10,000 characters is saved to a file, and Claude sees only a 2,000-character preview. `core.md` is 15,626                                                                                        |
+| Path-scoped rules                | Stay in the dotfiles (`.claude/rules/*.md` with `paths:`)                                               | Plugins have no path-scoped equivalent; they also serve the main session when it edits matching files                                                                                                             |
+| Personal context                 | The `~/work` convention stays in the dotfiles as an unscoped `.claude/rules/context.md`                 | It is the user's convention, not the plugin's                                                                                                                                                                     |
+| Shared code                      | Each group of hooks that shares `lib/` lands in one plugin                                              | No symlinks or duplicated helpers needed at runtime                                                                                                                                                               |
+| Versions                         | No `version` field; `autoUpdate: true` on the marketplace entry                                         | Every push to `main` reaches each machine at the next session, with no bump to forget                                                                                                                             |
+| Validation                       | `claude plugin validate --json` in CI, failing on any error or any warning except the missing `version` | `--strict` rejects a plugin with no `version`, so it cannot coexist with the decision above. The current plugin's 12 warnings (unquoted `${CLAUDE_PLUGIN_ROOT}`) still fail the filter, so the move must fix them |
+| Plugin dependencies              | `personas` depends on `building` AND `recording`                                                        | Personas assume the conduct and engineering rules, file findings under recording's Findings rule, and default to its `rfc`, `adr` and `mistakes`; `findings-capture` parses the persona report                    |
+| Tests                            | One repo-root `tests/` with a single helper and runner                                                  | Tests stay out of the plugins, so they are not copied into the plugin cache, and the helper is not duplicated                                                                                                     |
+| History                          | `git filter-repo` from a clone of the dotfiles, then restructure commits                                | Keeps `git log --follow` for every moved file, including its earlier paths                                                                                                                                        |
+| Cut-over                         | Ordered steps below; one dotfiles PR swaps the plugins                                                  | Plugin hooks have no namespace, so both enabled at once runs every hook twice                                                                                                                                     |
+| Work layer                       | `nbl-guardrails` stands alone and overrides "any other" RFC/ADR/post-mortem skill                       | Done separately (`nbl-guardrails` 0.2.1); it names nothing from this plugin, so the renames do not break it                                                                                                       |
+| `pre-pr-check` + `pre-pr-review` | Merge AFTER the move, as its own change                                                                 | Keeps the move a pure move                                                                                                                                                                                        |
 
 ## Design
 
 ### Repo layout
 
-```
+```plaintext
 .claude-plugin/marketplace.json      # name "guardrails", a description, three relative-path entries
 plugins/
   building/    .claude-plugin/plugin.json  skills/  hooks/  lib/  rules/
@@ -61,11 +61,11 @@ The marketplace entry name and each manifest `name` are identical, so the instal
 
 ### What goes where
 
-| Plugin | Skills | Hooks | `lib/` | Injected rules |
-|---|---|---|---|---|
-| `building` | commit, rebase, stacked-diffs, draft-pr, ci-watch, pre-pr-check, pre-pr-review, concise-comments, biases, use-venv | guard-publish, allow-gh-api-read, guard-default-branch, lint-warn, test-gate, post-merge-cleanup, comment-warn, suppression-warn | git-cmd, publish-cmd, shell-split, repo-cmd | `conduct.md`, `engineering.md` |
-| `recording` | adr, rfc, mistakes, track-findings, project-memory, self-improvement | findings-capture, findings-gate, lessons-nudge | findings | `findings.md` |
-| `personas` | — | persona-report | — | `delegation.md` |
+| Plugin      | Skills                                                                                                             | Hooks                                                                                                                            | `lib/`                                      | Injected rules                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------ |
+| `building`  | commit, rebase, stacked-diffs, draft-pr, ci-watch, pre-pr-check, pre-pr-review, concise-comments, biases, use-venv | guard-publish, allow-gh-api-read, guard-default-branch, lint-warn, test-gate, post-merge-cleanup, comment-warn, suppression-warn | git-cmd, publish-cmd, shell-split, repo-cmd | `conduct.md`, `engineering.md` |
+| `recording` | adr, rfc, mistakes, track-findings, project-memory, self-improvement                                               | findings-capture, findings-gate, lessons-nudge                                                                                   | findings                                    | `findings.md`                  |
+| `personas`  | —                                                                                                                  | persona-report                                                                                                                   | —                                           | `delegation.md`                |
 
 Each hook's `lib/` chain stays inside its plugin: `guard-publish` and `allow-gh-api-read`
 use `publish-cmd` and `shell-split`; `guard-default-branch` uses `git-cmd` and
@@ -97,13 +97,13 @@ across the cut-over. Do not move them to `${CLAUDE_PLUGIN_DATA}` in this change.
 
 Measured with the current files:
 
-| Source | Destination | Size |
-|---|---|---|
-| The intro (rewritten without paths); How to read these rules, minus the `~/work` convention; Agent Conduct minus Findings and Continuity; Security & Data | `building/rules/conduct.md` | ~6.5k |
-| Design & Architecture, Implementation, Testing & Quality, Version Control, Collaboration & Process | `building/rules/engineering.md` | ~7.5k |
-| Findings and Continuity (each keeps its `Tier: EDIT` tag), plus the document and tracker defaults from "Personal and work context" | `recording/rules/findings.md` | ~1.3k |
-| `delegation.md` | `personas/rules/delegation.md` | 3.9k |
-| "A project under `~/work` is WORK" | dotfiles `.claude/rules/context.md` | <0.5k |
+| Source                                                                                                                                                    | Destination                         | Size  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ----- |
+| The intro (rewritten without paths); How to read these rules, minus the `~/work` convention; Agent Conduct minus Findings and Continuity; Security & Data | `building/rules/conduct.md`         | ~6.5k |
+| Design & Architecture, Implementation, Testing & Quality, Version Control, Collaboration & Process                                                        | `building/rules/engineering.md`     | ~7.5k |
+| Findings and Continuity (each keeps its `Tier: EDIT` tag), plus the document and tracker defaults from "Personal and work context"                        | `recording/rules/findings.md`       | ~1.3k |
+| `delegation.md`                                                                                                                                           | `personas/rules/delegation.md`      | 3.9k  |
+| "A project under `~/work` is WORK"                                                                                                                        | dotfiles `.claude/rules/context.md` | <0.5k |
 
 The rules keep PERSONAL and WORK as concepts, but the plugin no longer says how to tell
 them apart. It says: "A project is WORK when your context says so; otherwise PERSONAL."
@@ -117,8 +117,11 @@ Each `hooks.json` injects its rules inline, with no script: one entry per event 
 with the event name hard-coded in that entry.
 
 ```json
-{ "type": "command", "timeout": 10,
-  "command": "jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:.}}' \"${CLAUDE_PLUGIN_ROOT}/rules/conduct.md\"" }
+{
+  "type": "command",
+  "timeout": 10,
+  "command": "jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:.}}' \"${CLAUDE_PLUGIN_ROOT}/rules/conduct.md\""
+}
 ```
 
 `personas`' entries differ in one way: their filter is
@@ -212,6 +215,7 @@ Then ordinary commits, each reviewable on its own:
 
   Enable `building@guardrails`, `recording@guardrails` and `personas@guardrails`; remove
   `guardrails@personal`; rename the `Skill(guardrails:…)` permission rules.
+
 - Delete `.claude/marketplace/`, `.claude/agents/`, `.claude/rules/core.md`,
   `.claude/rules/delegation.md`, and the moved docs. Add `.claude/rules/context.md`.
 - `home/claude.nix`: drop the `~/.claude/agents` link. Keep the `~/.claude/rules` link.
@@ -265,14 +269,14 @@ that session, so edits are live after `/reload-plugins` with no push.
 
 ### Failure modes
 
-| Failure | Effect | Mitigation |
-|---|---|---|
-| A rules file grows past 10,000 characters | Claude sees a 2,000-character preview | Size test fails in CI |
-| A rules file missing its `SubagentStart` entry | Personas STOP and return BLOCKED | Completeness test fails in CI |
-| `jq` missing | Rules hooks exit 127, a non-blocking error | `jq` is in `home/packages.nix`; personas STOP on missing rules |
-| Old and new plugins enabled together | Every hook runs twice | Cut-over order; `claude plugin list` checked on each machine |
-| Auto-update ships a broken commit | Every machine gets it at the next session | Required CI check on `main`; `--plugin-dir` testing before push; revert fixes forward |
-| `personas` installed without `building` or `recording` | Personas lack core or findings rules | `dependencies` installs both; agents STOP and return BLOCKED if the rules are absent |
+| Failure                                                | Effect                                     | Mitigation                                                                            |
+| ------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| A rules file grows past 10,000 characters              | Claude sees a 2,000-character preview      | Size test fails in CI                                                                 |
+| A rules file missing its `SubagentStart` entry         | Personas STOP and return BLOCKED           | Completeness test fails in CI                                                         |
+| `jq` missing                                           | Rules hooks exit 127, a non-blocking error | `jq` is in `home/packages.nix`; personas STOP on missing rules                        |
+| Old and new plugins enabled together                   | Every hook runs twice                      | Cut-over order; `claude plugin list` checked on each machine                          |
+| Auto-update ships a broken commit                      | Every machine gets it at the next session  | Required CI check on `main`; `--plugin-dir` testing before push; revert fixes forward |
+| `personas` installed without `building` or `recording` | Personas lack core or findings rules       | `dependencies` installs both; agents STOP and return BLOCKED if the rules are absent  |
 
 ## Verification
 
@@ -290,6 +294,7 @@ the agent checks):
   ```
 
   A separate check fails if any `plugin.json` or marketplace entry sets `version`.
+
 - Size test: every file under `plugins/*/rules/` is under 10,000 characters.
 - Rules-hook test: every `plugins/*/rules/*.md` has a `SessionStart` AND a
   `SubagentStart` entry in its plugin's `hooks.json`, each with the matching
