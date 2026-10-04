@@ -105,7 +105,7 @@ used for the Neovim out-of-store symlink).
 |------|--------|-------|
 | zsh | `home/zsh.nix` | autosuggestions + completions from Nix, no plugin cloning |
 | git | `home/git.nix` | GPG signing, conventional commits |
-| tmux | `home/tmux.nix` | Nix-managed plugins (no TPM), vim-tmux-navigator |
+| tmux | `home/tmux.nix` | Nix-managed plugins (no TPM), vim-tmux-navigator, Claude state per window |
 | oh-my-posh | `home/oh-my-posh.nix` | prompt theme with git, python, k8s |
 | alacritty | `home/alacritty.nix` | OS differences via Nix conditionals |
 | btop | `home/btop.nix` | ash-plus theme |

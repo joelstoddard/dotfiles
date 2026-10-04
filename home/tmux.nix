@@ -55,11 +55,18 @@ in
       set -g status-justify "right"
       set -g status-left-style "fg=white,dim,nobold"
       set -g status-right-style "fg=white,dim,nobold"
-      set -g window-status-format "●"
+      set -g window-status-format "#{T:@claude-glyph}"
       set -g window-status-style "fg=white,dim,nobold"
-      set -g window-status-current-format "●"
+      set -g window-status-current-format "#{T:@claude-glyph}"
       set -g window-status-current-style "#{?window_zoomed_flag,fg=${palette.accent.orange}#,nobold,fg=white#,nobold}"
       set -g window-status-bell-style "fg=red,nobold"
+
+      # Claude state per window, written by claude-tmux-state. See docs/design/claude-tmux-state.md
+      set -g status-interval 1
+      set -g @claude-states '#{P:#{@claude} }'
+      set -g @claude-spin '#{?#{==:#{e|m|:%S,6},0},·,#{?#{==:#{e|m|:%S,6},1},✢,#{?#{==:#{e|m|:%S,6},2},✳,#{?#{==:#{e|m|:%S,6},3},✶,#{?#{==:#{e|m|:%S,6},4},✻,✽}}}}}'
+      set -g @claude-glyph '#{?#{m:*blocked*,#{E:@claude-states}},#[fg=${palette.accent.red}#,nodim]●,#{?#{m:*done*,#{E:@claude-states}},#[fg=${palette.accent.green}#,nodim#,bold]●,#{?#{m:*working*,#{E:@claude-states}},#[fg=${palette.semantic.claude}#,nodim]#{T:@claude-spin},#{?#{m:*idle*,#{E:@claude-states}},#[fg=${palette.semantic.claude}#,dim]●,●}}}}'
+      set-hook -g pane-focus-in 'if -F "#{==:#{@claude},done}" "set -p @claude idle"'
 
       # Keybindings
       unbind r
