@@ -39,8 +39,8 @@ finish() {
   fi
 }
 
-# Prints ended, background or blocked from what Claude Code writes to the transcript
-# after this stop, or nothing if no marker shows up in about 5 seconds.
+# Prints ended, background or blocked, from what Claude Code writes to the transcript after this stop.
+# Prints nothing if no marker shows up in about 5 seconds.
 turn_outcome() {
   local i marks summaries=0
   for ((i = 0; i < 20; i++)); do
