@@ -15,7 +15,7 @@
 let
   repo = "${config.home.homeDirectory}/${config.dotfiles.repoPath}";
 
-  # Hook command behind the tmux Claude glyphs. See docs/design/claude-tmux-state.md
+  # Claude Code hooks call this command to set the tmux Claude state. See docs/design/claude-tmux-state.md
   claude-tmux-state = pkgs.writeShellApplication {
     name = "claude-tmux-state";
     runtimeInputs = [
