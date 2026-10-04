@@ -20,14 +20,15 @@ watching() { # a focused client is showing this pane
 notify() { # notify <body>
   local title
   title=$(get @claude-title)
-  title="Claude · ${title:-$(tmux display -p -t "$pane" '#{session_name}:#{window_index}')}"
+  title=${title:-$(tmux display -p -t "$pane" '#{session_name}:#{window_index}')}
   # Arguments only: the text can hold commands Claude wrote.
+  # Only the app shows Claude's icon, so the other notifiers name Claude in the title.
   if [[ $(uname) == Darwin ]]; then
-    # The app shows Claude's icon; osascript shows Script Editor's. Built by home/claude.nix.
+    # osascript shows Script Editor's icon. home/claude.nix builds the app.
     "$HOME/Applications/Claude Notify.app/Contents/MacOS/claude-notify" "$title" "$1" ||
-      osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "$title"
+      osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "Claude · $title"
   else
-    notify-send "$title" "$1"
+    notify-send "Claude · $title" "$1"
   fi
 }
 

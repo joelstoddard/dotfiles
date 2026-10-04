@@ -67,8 +67,9 @@ red.
 
 ## Notification title
 
-A notification's title is `Claude · ` followed by the session's custom title: the name
-that `/rename` or `--name` sets. Hooks get that name as `session_title`. The docs give
+A notification's title is the session's custom title: the name that `/rename` or
+`--name` sets. Only the Claude Notify app shows Claude's icon, so the `osascript` and
+`notify-send` titles start with `Claude · `. Hooks get the name as `session_title`. The docs give
 it only to `SessionStart`, but Claude Code 2.1.289 also sends it with
 `UserPromptSubmit`, so a `/rename` shows from the next prompt.
 

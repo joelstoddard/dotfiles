@@ -229,7 +229,7 @@ cleanup
 echo "--- on macOS the Claude Notify app gets the title and body, so the banner has Claude's icon"
 setup; on_macos; notifier_app 0; run done
 has "notify claude-notify" || die app "app not used: $(<$D/log)"
-[[ $(grep -A2 '^notify claude-notify' "$D/log") == $'notify claude-notify\narg:Claude · work:3\narg:Done · Fix the build' ]] \
+[[ $(grep -A2 '^notify claude-notify' "$D/log") == $'notify claude-notify\narg:work:3\narg:Done · Fix the build' ]] \
   || die app "args wrong: $(<$D/log)"
 has "notify osascript" && die app "osascript also notified"
 cleanup
@@ -240,6 +240,7 @@ has "notify osascript" || die app-missing "no fallback: $(<$D/log)"
 cleanup
 setup; on_macos; notifier_app 1; run done
 has "notify osascript" || die app-refused "no fallback: $(<$D/log)"
+has "arg:Claude · work:3" || die app-refused "fallback title lacks the Claude prefix: $(<$D/log)"
 cleanup
 
 echo "--- a failing tmux never fails the hook"
