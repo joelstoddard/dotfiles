@@ -24,6 +24,10 @@ working or stopping > idle. tmux lists the pane states with `#{P:#{@claude} }` a
 tests the list with `#{m:*blocked*,…}`. The spinner picks a frame from
 `#{e|m|:%S,6}`, so it needs no background process, only `status-interval 1`.
 
+Each glyph sets only its colour, so it takes its window's brightness: dim on inactive
+windows, as the plain dots are, and full on the current one. A flake check
+(`claude-glyph`) fails if the format sets an attribute again.
+
 ## Holding "Done" until the turn has ended
 
 Another `Stop` hook can block the stop (guardrails' findings-gate does), and Claude

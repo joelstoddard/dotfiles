@@ -66,7 +66,7 @@ in
       set -g status-interval 1
       set -g @claude-states '#{P:#{@claude} }'
       set -g @claude-spin '#{?#{==:#{e|m|:%S,6},0},·,#{?#{==:#{e|m|:%S,6},1},✢,#{?#{==:#{e|m|:%S,6},2},✳,#{?#{==:#{e|m|:%S,6},3},✶,#{?#{==:#{e|m|:%S,6},4},✻,✽}}}}}'
-      set -g @claude-glyph '#{?#{m:*blocked*,#{E:@claude-states}},#[fg=${palette.accent.red}#,nodim]●,#{?#{m:*done*,#{E:@claude-states}},#[fg=${palette.accent.green}#,nodim#,bold]●,#{?#{m/r:working|stopping,#{E:@claude-states}},#[fg=${palette.semantic.claude}#,nodim]#{T:@claude-spin},#{?#{m:*idle*,#{E:@claude-states}},#[fg=${palette.semantic.claude}#,dim]●,●}}}}'
+      set -g @claude-glyph '#{?#{m:*blocked*,#{E:@claude-states}},#[fg=${palette.accent.red}]●,#{?#{m:*done*,#{E:@claude-states}},#[fg=${palette.accent.green}]●,#{?#{m/r:working|stopping,#{E:@claude-states}},#[fg=${palette.semantic.claude}]#{T:@claude-spin},#{?#{m:*idle*,#{E:@claude-states}},#[fg=${palette.semantic.claude}]●,●}}}}'
       set-hook -g pane-focus-in 'if -F "#{==:#{@claude},done}" "set -p @claude idle"'
 
       # Keybindings

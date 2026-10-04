@@ -78,6 +78,22 @@
           throw "tmux.conf resets status-right after tmux-continuum loads, which disables auto-save (#130): ${builtins.head resets}"
         else
           pkgs.runCommand "continuum-keeps-status-right" { } "touch $out";
+
+      # The Claude glyphs set only a colour, so inactive windows stay dim like the plain dots.
+      # See docs/design/claude-tmux-state.md
+      claudeGlyphFollowsWindow =
+        pkgs: home:
+        let
+          inherit (pkgs) lib;
+          overrides = builtins.filter (
+            line:
+            lib.hasPrefix "set -g @claude-glyph" line && builtins.match ".*(dim|bold|bright).*" line != null
+          ) (lib.splitString "\n" home.config.xdg.configFile."tmux/tmux.conf".text);
+        in
+        if overrides != [ ] then
+          throw "@claude-glyph sets an attribute, so it overrides its window's brightness: ${builtins.head overrides}"
+        else
+          pkgs.runCommand "claude-glyph-follows-window" { } "touch $out";
     in
     {
       homeConfigurations = {
@@ -120,12 +136,18 @@
         continuum-autosave =
           continuumKeepsStatusRight (mkPkgs "x86_64-linux")
             self.homeConfigurations."${username}@linux";
+        claude-glyph =
+          claudeGlyphFollowsWindow (mkPkgs "x86_64-linux")
+            self.homeConfigurations."${username}@linux";
       };
       checks.aarch64-darwin = {
         home-macos = self.homeConfigurations."${username}@macos".activationPackage;
         no-automode = noAutoMode (mkPkgs "aarch64-darwin");
         continuum-autosave =
           continuumKeepsStatusRight (mkPkgs "aarch64-darwin")
+            self.homeConfigurations."${username}@macos";
+        claude-glyph =
+          claudeGlyphFollowsWindow (mkPkgs "aarch64-darwin")
             self.homeConfigurations."${username}@macos";
       };
 
