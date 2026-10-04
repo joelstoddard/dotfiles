@@ -99,6 +99,10 @@ it only to `SessionStart`, but Claude Code 2.1.289 also sends it with
 
 ## Setup
 
+On Linux the notifications go through `notify-send`, which only hosts with
+`dotfiles.gui` get: a headless host has no notification daemon to show them. There the
+glyphs still work, and the notification step fails silently.
+
 On macOS the notifications come from `~/Applications/Claude Notify.app`, listed as
 Claude Code in System Settings → Notifications, so they carry Claude's icon. Each
 Home Manager switch builds it from `home/files/claude/claude-notify.swift` with the
