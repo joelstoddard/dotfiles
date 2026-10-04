@@ -45,10 +45,11 @@ EOF
 }
 cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
-# run <verb> [stdin] — invoke the script the way a hook does, from pane %7
+# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
-    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 bash "$SCRIPT" "$1"; RC=$?
+    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID:-4242}" \
+    bash "$SCRIPT" "$1"; RC=$?
 }
 on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
 on_linux() { printf '#!/bin/sh\necho Linux\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
@@ -252,6 +253,28 @@ cleanup
 setup; on_macos; notifier_app 1; run done
 has "notify osascript" || die app-refused "no fallback: $(<$D/log)"
 has "arg:Claude · work:3" || die app-refused "fallback title lacks the Claude prefix: $(<$D/log)"
+cleanup
+
+echo "--- SessionStart records the Claude that owns the pane, and SessionEnd forgets it"
+setup; run idle '{}'
+[[ $(cat "$D/opt/@claude-pid" 2>/dev/null) == 4242 ]] || die owner-set "owner is '$(cat "$D/opt/@claude-pid" 2>/dev/null)'"
+run off
+[[ ! -e "$D/opt/@claude-pid" ]] || die owner-cleared "owner is still '$(cat "$D/opt/@claude-pid")'"
+cleanup
+
+echo "--- a claude -p started inside the pane's live Claude leaves the pane alone"
+for v in idle working asking blocked done stop off; do
+  setup; opt @claude-pid $$; opt @claude working  # the test shell stands in for the live owner
+  AS_PID=4243 run $v '{}'
+  [[ $(now) == working ]] || die nested-$v "state is '$(now)'"
+  notified && die nested-$v "notified"
+  cleanup
+done
+
+echo "--- a pane whose owner has exited goes to the next Claude"
+setup; sleep 0 & dead=$!; wait $dead; opt @claude-pid $dead; opt @claude done
+AS_PID=4244 run idle '{}'
+[[ $(now) == idle && $(cat "$D/opt/@claude-pid") == 4244 ]] || die takeover "state '$(now)', owner '$(cat "$D/opt/@claude-pid")'"
 cleanup
 
 echo "--- a failing tmux never fails the hook"

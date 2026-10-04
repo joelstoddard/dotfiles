@@ -67,6 +67,22 @@ when the approved tool fails, `PostToolUseFailure`. A denied permission fires ne
 a spinner. Another agent's tool calls, or a `Stop` from the main session while a
 background subagent waits on a prompt, leave it red.
 
+## One Claude per pane
+
+A `claude -p` started from inside a Claude, by its Bash tool or by agent tooling, inherits
+`$TMUX_PANE` and runs the same user hooks. Without a guard, its own start, stop and end
+land on the parent's pane: a "Done" for the wrong session, then the glyph disappears.
+
+Claude Code gives every hook `CLAUDE_PID`, the process ID of the Claude that runs it.
+`idle` (`SessionStart`) records it in `@claude-pid`, and `off` (`SessionEnd`) clears it.
+Each event from another PID is ignored while that owner still runs (`kill -0`). A
+crashed owner never sends `SessionEnd`, but its PID is dead, so the next Claude in the
+pane takes it over.
+
+`CLAUDE_CODE_CHILD_SESSION` looks like the obvious marker, but cannot tell them apart.
+Claude Code sets it in the environment of every hook, the top-level session's included
+(checked with `claude -p` probes in 2.1.289).
+
 ## Notification title
 
 A notification's title is the session's custom title: the name that `/rename` or
