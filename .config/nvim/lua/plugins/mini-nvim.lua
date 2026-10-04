@@ -35,7 +35,29 @@ vim.keymap.set("n", "<leader>ws", function()
 end, { desc = "Write local session (Session.vim)" })
 
 local icons = require("mini.icons")
-icons.setup()
+-- Compose files, Chart.yaml and manifests would otherwise get the plain YAML icon. MiniIconsBlue matches mini.icons'
+-- own Dockerfile and Helm icons, which the theme keeps grey.
+local docker = { glyph = "\u{F0868}", hl = "MiniIconsBlue" }
+local helm = { glyph = "\u{F0833}", hl = "MiniIconsBlue" }
+local kubernetes = { glyph = "\u{F10FE}", hl = "MiniIconsBlue" }
+icons.setup({
+	filetype = {
+		["yaml.docker-compose"] = docker,
+		["yaml.helm-values"] = helm,
+		["yaml.kubernetes"] = kubernetes,
+	},
+	file = {
+		["docker-compose.yml"] = docker,
+		["docker-compose.yaml"] = docker,
+		["compose.yml"] = docker,
+		["compose.yaml"] = docker,
+		["Chart.yaml"] = helm,
+	},
+	extension = {
+		["k8s.yaml"] = kubernetes,
+		["k8s.yml"] = kubernetes,
+	},
+})
 icons.mock_nvim_web_devicons()
 
 local diff = require("mini.diff")

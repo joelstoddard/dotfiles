@@ -1,0 +1,124 @@
+name: update-plugins
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-plugins
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    outputs:
+      status: ${{ steps.update.outputs.status }}
+      changed: ${{ steps.update.outputs.changed }}
+      lockfile: ${{ steps.update.outputs.lockfile }}
+      summary: ${{ steps.update.outputs.summary }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      # restore, not cache: this job runs this week's unreviewed plugin code and must not be able to poison the
+      # shared cache that test.yml and future runs of this job trust.
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local/share/nvim-test
+          key: nvim-test-${{ runner.os }}-${{ hashFiles('nvim-pack-lock.json', 'lua/languages/*.lua') }}
+          restore-keys: nvim-test-${{ runner.os }}-
+      # The suite runs here, not in test.yml, because a PR opened with this workflow's token can't trigger other
+      # workflows. No credentials are persisted on checkout because this step runs this week's unreviewed plugin code.
+      - name: Update plugins and run the suite
+        id: update
+        shell: bash
+        run: |
+          set +e
+          nix shell nixpkgs#neovim nixpkgs#tree-sitter --command sh tests/run.sh --update 2>&1 | tee "$RUNNER_TEMP/suite.log"
+          status=${PIPESTATUS[0]}
+          set -e
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" = 2 ]; then
+            echo "::error::the bootstrap or the plugin update failed; the lockfile is unchanged"
+            exit 1
+          fi
+          if git diff --quiet -- nvim-pack-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "lockfile=$(base64 nvim-pack-lock.json | tr -d '\n')" >> "$GITHUB_OUTPUT"
+          echo "summary=$(perl -pe 's/\e\[[0-9;]*m//g' "$RUNNER_TEMP/suite.log" | grep -a -o -E 'Total number of cases.*|Fails \(.*|FAIL.*' | head -20 | base64 | tr -d '\n')" >> "$GITHUB_OUTPUT"
+
+  pr:
+    needs: update
+    if: needs.update.outputs.status != '2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The update job ran this week's unreviewed plugin code, so its outputs are untrusted. This job holds the write
+      # token, so it re-checks the lockfile before anything commits it.
+      - name: Apply and validate the updated lockfile
+        env:
+          LOCKFILE_B64: ${{ needs.update.outputs.lockfile }}
+        run: |
+          echo "$LOCKFILE_B64" | base64 -d > /tmp/nvim-pack-lock.new.json
+          valid=$(jq -n --slurpfile old nvim-pack-lock.json --slurpfile new /tmp/nvim-pack-lock.new.json '
+            ($old[0].plugins) as $o
+            | ($new|length)==1
+              and (($new[0]|keys)==["plugins"])
+              and (($o|keys) == ($new[0].plugins|keys))
+              and (($o|keys) | map(($o[.] | del(.rev)) == ($new[0].plugins[.] | del(.rev))) | all)
+              and ($new[0].plugins | all(.[]; .rev|type=="string" and test("^[0-9a-f]{40}$")))
+          ')
+          if [ "$valid" != "true" ]; then
+            echo "::error::the updated lockfile changed more than plugin revisions; refusing to use it. If a plugin's version or source changed in lua/plugins/init.lua, run sh tests/run.sh --update in a PR."
+            exit 1
+          fi
+          mv /tmp/nvim-pack-lock.new.json nvim-pack-lock.json
+      - name: Describe the update
+        env:
+          STATUS: ${{ needs.update.outputs.status }}
+          SUMMARY_B64: ${{ needs.update.outputs.summary }}
+        run: |
+          case "$STATUS" in
+            ''|*[!0-9]*) echo "::error::update job produced a non-numeric status: $STATUS"; exit 1 ;;
+          esac
+          echo "$SUMMARY_B64" | base64 -d > "$RUNNER_TEMP/summary.log"
+          sh .github/scripts/plugin-bump.sh "$STATUS" "$RUNNER_TEMP/summary.log" > "$RUNNER_TEMP/pr-body.md"
+      - name: Open or update the draft PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: chore/update-plugins
+          title: "chore(deps): update plugins"
+          commit-message: "chore(deps): update plugins"
+          body-path: ${{ runner.temp }}/pr-body.md
+          add-paths: nvim-pack-lock.json
+          draft: true
+          sign-commits: true
+          delete-branch: true
+      # An unchanged lockfile leaves create-pull-request nothing to commit, so this is what turns a regression in
+      # the already-committed revisions red.
+      - name: Fail when the suite failed
+        if: needs.update.outputs.status != '0'
+        env:
+          CHANGED: ${{ needs.update.outputs.changed }}
+        run: |
+          if [ "$CHANGED" = "true" ]; then
+            echo "::error::the test suite failed on the updated plugins (see the draft PR)"
+          else
+            echo "::error::the test suite failed on the committed plugins (no update to propose)"
+          fi
+          exit 1
