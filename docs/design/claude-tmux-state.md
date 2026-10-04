@@ -37,11 +37,21 @@ background process, only `status-interval 1`.
   (an IDE, the desktop app) may run with a PATH that lacks the script, and must stay
   silent rather than report a hook error on every tool call.
 
+## Setup
+
+macOS shows the notifications as coming from Script Editor (`osascript`). If none
+appear, allow Script Editor in System Settings → Notifications.
+
 ## Known limits
 
 - Esc and Ctrl+C fire no hook, and Claude's pane title does not change on an
   interrupt either. A spinner or red glyph left by an interrupt clears on the next
   prompt in that pane. Intercepting the keys in tmux was rejected as too invasive.
-- `status-interval 1` makes tmux-continuum's status-right save check spawn a
-  process every second.
+- A `Stop` hook that blocks the stop (guardrails' findings-gate) runs alongside
+  this one, so a "Done" notification can arrive while Claude carries on.
+- A background subagent's tool call sets `working`, which can replace the main
+  session's `blocked` while its permission prompt is still open. The notification
+  has already fired by then.
+- tmux-continuum's auto-save job lives in `status-right`. Once #130 restores it,
+  `status-interval 1` will run that job every second.
 - On a zoomed window the Claude colour replaces the zoom orange.
