@@ -82,7 +82,7 @@ flake.nix                 # inputs (nixpkgs, home-manager) + one config per host
        ├─ btop.nix        # was .config/btop/
        ├─ nvim.nix        # links .config/nvim (git subtree) out-of-store
        ├─ fonts.nix       # nerd fonts (Linux GUI)
-       ├─ claude.nix      # links .claude/ user config into ~/.claude/
+       ├─ claude.nix      # links .claude/ user config into ~/.claude/, packages claude-tmux-state
        └─ pkgs/ttl.nix    # custom package not in nixpkgs
 ```
 

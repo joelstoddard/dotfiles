@@ -5,12 +5,30 @@
 #
 # The repo's own .claude/settings.json is project scope, so the user-level copy
 # is tracked under a different name. See docs/design/claude-settings-split.md
-{ config, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   repo = "${config.home.homeDirectory}/${config.dotfiles.repoPath}";
+
+  # Hook command behind the tmux Claude glyphs. See docs/design/claude-tmux-state.md
+  claude-tmux-state = pkgs.writeShellApplication {
+    name = "claude-tmux-state";
+    runtimeInputs = [
+      pkgs.jq
+      config.programs.tmux.package
+    ]
+    ++ lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.libnotify;
+    text = builtins.readFile ./files/claude/claude-tmux-state.sh;
+  };
 in
 {
+  home.packages = [ claude-tmux-state ];
+
   home.file.".claude/CLAUDE.md".source =
     config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/CLAUDE.md";
   home.file.".claude/settings.json".source =
