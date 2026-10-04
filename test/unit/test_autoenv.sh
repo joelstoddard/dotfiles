@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Shell unit tests for .config/zsh/autoenv.zsh.
+# Shell unit tests for home/files/zsh/autoenv.zsh.
 #
 # Structure: each test is a function that returns 0 on success or calls
 # `die <msg>` to fail. run_test executes the function in a subshell so
@@ -13,7 +13,7 @@ unset VIRTUAL_ENV
 unfunction deactivate 2>/dev/null
 
 typeset REPO_ROOT="${${(%):-%x}:A:h:h:h}"
-typeset AUTOENV_SCRIPT="$REPO_ROOT/.config/zsh/autoenv.zsh"
+typeset AUTOENV_SCRIPT="$REPO_ROOT/home/files/zsh/autoenv.zsh"
 
 typeset -i PASSED=0 FAILED=0
 
@@ -80,7 +80,7 @@ run_test "AUTOENV_DISABLE short-circuits" test_autoenv_disable_short_circuits
 test_python_detect_finds_dotvenv() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     cd "$tmp"
     local key=$(_autoenv_python_detect)
     [[ $key == "$tmp/.venv" ]] || die "expected $tmp/.venv, got '$key'"
@@ -90,7 +90,7 @@ test_python_detect_finds_dotvenv() {
 test_python_detect_finds_venv_fallback() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/venv"
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     cd "$tmp"
     local key=$(_autoenv_python_detect)
     [[ $key == "$tmp/venv" ]] || die "expected $tmp/venv, got '$key'"
@@ -101,7 +101,7 @@ test_python_detect_prefers_dotvenv() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
     make_fake_venv "$tmp/venv"
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     cd "$tmp"
     local key=$(_autoenv_python_detect)
     [[ $key == "$tmp/.venv" ]] || die ".venv should win when both present, got '$key'"
@@ -110,7 +110,7 @@ test_python_detect_prefers_dotvenv() {
 
 test_python_detect_returns_nonzero_when_absent() {
     local tmp=$(mktemp -d)
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     cd "$tmp"
     local out
     out=$(_autoenv_python_detect) && die "expected non-zero return, got 0 with output '$out'"
@@ -119,7 +119,7 @@ test_python_detect_returns_nonzero_when_absent() {
 }
 
 test_python_active_reads_virtualenv() {
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     VIRTUAL_ENV=/some/path
     [[ $(_autoenv_python_active) == /some/path ]] || die "active should echo VIRTUAL_ENV"
     unset VIRTUAL_ENV
@@ -129,7 +129,7 @@ test_python_active_reads_virtualenv() {
 test_python_activate_sources_activate_script() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     _autoenv_python_activate "$tmp/.venv"
     [[ ${VIRTUAL_ENV:-} == "$tmp/.venv" ]] || die "VIRTUAL_ENV should be $tmp/.venv, got '${VIRTUAL_ENV:-}'"
     typeset -f deactivate >/dev/null || die "deactivate function not defined after activate"
@@ -139,7 +139,7 @@ test_python_activate_sources_activate_script() {
 test_python_deactivate_calls_deactivate() {
     local tmp=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     _autoenv_python_activate "$tmp/.venv"
     _autoenv_python_deactivate
     [[ -z ${VIRTUAL_ENV:-} ]] || die "VIRTUAL_ENV still set after deactivate"
@@ -147,7 +147,7 @@ test_python_deactivate_calls_deactivate() {
 }
 
 test_python_deactivate_is_safe_when_no_deactivate_defined() {
-    source "$REPO_ROOT/.config/zsh/autoenv.d/python.zsh"
+    source "$REPO_ROOT/home/files/zsh/autoenv.d/python.zsh"
     _autoenv_python_deactivate || die "deactivate should be safe no-op when nothing active"
 }
 
