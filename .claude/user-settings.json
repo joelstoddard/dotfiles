@@ -69,8 +69,8 @@
       {
         "hooks": [
           {
-            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state done",
-            "timeout": 5,
+            "async": true,
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state stop",
             "type": "command"
           }
         ]
