@@ -208,6 +208,24 @@ setup; opt @claude blocked; opt @claude-blocker ""; run working '{"hook_event_na
 [[ $(now) == working ]] || die no-blocker "state is '$(now)'"
 cleanup
 
+echo "--- the session's custom title (/rename) names the notification"
+setup; run idle '{"hook_event_name":"SessionStart","session_title":"Fix CI"}'; run done
+has "arg:Claude · Fix CI" || die title-start "title wrong: $(<$D/log)"
+cleanup
+setup; opt @claude-title "Fix CI"; run working '{"hook_event_name":"UserPromptSubmit","session_title":"Renamed"}'; run blocked '{}'
+has "arg:Claude · Renamed" || die title-rename "title wrong: $(<$D/log)"
+cleanup
+
+echo "--- a tool call, which carries no title, keeps it"
+setup; opt @claude-title "Fix CI"; run working '{"hook_event_name":"PostToolUse"}'; run done
+has "arg:Claude · Fix CI" || die title-kept "title wrong: $(<$D/log)"
+cleanup
+
+echo "--- a session without a custom title falls back to tmux session:window, even after a named one"
+setup; opt @claude-title "Old"; run idle '{"hook_event_name":"SessionStart","source":"resume"}'; run done
+has "arg:Claude · work:3" || die title-fallback "title wrong: $(<$D/log)"
+cleanup
+
 echo "--- on macOS the Claude Notify app gets the title and body, so the banner has Claude's icon"
 setup; on_macos; notifier_app 0; run done
 has "notify claude-notify" || die app "app not used: $(<$D/log)"
