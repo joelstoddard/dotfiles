@@ -30,7 +30,7 @@ windows, as the plain dots are, and full on the current one. A flake check
 
 ## Holding "Done" until the turn has ended
 
-Another `Stop` hook can block the stop (guardrails' findings-gate does), and Claude
+Another `Stop` hook can block the stop (the recording plugin's findings-gate does), and Claude
 then carries on. No hook event says so, and Claude can think for many seconds before
 its next tool call, so waiting for the next event cannot tell a real end from a blocked
 one. The session transcript can: Claude Code writes `system/stop_hook_summary` after the
@@ -65,6 +65,22 @@ While a pane is `blocked`, only a `PostToolUse` from the blocker, or a new promp
 `Stop` from the main session while a background subagent waits on a prompt, leave it
 red.
 
+## Notification title
+
+A notification's title is the session's custom title: the name that `/rename` or
+`--name` sets. Only the Claude Notify app shows Claude's icon, so the `osascript` and
+`notify-send` titles start with `Claude · `. Hooks get the name as `session_title`. The docs give
+it only to `SessionStart`, but Claude Code 2.1.289 also sends it with
+`UserPromptSubmit`, so a `/rename` shows from the next prompt.
+
+- `idle` (`SessionStart`) copies it into the pane option `@claude-title`. It writes an
+  empty value if the session has no custom title, so a resumed session with no name
+  does not keep the name of the last session in that pane.
+- `working` updates it only when the field is present, because `PostToolUse` does not
+  carry it.
+- With no custom title, the title is the tmux `session:window`. The title Claude
+  generates for a session it was not given a name for does not reach hooks.
+
 ## Choices
 
 - **Always exit 0.** A `Stop` hook that exits 2 keeps Claude from stopping, and a
@@ -83,8 +99,26 @@ red.
 
 ## Setup
 
-macOS shows the notifications as coming from Script Editor (`osascript`). If none
-appear, allow Script Editor in System Settings → Notifications.
+On macOS the notifications come from `~/Applications/Claude Notify.app`, listed as
+Claude Code in System Settings → Notifications, so they carry Claude's icon. Each
+Home Manager switch builds it from `home/files/claude/claude-notify.swift` with the
+system `swiftc`, takes the icon from `/Applications/Claude.app`, and signs it ad hoc.
+No Nix build compiles the Swift, so the macOS CI job builds it and runs
+`test/unit/test_claude_notify.sh`. A post needs a logged-in user, so CI checks only that a
+launch without a title and body exits 64.
+If the app is missing or refused, the hook falls back to `osascript`, whose
+notifications show Script Editor's icon. If none appear at all, allow Script Editor
+there.
+
+Why an app, built outside the store:
+
+- `osascript` notifications always show Script Editor's icon. An applet with another
+  icon uses the legacy notification API, which macOS 26 refuses to an app it has not
+  already allowed. terminal-notifier 2.0.0 does not find Notification Center on
+  macOS 26, and posts nothing.
+- usernoted refused the same bundle from a temporary directory, and accepted it from
+  `~/Applications`. A bundle in the Nix store was not tried.
+- The icon exists only inside Claude.app, so it cannot be in the store.
 
 ## Known limits
 
@@ -100,3 +134,6 @@ appear, allow Script Editor in System Settings → Notifications.
 - tmux-continuum's auto-save job lives in `status-right`, so `status-interval 1`
   starts it every second. The job exits at once until its save interval passes.
 - On a zoomed window the Claude colour replaces the zoom orange.
+- Clicking a macOS notification does nothing.
+- If Claude Code stops sending `session_title` with `UserPromptSubmit`, a `/rename`
+  shows only after the session is resumed.

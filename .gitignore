@@ -13,9 +13,6 @@ result-*
 # Tmux plugins (legacy TPM installs)
 .config/tmux/plugins/
 
-# Neovim plugin lock (managed by lazy.nvim)
-.config/nvim/lazy-lock.json
-
 # Git worktrees
 .claude/worktrees/
 

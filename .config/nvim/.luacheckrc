@@ -3,7 +3,6 @@ globals = {
 }
 
 read_globals = {
-  "use",
   "MiniTest",
 }
 

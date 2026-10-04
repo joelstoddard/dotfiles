@@ -19,12 +19,16 @@ watching() { # a focused client is showing this pane
 
 notify() { # notify <body>
   local title
-  title="Claude · $(tmux display -p -t "$pane" '#{session_name}:#{window_index}')"
+  title=$(get @claude-title)
+  title=${title:-$(tmux display -p -t "$pane" '#{session_name}:#{window_index}')}
   # Arguments only: the text can hold commands Claude wrote.
+  # Only the app shows Claude's icon, so the other notifiers name Claude in the title.
   if [[ $(uname) == Darwin ]]; then
-    osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "$title"
+    # osascript shows Script Editor's icon. home/claude.nix builds the app.
+    "$HOME/Applications/Claude Notify.app/Contents/MacOS/claude-notify" "$title" "$1" ||
+      osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "Claude · $title"
   else
-    notify-send "$title" "$1"
+    notify-send "Claude · $title" "$1"
   fi
 }
 
@@ -59,15 +63,21 @@ turn_outcome() {
 
 case $verb in
   off) tmux set -pu -t "$pane" @claude ;;
-  idle) put @claude idle ;;
+  idle)
+    json=$(cat)
+    put @claude-title "$(field .session_title)" # a new or resumed session without one drops the old title
+    put @claude idle
+    ;;
   asking)
     json=$(cat)
     agent=$(field .agent_id)
     put @claude-asker "${agent:-main}"
     ;;
   working)
+    json=$(cat)
+    title=$(field .session_title) # a prompt carries it, so a /rename shows from the next prompt
+    [[ -z $title ]] || put @claude-title "$title"
     if [[ $(get @claude) == blocked ]]; then
-      json=$(cat)
       blocker=$(get @claude-blocker)
       agent=$(field .agent_id)
       # Only the agent that asked, or a new prompt from you, ends a block.

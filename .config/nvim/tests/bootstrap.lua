@@ -143,13 +143,10 @@ local function sync_detail(ok, err, off)
 end
 
 -- vim.pack.add() leaves a plugin that is already on disk at its old revision, so this moves each one to the lockfile.
--- The install already holds every committed revision, so the sync runs offline and retries online only if needed.
-local synced, sync_err = pcall(vim.pack.update, nil, { target = "lockfile", force = true, offline = true })
-local off = off_lock(read_lock(lock_path))
-if synced and #off > 0 then
-	synced, sync_err = pcall(vim.pack.update, off, { target = "lockfile", force = true })
-	off = off_lock(read_lock(lock_path))
-end
+local sync = dofile(vim.env.NVIM_TEST_ROOT .. "/tests/sync.lua")
+local synced, sync_err, off = sync(vim.pack.update, function()
+	return off_lock(read_lock(lock_path))
+end)
 if not synced or #off > 0 then
 	fail("sync", sync_detail(synced, sync_err, off))
 end

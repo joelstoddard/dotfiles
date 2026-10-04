@@ -12,9 +12,10 @@ FAILS=0
 
 command -v jq >/dev/null || { echo "jq not installed — skipping"; exit 0; }
 
-# The one definition both git.nix and this test read.
-CLEAN=$(sed -n 's/.*filter\."claude-settings"\.clean = "\(.*\)";/\1/p' "$REPO/home/git.nix")
-[[ -n "$CLEAN" ]] || { echo "FAILED: no filter definition in home/git.nix"; exit 1; }
+# The filter .gitattributes names, and its one definition, which both git.nix and this test read.
+NAME=$(sed -n 's/^\.claude\/user-settings\.json filter=//p' "$REPO/.gitattributes")
+CLEAN=$(sed -n "s/.*filter\.\"$NAME\"\.clean = \"\(.*\)\";/\1/p" "$REPO/home/git.nix")
+[[ -n "$NAME" && -n "$CLEAN" ]] || { echo "FAILED: no definition in home/git.nix for the filter .gitattributes names"; exit 1; }
 
 die() { echo "  FAIL [$1]: $2"; FAILS=1 }
 
@@ -22,7 +23,7 @@ setup() {  # → fresh repo in $D with the filter wired
   D=$(mktemp -d)
   git -C "$D" init -q
   cp "$REPO/.gitattributes" "$D/.gitattributes"
-  git -C "$D" config filter.claude-settings.clean "$CLEAN"
+  git -C "$D" config "filter.$NAME.clean" "$CLEAN"
   mkdir -p "$D/${TRACKED:h}"
   git -C "$D" add .gitattributes
   commit
@@ -38,6 +39,20 @@ setup
 blob=$(stage '{"model":"opus","effortLevel":"xhigh"}')
 [[ $(print -r -- "$blob" | jq 'has("model")') == false ]] || die "strip" "model reached the blob"
 [[ $(print -r -- "$blob" | jq -r .effortLevel) == xhigh ]] || die "strip" "effortLevel lost"
+cleanup
+
+echo "--- per-model settings are stripped, the general effort level stays"
+setup
+blob=$(stage '{"effortLevel":"xhigh","modelSettings":{"claude-opus-5-5":{"effortLevel":"low"}}}')
+[[ $(print -r -- "$blob" | jq 'has("modelSettings")') == false ]] || die "model-settings" "modelSettings reached the blob"
+[[ $(print -r -- "$blob" | jq -r .effortLevel) == xhigh ]] || die "model-settings" "effortLevel lost"
+cleanup
+
+echo "--- the old installer's filter.claude-settings in .git/config does not override the filter"
+setup
+git -C "$D" config filter.claude-settings.clean "jq -S 'del(.model)'"
+blob=$(stage '{"modelSettings":{"claude-opus-5-5":{"effortLevel":"low"}}}')
+[[ $(print -r -- "$blob" | jq 'has("modelSettings")') == false ]] || die "stale-local" "the old definition overrode the filter"
 cleanup
 
 echo "--- the working file keeps its model"

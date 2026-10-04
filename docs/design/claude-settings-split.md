@@ -34,7 +34,7 @@ Three files, split by audience rather than by scope:
 
 | File | Tracked | Holds |
 |---|---|---|
-| `.claude/user-settings.json` | yes | user-level config safe to publish: permissions tiers, model, statusline, editor, TUI and effort preferences, public plugin and marketplace registrations |
+| `.claude/user-settings.json` | yes | user-level config safe to publish: permissions tiers, statusline, editor, TUI preferences, the default effort level, public plugin and marketplace registrations |
 | `.claude/settings.json` | yes | this project's own settings — dotfiles-specific git/gh permissions, `opus[1m]`, the oh-my-posh statusline |
 | `.claude/settings.local.json` | no (gitignored) | employer environment context, work marketplaces and their plugins, machine-local permission grants |
 
@@ -44,18 +44,13 @@ that reason. `home/claude.nix` links `~/.claude/settings.json` to it with
 this file in place — the same reason `home/nvim.nix` links out-of-store.
 
 The tracked file holds no absolute paths, because it is linked on macOS, Arch
-and Debian alike. Two entries needed changing for that:
+and Debian alike:
 
 - The home read grant is `Read(~/**)`, not `Read(//Users/joel/**)`.
-- This repo's own plugin marketplace is no longer declared there. Claude Code
-  normalises a marketplace path to absolute when it stores one — verified by
-  running `claude plugin marketplace add` with a `~`-relative path and reading
-  back what it wrote — so no single stored value is correct on every machine.
-  Run `claude plugin marketplace add --scope local` once per machine instead: it
-  writes that machine's path into `.claude/settings.local.json`. That file is
-  gitignored, and `home/claude.nix` links it to `~/.claude/` as well, so the
-  declaration lands in both places it is needed and in none that git tracks.
-  Nothing runs this for you — it is the one manual step of a fresh setup.
+- The guardrails marketplace is a GitHub source (`joelstoddard/guardrails`), so it
+  carries no machine-specific path and is declared here like any public marketplace.
+  A local `directory` marketplace could not be: Claude Code stores its path as
+  absolute.
 
 Claude Code merges the user and local files, so the work context still applies at
 runtime — it simply never enters git.
@@ -114,17 +109,22 @@ case: Claude Code does not read it as intent, it writes it to remember the model
 last used, and each rewrite reorders every key as well. Neither is
 configuration, and both landed in `git status` after every session.
 
+`modelSettings` is the same kind of state. Claude Code records an effort level per
+model ID when you change effort for that model. Each new model adds an entry, and the
+model in use changes from task to task. The top-level `effortLevel` is the chosen
+default, and it stays tracked.
+
 A clean filter strips them at the git boundary:
 
 ```
-.gitattributes                    .claude/user-settings.json filter=claude-settings
-git config filter.…clean          jq -S 'del(.model)'
+.gitattributes                    .claude/user-settings.json filter=claude-user-settings
+git config filter.…clean          jq -S 'del(.model, .modelSettings)'
 ```
 
-`del(.model)` drops the session state; `-S` makes key order canonical so a
+`del(…)` drops the session state; `-S` makes key order canonical so a
 rewrite alone produces a byte-identical blob. The working file is untouched, so
-the live `model` still applies in every repo that does not pin one — it simply
-never reaches a commit.
+the live `model` and per-model effort still apply — they simply never reach a
+commit.
 
 The filter lives in git config, which is per-machine, so `.gitattributes` alone
 does nothing on a fresh clone. `home/git.nix` declares it, so activation writes
@@ -134,6 +134,16 @@ never touches another. A clone on a machine that has not activated gets the
 committed file — sorted, no `model` — which is valid: Claude Code picks a
 default and records it again. The filter is a convenience, never a correctness
 dependency.
+
+**Why `claude-user-settings`, not `claude-settings`.** Before Home Manager, the
+Python installer registered the filter as `claude-settings` with a plain
+`git config`, so the definition went into the clone's `.git/config`. Repository
+config takes precedence over the global file. On every machine that ran the
+installer, that copy of the old `del(.model)` replaced the Home Manager
+definition, and a filter change in `home/git.nix` had no effect there. The new
+name leaves those old entries unused, so no machine needs a manual fix. The test
+reads the filter name from `.gitattributes`, and has a case for a stale
+`claude-settings` entry in the clone's config.
 
 **What it does not fix.** `git status` still lists the file after a model
 switch. Git decides that from stat alone and does not run the filter, so the

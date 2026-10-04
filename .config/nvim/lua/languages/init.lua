@@ -137,8 +137,16 @@ local function half_built(pkg)
 	return pkg:is_installed() and vim.uv.fs_stat(vim.fs.joinpath(pkg:get_install_path(), "mason-receipt.json")) == nil
 end
 
---- Installs missing Mason packages in the background and reports failures in one warning.
+--- Installs missing Mason packages in the background and reports failures in one warning. Sets
+--- vim.g.languages_install_done when it ends.
 function M.install_missing(registry)
+	-- The startup test waits for this flag, because the end of the check has no other sign. It is set on a later
+	-- loop turn, so a vim.notify that queues its own work, as mini.notify's does, shows the warning first.
+	local function done()
+		vim.schedule(function()
+			vim.g.languages_install_done = true
+		end)
+	end
 	-- Mason can run this callback off the main loop (e.g. after a failed refresh).
 	registry.refresh(vim.schedule_wrap(function(refreshed)
 		-- A failed refresh leaves an empty registry, which would list every package as unknown.
@@ -147,17 +155,21 @@ function M.install_missing(registry)
 				"Mason could not refresh its registry; missing packages will install on a later start.",
 				vim.log.levels.WARN
 			)
+			done()
 			return
 		end
 		local pending, failed, scanning, reported = 0, {}, true, false
 		-- Installs can finish before the loop ends, so report only once the loop is done and nothing is pending.
 		local function report()
-			if scanning or reported or pending > 0 or #failed == 0 then
+			if scanning or reported or pending > 0 then
 				return
 			end
 			reported = true
 			vim.schedule(function()
-				vim.notify("Mason could not install: " .. table.concat(failed, ", "), vim.log.levels.WARN)
+				if #failed > 0 then
+					vim.notify("Mason could not install: " .. table.concat(failed, ", "), vim.log.levels.WARN)
+				end
+				done()
 			end)
 		end
 		for _, name in ipairs(M.mason_packages()) do

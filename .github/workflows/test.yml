@@ -22,13 +22,17 @@ jobs:
             runner: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      # Home Manager activation compiles this with the system swiftc, which no Nix step runs.
+      - name: Build and test the Claude notifier
+        if: matrix.host == 'joel@macos'
+        run: zsh test/unit/test_claude_notify.sh
       - uses: cachix/install-nix-action@2126ae7fc54c9df00dd18f7f18754393182c73cd  # v31.9.1
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - name: Check Nix formatting
+      - name: Lint
         if: matrix.host == 'joel@linux'
-        run: nix fmt -- --ci
+        run: bash test/lint.sh
       - name: Evaluate flake
         run: nix flake check --no-build
       - name: Dry-run build activation package
@@ -49,8 +53,6 @@ jobs:
           pip install pyyaml
       - name: Run shell and Python unit tests
         run: bash test/unit/run.sh
-      - name: Run guardrails plugin tests
-        run: bash .claude/marketplace/plugins/guardrails/tests/run.sh
       - name: Check coverage floors
         run: bash test/coverage.sh
       - name: Check coverage floors only rise

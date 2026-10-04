@@ -35,6 +35,10 @@ jobs:
           path: ~/.local/share/nvim-test
           key: nvim-test-${{ runner.os }}-${{ hashFiles('nvim-pack-lock.json', 'lua/languages/*.lua') }}
           restore-keys: nvim-test-${{ runner.os }}-
+      # nix exits 1 when it fails, as the suite does. A fetch in its own step keeps a nix failure out of the status
+      # that the next step reads as the suite's result.
+      - name: Fetch nvim and tree-sitter
+        run: nix build --no-link nixpkgs#neovim nixpkgs#tree-sitter
       # The suite runs here, not in test.yml, because a PR opened with this workflow's token can't trigger other
       # workflows. No credentials are persisted on checkout because this step runs this week's unreviewed plugin code.
       - name: Update plugins and run the suite
@@ -46,10 +50,17 @@ jobs:
           status=${PIPESTATUS[0]}
           set -e
           echo "status=$status" >> "$GITHUB_OUTPUT"
-          if [ "$status" = 2 ]; then
-            echo "::error::the bootstrap or the plugin update failed; the lockfile is unchanged"
-            exit 1
-          fi
+          case "$status" in
+            0|1) ;;
+            2)
+              echo "::error::the bootstrap or the plugin update failed; the lockfile is unchanged"
+              exit 1
+              ;;
+            *)
+              echo "::error::tests/run.sh exited with status $status, which is not a test result (see the log above)"
+              exit 1
+              ;;
+          esac
           if git diff --quiet -- nvim-pack-lock.json; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -60,7 +71,7 @@ jobs:
 
   pr:
     needs: update
-    if: needs.update.outputs.status != '2'
+    if: needs.update.outputs.status == '0' || needs.update.outputs.status == '1'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
