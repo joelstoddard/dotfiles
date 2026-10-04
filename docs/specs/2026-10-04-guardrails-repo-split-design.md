@@ -30,7 +30,10 @@ That layout has three costs:
 | Path-scoped rules | Stay in the dotfiles (`.claude/rules/*.md` with `paths:`) | Plugins have no path-scoped equivalent; they also serve the main session when it edits matching files |
 | Personal context | The `~/work` convention stays in the dotfiles as an unscoped `.claude/rules/context.md` | It is the user's convention, not the plugin's |
 | Shared code | Each group of hooks that shares `lib/` lands in one plugin | No symlinks or duplicated helpers needed at runtime |
-| Versions | No `version` field; `autoUpdate: true` on the marketplace entry. See open question 1 | Every push to `main` reaches each machine at the next session |
+| Versions | No `version` field; `autoUpdate: true` on the marketplace entry | Every push to `main` reaches each machine at the next session, with no bump to forget |
+| Validation | `claude plugin validate --json` in CI, failing on any error or any warning except the missing `version` | `--strict` rejects a plugin with no `version`, so it cannot coexist with the decision above. The current plugin's 12 warnings (unquoted `${CLAUDE_PLUGIN_ROOT}`) still fail the filter, so the move must fix them |
+| Plugin dependencies | `personas` depends on `building` AND `recording` | Personas assume the conduct and engineering rules, file findings under recording's Findings rule, and default to its `rfc`, `adr` and `mistakes`; `findings-capture` parses the persona report |
+| Tests | One repo-root `tests/` with a single helper and runner | Tests stay out of the plugins, so they are not copied into the plugin cache, and the helper is not duplicated |
 | History | `git filter-repo` from a clone of the dotfiles, then restructure commits | Keeps `git log --follow` for every moved file, including its earlier paths |
 | Cut-over | Ordered steps below; one dotfiles PR swaps the plugins | Plugin hooks have no namespace, so both enabled at once runs every hook twice |
 | Work layer | `nbl-guardrails` stands alone and overrides "any other" RFC/ADR/post-mortem skill | Done separately (`nbl-guardrails` 0.2.1); it names nothing from this plugin, so the renames do not break it |
@@ -46,7 +49,7 @@ plugins/
   building/    .claude-plugin/plugin.json  skills/  hooks/  lib/  rules/
   recording/   .claude-plugin/plugin.json  skills/  hooks/  lib/  rules/
   personas/    .claude-plugin/plugin.json  agents/  hooks/  rules/
-tests/                               # see open question 5
+tests/                               # helper.sh, run.sh, and every suite
 docs/design/  docs/specs/            # the docs cited from plugin code
 AGENTS.md                            # "- **Test:** `bash tests/run.sh`", so building's test gate runs here too
 .github/workflows/test.yml
@@ -71,8 +74,11 @@ hooks use `findings`.
 
 Dependencies between plugins:
 
-- `personas` depends on `building`: every persona assumes the conduct and engineering
-  rules are loaded. Whether it also depends on `recording` is open question 2.
+- `personas` declares `"dependencies": ["building", "recording"]`. Every persona assumes
+  the conduct and engineering rules. `delegation.md` files persona findings under the
+  Findings rule, `technical-writer` and `sre` default to `recording`'s `rfc`, `adr` and
+  `mistakes`, and `findings-capture` parses the persona report's "Findings outside
+  scope" heading, whose format `delegation.md` defines.
 - `building` and `recording` stand alone. Their skills name each other only in prose
   (`adr` mentions `building:concise-comments`; `self-improvement` mentions
   `building:commit` and `building:draft-pr`), which needs no dependency.
@@ -103,8 +109,9 @@ The rules keep PERSONAL and WORK as concepts, but the plugin no longer says how 
 them apart. It says: "A project is WORK when your context says so; otherwise PERSONAL."
 The dotfiles' `context.md` supplies the `~/work` test. The document and tracker defaults
 keep their override clause ("WHEN the session context names other skills OR another
-tracker, use those"), which `nbl-guardrails` relies on. Where the ownership bullet
-(`core.md:46`) goes is open question 3.
+tracker, use those"), which `nbl-guardrails` relies on. The ownership bullet
+(`core.md:46`, "In a PERSONAL project, the user owns every service… Do NOT ask") stays in
+`conduct.md`: it is generic once context defines PERSONAL.
 
 Each `hooks.json` injects its rules inline, with no script: one entry per event and file,
 with the event name hard-coded in that entry.
@@ -113,6 +120,11 @@ with the event name hard-coded in that entry.
 { "type": "command", "timeout": 10,
   "command": "jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:.}}' \"${CLAUDE_PLUGIN_ROOT}/rules/conduct.md\"" }
 ```
+
+`personas`' entries differ in one way: their filter is
+`gsub("\\$\\{CLAUDE_PLUGIN_ROOT\\}"; $root)` with `--arg root "${CLAUDE_PLUGIN_ROOT}"`, so
+`delegation.md` can name the installed agents directory as
+`${CLAUDE_PLUGIN_ROOT}/agents/` and the session sees the real path.
 
 Each file is its own hook entry, because the 10,000-character cap applies per hook
 output, not per event. `jq` is installed by `home/packages.nix`. Without it, the hook
@@ -135,7 +147,8 @@ the main session would not.
   - `persona-report.sh:3,20`, whose block message points at `delegation.md`'s path;
   - the dotfiles `.claude/rules/testing.md:15`, which stays behind;
   - `delegation.md:11` tells the orchestrator to read a persona file under
-    `~/.claude/agents/`. Open question 4.
+    `~/.claude/agents/`. It becomes `${CLAUDE_PLUGIN_ROOT}/agents/`, which the personas
+    rules hook replaces with the installed path.
 - **Domain rules:** personas that read a path-scoped rule (architect, data-engineer,
   qa-engineer, release-engineer, technical-writer) read it IF it exists under
   `~/.claude/rules/`. Outside the dotfiles they work without it.
@@ -259,20 +272,30 @@ that session, so edits are live after `/reload-plugins` with no push.
 | `jq` missing | Rules hooks exit 127, a non-blocking error | `jq` is in `home/packages.nix`; personas STOP on missing rules |
 | Old and new plugins enabled together | Every hook runs twice | Cut-over order; `claude plugin list` checked on each machine |
 | Auto-update ships a broken commit | Every machine gets it at the next session | Required CI check on `main`; `--plugin-dir` testing before push; revert fixes forward |
-| `personas` installed without `building` | Personas lack core rules | `dependencies` installs it; agents STOP and return BLOCKED if the rules are absent |
+| `personas` installed without `building` or `recording` | Personas lack core or findings rules | `dependencies` installs both; agents STOP and return BLOCKED if the rules are absent |
 
 ## Verification
 
 New repo, in CI (the workflow installs `@anthropic-ai/claude-code` from npm, and Python for
 the agent checks):
 
-- Every hook test suite, ported, then with renamed references.
-- Manifest validation on the marketplace and each plugin. See open question 1 for how.
+- Every hook test suite, ported into `tests/`, then with renamed references.
+- Manifest validation on the marketplace and each plugin. This filter passes a plugin
+  whose only warning is the missing `version`, and fails the current plugin on its 12:
+
+  ```bash
+  claude plugin validate --json "$target" | jq -e '
+    [.. | objects | .errors? // empty | .[]] == [] and
+    [.. | objects | .warnings? // empty | .[] | select(.path != "version")] == []'
+  ```
+
+  A separate check fails if any `plugin.json` or marketplace entry sets `version`.
 - Size test: every file under `plugins/*/rules/` is under 10,000 characters.
 - Rules-hook test: every `plugins/*/rules/*.md` has a `SessionStart` AND a
   `SubagentStart` entry in its plugin's `hooks.json`, each with the matching
   `hookEventName`. Each command, run with a fake `CLAUDE_PLUGIN_ROOT`, emits JSON whose
-  `additionalContext` equals the file.
+  `additionalContext` equals the file, with `${CLAUDE_PLUGIN_ROOT}` replaced by the fake
+  root for `personas`.
 - Reference test: every `building:`, `recording:` and `personas:` name resolves to an
   existing skill or agent. The repo has no `guardrails:` names, and no `~/.claude/agents`,
   `~/.claude/rules/core.md`, `~/.claude/rules/delegation.md` or bare `core.md`.
@@ -298,24 +321,3 @@ Dotfiles: `bash test/unit/run.sh` and `nix flake check --no-build` pass.
 - Declaring `superpowers` as a cross-marketplace dependency.
 - Docs for outside adopters beyond a README.
 - claude.ai and Cowork support.
-
-## Open questions
-
-1. **Validation without versions.** `claude plugin validate --strict` fails on a plugin
-   with no `version` ("No version specified"). Recommended: keep no versions, and fail CI
-   on any `validate --json` error or any warning other than the missing version.
-   Alternative: add versions, which means a bump on every change before machines see it.
-2. **`personas` → `recording`.** `delegation.md:20` files persona findings per the
-   Findings rule; `technical-writer.md` and `sre.md` default to `rfc`, `adr` and
-   `mistakes`; `findings-capture` parses the persona report's "Findings outside scope"
-   heading. Recommended: `"dependencies": ["building", "recording"]`.
-3. **Ownership bullet (`core.md:46`):** "In a PERSONAL project, the user owns every
-   service… Do NOT ask." Recommended: keep it in `conduct.md`; it is generic once
-   PERSONAL is defined by context.
-4. **`delegation.md:11` fallback** ("read that persona's file in `~/.claude/agents/`").
-   Recommended: the personas rules hook replaces `${CLAUDE_PLUGIN_ROOT}` in the text it
-   injects (`gsub` in the `jq` filter), so the rule names the installed path.
-   Alternative: drop the fallback.
-5. **Test layout.** Recommended: one repo-root `tests/` with a single helper and runner,
-   outside the plugins, so tests are not copied into the plugin cache. Alternative: a
-   `tests/` per plugin with a copied helper.
