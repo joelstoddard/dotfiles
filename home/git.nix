@@ -65,10 +65,10 @@ in
         verbose = true;
       };
 
-      # Keeps the model Claude Code records each session out of the tracked
+      # Keeps the model and per-model settings Claude Code records out of the tracked
       # settings blob. .gitattributes binds the filter to the file; this is the
       # definition it names. See docs/design/claude-settings-split.md
-      filter."claude-settings".clean = "jq -S 'del(.model)'";
+      filter."claude-settings".clean = "jq -S 'del(.model, .modelSettings)'";
 
       core = {
         autocrlf = "input";

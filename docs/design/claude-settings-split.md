@@ -34,7 +34,7 @@ Three files, split by audience rather than by scope:
 
 | File | Tracked | Holds |
 |---|---|---|
-| `.claude/user-settings.json` | yes | user-level config safe to publish: permissions tiers, model, statusline, editor, TUI and effort preferences, public plugin and marketplace registrations |
+| `.claude/user-settings.json` | yes | user-level config safe to publish: permissions tiers, statusline, editor, TUI preferences, the default effort level, public plugin and marketplace registrations |
 | `.claude/settings.json` | yes | this project's own settings — dotfiles-specific git/gh permissions, `opus[1m]`, the oh-my-posh statusline |
 | `.claude/settings.local.json` | no (gitignored) | employer environment context, work marketplaces and their plugins, machine-local permission grants |
 
@@ -109,17 +109,22 @@ case: Claude Code does not read it as intent, it writes it to remember the model
 last used, and each rewrite reorders every key as well. Neither is
 configuration, and both landed in `git status` after every session.
 
+`modelSettings` is the same kind of state. Claude Code records an effort level per
+model ID when you change effort for that model. Each new model adds an entry, and the
+model in use changes from task to task. The top-level `effortLevel` is the chosen
+default, and it stays tracked.
+
 A clean filter strips them at the git boundary:
 
 ```
 .gitattributes                    .claude/user-settings.json filter=claude-settings
-git config filter.…clean          jq -S 'del(.model)'
+git config filter.…clean          jq -S 'del(.model, .modelSettings)'
 ```
 
-`del(.model)` drops the session state; `-S` makes key order canonical so a
+`del(…)` drops the session state; `-S` makes key order canonical so a
 rewrite alone produces a byte-identical blob. The working file is untouched, so
-the live `model` still applies in every repo that does not pin one — it simply
-never reaches a commit.
+the live `model` and per-model effort still apply — they simply never reach a
+commit.
 
 The filter lives in git config, which is per-machine, so `.gitattributes` alone
 does nothing on a fresh clone. `home/git.nix` declares it, so activation writes

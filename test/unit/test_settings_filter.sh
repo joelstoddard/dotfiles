@@ -40,6 +40,13 @@ blob=$(stage '{"model":"opus","effortLevel":"xhigh"}')
 [[ $(print -r -- "$blob" | jq -r .effortLevel) == xhigh ]] || die "strip" "effortLevel lost"
 cleanup
 
+echo "--- per-model settings are stripped, the general effort level stays"
+setup
+blob=$(stage '{"effortLevel":"xhigh","modelSettings":{"claude-opus-5-5":{"effortLevel":"low"}}}')
+[[ $(print -r -- "$blob" | jq 'has("modelSettings")') == false ]] || die "model-settings" "modelSettings reached the blob"
+[[ $(print -r -- "$blob" | jq -r .effortLevel) == xhigh ]] || die "model-settings" "effortLevel lost"
+cleanup
+
 echo "--- the working file keeps its model"
 setup
 stage '{"model":"opus"}' >/dev/null
