@@ -175,4 +175,17 @@ print -rn -- $'home/files/f.sh\t66.6\nTOTAL\t99.9' > "$D/base.tsv"; cov --ratche
 [[ $RC == 1 && $OUTPUT == *"floor lowered: TOTAL"* ]] || die ratchet-no-newline "rc=$RC: $OUTPUT"
 cleanup
 
+echo "--- --files lists exactly the measured files"
+setup; print 'not shell' > "$D/home/files/notes.txt"; cov --files
+[[ $RC == 0 && $OUTPUT == "home/files/f.sh" ]] || die files "rc=$RC: '$OUTPUT'"
+cleanup
+
+echo "--- --trace records hits without checking floors, and stops on a failing test"
+setup; cov --trace
+[[ $RC == 0 && -z $OUTPUT ]] || die trace "rc=$RC: '$OUTPUT'"
+[[ $(awk -F'\t' '$2 == "home/files/f.sh" { print $3 }' "$D/.coverage/hits.tsv" | tr '\n' ' ') == "2 3 " ]] || die trace-hits "$(<"$D/.coverage/hits.tsv")"
+print 'exit 1' > "$D/test/unit/test_broken.sh"; cov --trace
+[[ $RC == 1 && $OUTPUT == *"test_broken.sh failed"* ]] || die trace-red "rc=$RC: $OUTPUT"
+cleanup
+
 [[ $FAILS == 0 ]] && echo "OK: coverage-tools" || { echo "FAILED: coverage-tools"; exit 1 }
