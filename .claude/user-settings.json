@@ -23,7 +23,7 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state blocked",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state blocked",
             "timeout": 5,
             "type": "command"
           }
@@ -35,7 +35,7 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state working",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state working",
             "timeout": 5,
             "type": "command"
           }
@@ -46,7 +46,7 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state off",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state off",
             "timeout": 5,
             "type": "command"
           }
@@ -57,7 +57,7 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state idle",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state idle",
             "timeout": 5,
             "type": "command"
           }
@@ -69,7 +69,18 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state done",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state done",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state done",
             "timeout": 5,
             "type": "command"
           }
@@ -80,7 +91,7 @@
       {
         "hooks": [
           {
-            "command": "claude-tmux-state working",
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state working",
             "timeout": 5,
             "type": "command"
           }

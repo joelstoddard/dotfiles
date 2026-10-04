@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
-# Tests claude-tmux-state against a fake tmux and fake notifiers that log every call.
+# Tests claude-tmux-state against a fake tmux and fake notifiers that log every call,
+# then the hook wiring in .claude/user-settings.json.
 # See docs/design/claude-tmux-state.md
 
 REPO="${0:A:h}/../.."
@@ -112,5 +113,19 @@ setup; run bogus
 [[ $RC == 0 ]] || die unknown "exited $RC"
 grep -q 'set -p' "$D/log" && die unknown "set an option"
 cleanup
+
+SETTINGS="$REPO/.claude/user-settings.json"
+
+echo "--- a turn that ends, cleanly or on an API error, marks the pane done"
+for ev in Stop StopFailure; do
+  jq -e --arg ev $ev '[.hooks[$ev][]?.hooks[].command] | any(endswith("claude-tmux-state done"))' \
+    "$SETTINGS" >/dev/null || die turn-end "$ev does not run claude-tmux-state done"
+done
+
+echo "--- every hook is silent outside tmux, even where the script is not installed"
+for cmd in ${(f)"$(jq -r '.hooks[][].hooks[].command | select(contains("claude-tmux-state"))' "$SETTINGS")"}; do
+  print -r -- '{}' | env -u TMUX_PANE PATH=/usr/bin:/bin sh -c "$cmd" >/dev/null 2>&1; rc=$?
+  [[ $rc == 0 ]] || die outside-tmux "'$cmd' exited $rc"
+done
 
 [[ $FAILS == 0 ]] && echo "OK: claude-tmux-state" || { echo "FAILED: claude-tmux-state"; exit 1 }

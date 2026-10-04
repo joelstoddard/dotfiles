@@ -15,7 +15,7 @@ overwrite each other, and tmux drops it when the pane closes.
 | `idle` | `SessionStart` (startup, resume, clear); focusing a `done` pane (tmux `pane-focus-in`) |
 | `working` | `UserPromptSubmit`, `PostToolUse` |
 | `blocked` | `Notification`: `permission_prompt`, `elicitation_dialog`, `agent_needs_input` |
-| `done` | `Stop`, or `idle` if you are looking at the pane |
+| `done` | `Stop`, `StopFailure` (turn ended on an API error), or `idle` if you are looking at the pane |
 | unset | `SessionEnd` |
 
 The window glyph is the highest-priority state among its panes: blocked > done >
@@ -33,6 +33,9 @@ background process, only `status-interval 1`.
   `focused` flag shows this pane (`list-clients -F '#{client_flags} #{pane_id}'`).
 - **Notification text goes in as arguments.** The message can contain commands
   Claude wrote, so it is never interpolated into AppleScript.
+- **Each hook command starts with `[ -z "$TMUX_PANE" ] ||`.** Claude outside tmux
+  (an IDE, the desktop app) may run with a PATH that lacks the script, and must stay
+  silent rather than report a hook error on every tool call.
 
 ## Known limits
 
