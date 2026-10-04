@@ -3,11 +3,24 @@
 # data folder. Usage: sh tests/run.sh [--update] [tests/test_<area>.lua]
 set -eu
 
+# 64 is EX_USAGE from sysexits.h. Exit 1 means a failed suite and exit 2 a failed bootstrap.
+usage() {
+	echo "tests/run.sh: $1; usage: sh tests/run.sh [--update] [tests/test_<area>.lua]" >&2
+	exit 64
+}
+
 update=0
-if [ "${1:-}" = "--update" ]; then
-	update=1
-	shift
-fi
+file=
+for arg in "$@"; do
+	case $arg in
+	--update) update=1 ;;
+	-*) usage "unknown option $arg" ;;
+	*)
+		[ -z "$file" ] || usage "one test file at most"
+		file=$arg
+		;;
+	esac
+done
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 tmp=$(mktemp -d)
@@ -38,7 +51,7 @@ fi
 
 # The file argument and the data path go through the environment, not into Lua source. A quote or a space in
 # either then cannot break the Lua chunk.
-export NVIM_TEST_FILE="${1:-}"
+export NVIM_TEST_FILE="$file"
 run='if vim.env.NVIM_TEST_FILE then MiniTest.run_file(vim.env.NVIM_TEST_FILE) else MiniTest.run() end'
 # Setup and the run share one pcall, so a missing test file or a load error also exits non-zero. Two separate -c
 # commands could leave nvim open after the first one fails.
