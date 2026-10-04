@@ -39,6 +39,7 @@
       docker = "#0B59E7";
       k8s = "#326CE5";
       terraform = "#EBCC34";
+      claude = "#D97757"; # Claude Code's brand orange, as in home/files/oh-my-posh/claude.yaml
     };
   };
 }

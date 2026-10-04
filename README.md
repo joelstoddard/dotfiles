@@ -82,7 +82,7 @@ flake.nix                 # inputs (nixpkgs, home-manager) + one config per host
        ├─ btop.nix        # was .config/btop/
        ├─ nvim.nix        # links .config/nvim (git subtree) out-of-store
        ├─ fonts.nix       # nerd fonts (Linux GUI)
-       ├─ claude.nix      # links .claude/ user config into ~/.claude/
+       ├─ claude.nix      # links .claude/ user config into ~/.claude/, packages claude-tmux-state
        └─ pkgs/ttl.nix    # custom package not in nixpkgs
 ```
 
@@ -105,7 +105,7 @@ used for the Neovim out-of-store symlink).
 |------|--------|-------|
 | zsh | `home/zsh.nix` | autosuggestions + completions from Nix, no plugin cloning |
 | git | `home/git.nix` | GPG signing, conventional commits |
-| tmux | `home/tmux.nix` | Nix-managed plugins (no TPM), vim-tmux-navigator |
+| tmux | `home/tmux.nix` | Nix-managed plugins (no TPM), vim-tmux-navigator, Claude state per window |
 | oh-my-posh | `home/oh-my-posh.nix` | prompt theme with git, python, k8s |
 | alacritty | `home/alacritty.nix` | OS differences via Nix conditionals |
 | btop | `home/btop.nix` | ash-plus theme |
