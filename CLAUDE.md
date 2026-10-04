@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `home/packages.nix` — every package for all platforms (was `packages/packages.yaml`)
 - `home/pkgs/ttl.nix` — custom derivation for tools missing from nixpkgs
 - `home/files/` — files kept byte-for-byte and linked, not rewritten in Nix
-- `.claude/agents/` and `.claude/rules/` — linked into `~/.claude/` by `home/claude.nix`: the seven personas, and the rules they share (`core.md` and `delegation.md` always load; the rest load by `paths:`). `test/unit/test_personas.py` keeps them consistent with the guardrails plugin. See `docs/specs/2026-10-02-personas-design.md`
+- `.claude/rules/` — linked into `~/.claude/` by `home/claude.nix`: the path-scoped domain rules and `context.md` (the `~/work` convention). The `building`, `recording` and `personas` plugins come from [joelstoddard/guardrails](https://github.com/joelstoddard/guardrails), declared in `.claude/user-settings.json`. `test/unit/test_rules.py` checks the rules left here. See `docs/specs/2026-10-04-guardrails-repo-split-design.md`
 - `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by `home/claude.nix`. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Patterns
@@ -44,17 +44,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Committing
 
-Always use the `guardrails:commit` skill for all git commits — invoke it via the Skill tool. Applies to all agents including sub-agents.
+Always use the `building:commit` skill for all git commits — invoke it via the Skill tool. Applies to all agents including sub-agents.
 
 ## Commands
 
-- **Test:** `bash test/unit/run.sh && bash .claude/marketplace/plugins/guardrails/tests/run.sh`
+- **Test:** `bash test/unit/run.sh`
 - **Coverage:** `bash test/coverage.sh`
 
-These are the two shell suites in the repo; both are fast and need no Nix, which
-is what the guardrails push gate resolves. CI runs the same pair, additionally checks
-coverage floors and that they only rise, and evaluates every host with
-`nix flake check`.
+The unit suite is fast and needs no Nix, which is what the push gate resolves. CI
+runs it, additionally checks coverage floors and that they only rise, and evaluates
+every host with `nix flake check`.
 
 Coverage is a separate command, because tracing makes it slower than the Test
 command the push gate runs.
@@ -66,6 +65,5 @@ nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
 nix flake update                           # bump inputs
 nix fmt                                    # format every Nix file in the repo (nixfmt-tree)
 bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
-bash .claude/marketplace/plugins/guardrails/tests/run.sh   # guardrails plugin tests
 bash test/coverage.sh                      # line coverage vs test/coverage-floor.tsv (--update raises floors)
 ```

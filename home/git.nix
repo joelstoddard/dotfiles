@@ -47,7 +47,7 @@ in
       "**/.claude/worktrees/"
       ""
       "# Agent lessons, kept local while the pattern is on trial (see"
-      "# docs/specs/2026-09-07-guardrails-autonomy-design.md)"
+      "# https://github.com/joelstoddard/guardrails/blob/main/docs/specs/2026-09-07-guardrails-autonomy-design.md)"
       "**/.claude/docs/lessons/"
     ];
 

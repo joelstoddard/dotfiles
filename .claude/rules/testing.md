@@ -12,7 +12,7 @@ paths:
 ---
 # Testing rules
 
-Loaded with test files. The testing charter, gates, TDD, AND static analysis rules in `core.md` ALWAYS apply too.
+Loaded with test files. The testing charter, gates, TDD, AND static analysis rules in the core principles ALWAYS apply too.
 
 ## Unit
 *Tier: EDIT*

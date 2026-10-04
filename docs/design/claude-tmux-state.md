@@ -30,7 +30,7 @@ windows, as the plain dots are, and full on the current one. A flake check
 
 ## Holding "Done" until the turn has ended
 
-Another `Stop` hook can block the stop (guardrails' findings-gate does), and Claude
+Another `Stop` hook can block the stop (the recording plugin's findings-gate does), and Claude
 then carries on. No hook event says so, and Claude can think for many seconds before
 its next tool call, so waiting for the next event cannot tell a real end from a blocked
 one. The session transcript can: Claude Code writes `system/stop_hook_summary` after the

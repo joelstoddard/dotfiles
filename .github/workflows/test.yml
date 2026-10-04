@@ -49,8 +49,6 @@ jobs:
           pip install pyyaml
       - name: Run shell and Python unit tests
         run: bash test/unit/run.sh
-      - name: Run guardrails plugin tests
-        run: bash .claude/marketplace/plugins/guardrails/tests/run.sh
       - name: Check coverage floors
         run: bash test/coverage.sh
       - name: Check coverage floors only rise

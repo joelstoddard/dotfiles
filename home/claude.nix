@@ -35,12 +35,11 @@ in
     config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/user-settings.json";
 
   # Gitignored, so the flake cannot see it — but mkOutOfStoreSymlink only needs
-  # the path. The link is what puts the repo-local marketplace registration in
+  # the path. The link puts machine-local settings, such as work marketplaces, in
   # user scope too; the target is created on first write if absent.
   home.file.".claude/settings.local.json".source =
     config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/settings.local.json";
 
-  # The personas and the rules they share, linked whole so new agent and rule files appear without a switch.
-  home.file.".claude/agents".source = config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/agents";
+  # Path-scoped rules and the personal context, linked whole so new rule files appear without a switch.
   home.file.".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/rules";
 }

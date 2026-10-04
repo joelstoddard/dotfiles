@@ -1,8 +1,10 @@
 # Coverage of the repo's shell code
 
-Most of the repo's logic is shell: the guardrails plugin (`lib/` and `hooks/scripts/`),
-the `claude-tmux-state` hook script, and autoenv (zsh). Without a measurement, an
-agent can add a branch to a hook with no test for it and every check stays green.
+Most of the repo's logic is shell: the `claude-tmux-state` hook script and autoenv (zsh).
+The guardrails plugins live in
+[joelstoddard/guardrails](https://github.com/joelstoddard/guardrails). Without a
+measurement, an agent can add a branch to a hook with no test for it and every check
+stays green.
 `test/coverage.sh` measures line coverage and fails when it falls.
 
 This document covers coverage only.
@@ -18,14 +20,11 @@ before opening a PR.
 ## What is measured
 
 - `home/files/**/*.sh` and `home/files/**/*.zsh`
-- `.claude/marketplace/plugins/guardrails/lib/*.sh`
-- `.claude/marketplace/plugins/guardrails/hooks/scripts/*.sh`
 
 Trace lines from any other file, including the tests, are ignored.
 
 The suites that run are `test/unit/test_*.sh`, each with zsh as `test/unit/run.sh`
-does, and the guardrails `tests/test_*.sh`, each with bash as that plugin's runner does.
-Each test file runs on its own with its own trace log. `test/unit/test_personas.py`
+does. Each test file runs on its own with its own trace log. `test/unit/test_rules.py`
 checks documents, not shell, so it is not run.
 
 ## Tracing
