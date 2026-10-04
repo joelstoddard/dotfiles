@@ -49,17 +49,23 @@ Always use the `guardrails:commit` skill for all git commits — invoke it via t
 ## Commands
 
 - **Test:** `bash test/unit/run.sh && bash .claude/marketplace/plugins/guardrails/tests/run.sh`
+- **Coverage:** `bash test/coverage.sh`
 
 These are the two shell suites in the repo; both are fast and need no Nix, which
-is what the guardrails push gate resolves. CI runs the same pair and additionally
-evaluates every host with `nix flake check`.
+is what the guardrails push gate resolves. CI runs the same pair, additionally checks
+coverage floors and that they only rise, and evaluates every host with
+`nix flake check`.
+
+Coverage is a separate command, because tracing makes it slower than the Test
+command the push gate runs.
 
 ```bash
 home-manager switch --flake .#<host>       # apply configuration
 nix flake check --no-build                 # evaluate all host configs
 nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
 nix flake update                           # bump inputs
-nix fmt                                    # format Nix files (nixfmt-rfc-style)
+nix fmt                                    # format every Nix file in the repo (nixfmt-tree)
 bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
 bash .claude/marketplace/plugins/guardrails/tests/run.sh   # guardrails plugin tests
+bash test/coverage.sh                      # line coverage vs test/coverage-floor.tsv (--update raises floors)
 ```

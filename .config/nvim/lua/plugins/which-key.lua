@@ -5,7 +5,19 @@
 --   > github : https://github.com/folke/which-key.nvim
 -- ================================================================================================
 
-require("which-key").setup({})
+require("which-key").setup({
+	spec = {
+		{ "<leader>c", group = "code" },
+		{ "<leader>f", group = "find" },
+		{ "<leader>g", group = "goto" },
+		{ "<leader>h", group = "hunks" },
+		{ "<leader>o", group = "imports" },
+		{ "<leader>r", group = "config" },
+		{ "<leader>S", group = "sops" },
+		{ "<leader>w", group = "session" },
+		{ "<leader>x", group = "diagnostics" },
+	},
+})
 
 vim.keymap.set("n", "<leader>?", function()
 	require("which-key").show({ global = false })

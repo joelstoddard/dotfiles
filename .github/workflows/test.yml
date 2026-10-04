@@ -26,6 +26,9 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+      - name: Check Nix formatting
+        if: matrix.host == 'joel@linux'
+        run: nix fmt -- --ci
       - name: Evaluate flake
         run: nix flake check --no-build
       - name: Dry-run build activation package
@@ -48,3 +51,14 @@ jobs:
         run: bash test/unit/run.sh
       - name: Run guardrails plugin tests
         run: bash .claude/marketplace/plugins/guardrails/tests/run.sh
+      - name: Check coverage floors
+        run: bash test/coverage.sh
+      - name: Check coverage floors only rise
+        run: |
+          git fetch --depth=1 origin main
+          if git cat-file -e FETCH_HEAD:test/coverage-floor.tsv 2>/dev/null; then
+            git show FETCH_HEAD:test/coverage-floor.tsv > "$RUNNER_TEMP/base-floor.tsv"
+            bash test/coverage.sh --ratchet "$RUNNER_TEMP/base-floor.tsv"
+          else
+            echo "main has no coverage floors yet; nothing to compare"
+          fi
