@@ -45,12 +45,15 @@ EOF
 }
 cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
-# run <verb> [stdin] — invoke the script the way a hook does, from pane %7
+# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
-    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 bash "$SCRIPT" "$1"; RC=$?
+    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID:-4242}" \
+    bash "$SCRIPT" "$1"; RC=$?
 }
 on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
+on_linux() { printf '#!/bin/sh\necho Linux\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
+last_args() { grep '^arg:' "$D/log" | tail -2 }  # the notifier's final two arguments
 # notifier_app <exit code> — a fake Claude Notify app in the fake $HOME that logs like the other notifiers
 notifier_app() {
   local bin="$D/Applications/Claude Notify.app/Contents/MacOS"
@@ -234,6 +237,15 @@ has "notify claude-notify" || die app "app not used: $(<$D/log)"
 has "notify osascript" && die app "osascript also notified"
 cleanup
 
+echo "--- each fallback notifier gets the title and body in its own order"
+setup; on_macos; run blocked '{"message":"the body"}'
+# osascript's run handler reads item 1 as the body and item 2 as the title.
+[[ $(last_args) == $'arg:the body\narg:Claude · work:3' ]] || die order-osascript "wrong order: $(last_args)"
+cleanup
+setup; on_linux; run blocked '{"message":"the body"}'
+[[ $(last_args) == $'arg:Claude · work:3\narg:the body' ]] || die order-notify-send "wrong order: $(last_args)"
+cleanup
+
 echo "--- on macOS a missing or refusing app falls back to osascript"
 setup; on_macos; run done
 has "notify osascript" || die app-missing "no fallback: $(<$D/log)"
@@ -241,6 +253,28 @@ cleanup
 setup; on_macos; notifier_app 1; run done
 has "notify osascript" || die app-refused "no fallback: $(<$D/log)"
 has "arg:Claude · work:3" || die app-refused "fallback title lacks the Claude prefix: $(<$D/log)"
+cleanup
+
+echo "--- SessionStart records the Claude that owns the pane, and SessionEnd forgets it"
+setup; run idle '{}'
+[[ $(cat "$D/opt/@claude-pid" 2>/dev/null) == 4242 ]] || die owner-set "owner is '$(cat "$D/opt/@claude-pid" 2>/dev/null)'"
+run off
+[[ ! -e "$D/opt/@claude-pid" ]] || die owner-cleared "owner is still '$(cat "$D/opt/@claude-pid")'"
+cleanup
+
+echo "--- a claude -p started inside the pane's live Claude leaves the pane alone"
+for v in idle working asking blocked done stop off; do
+  setup; opt @claude-pid $$; opt @claude working  # the test shell stands in for the live owner
+  AS_PID=4243 run $v '{}'
+  [[ $(now) == working ]] || die nested-$v "state is '$(now)'"
+  notified && die nested-$v "notified"
+  cleanup
+done
+
+echo "--- a pane whose owner has exited goes to the next Claude"
+setup; sleep 0 & dead=$!; wait $dead; opt @claude-pid $dead; opt @claude done
+AS_PID=4244 run idle '{}'
+[[ $(now) == idle && $(cat "$D/opt/@claude-pid") == 4244 ]] || die takeover "state '$(now)', owner '$(cat "$D/opt/@claude-pid")'"
 cleanup
 
 echo "--- a failing tmux never fails the hook"
@@ -264,6 +298,13 @@ echo "--- Stop holds in the background; an API error ends the turn at once"
   || die stop-hook "Stop runs $(hook Stop)"
 [[ $(hook StopFailure | jq -r '.[0].command | split(" ") | last') == done ]] \
   || die stopfailure-hook "StopFailure runs $(hook StopFailure)"
+
+echo "--- a failed tool call counts as the agent carrying on, so an approved command that fails clears the red"
+[[ $(hook PostToolUseFailure | jq -r '.[0].command | split(" ") | last') == working ]] \
+  || die failure-hook "PostToolUseFailure runs $(hook PostToolUseFailure)"
+setup; opt @claude blocked; opt @claude-blocker a1; run working '{"hook_event_name":"PostToolUseFailure","agent_id":"a1"}'
+[[ $(now) == working ]] || die failure-clears "state is '$(now)'"
+cleanup
 
 echo "--- a permission request records the asking agent"
 [[ $(hook PermissionRequest | jq -r '.[0].command | split(" ") | last') == asking ]] \

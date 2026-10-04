@@ -22,7 +22,7 @@ let
       pkgs.jq
       config.programs.tmux.package
     ]
-    ++ lib.optional pkgs.stdenv.hostPlatform.isLinux pkgs.libnotify;
+    ++ lib.optional (pkgs.stdenv.hostPlatform.isLinux && config.dotfiles.gui) pkgs.libnotify;
     text = builtins.readFile ./files/claude/claude-tmux-state.sh;
   };
 
