@@ -143,7 +143,10 @@ function M.install_missing(registry)
 	registry.refresh(vim.schedule_wrap(function(refreshed)
 		-- A failed refresh leaves an empty registry, which would list every package as unknown.
 		if not refreshed then
-			vim.notify("Mason could not refresh its registry; missing packages will install on a later start.", vim.log.levels.WARN)
+			vim.notify(
+				"Mason could not refresh its registry; missing packages will install on a later start.",
+				vim.log.levels.WARN
+			)
 			return
 		end
 		local pending, failed, scanning, reported = 0, {}, true, false
