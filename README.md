@@ -138,9 +138,11 @@ zsh test/unit/test_autoenv.sh         # autoenv shell unit tests
 - Homebrew stays on macOS for GUI casks. `brew shellenv` prepends
   `/opt/homebrew/bin`, so `home/zsh.nix` re-prepends the Nix profile after it —
   otherwise leftover Homebrew CLI formulae shadow the nixpkgs ones.
-- One manual step per machine: `claude plugin marketplace add --scope local`
-  (the stored path is absolute, so it cannot be tracked — see
-  `docs/design/claude-settings-split.md`).
+- The guardrails plugins come from
+  [joelstoddard/guardrails](https://github.com/joelstoddard/guardrails);
+  `.claude/user-settings.json` declares the marketplace, so a fresh machine needs no
+  manual step. A machine set up before the move runs
+  `claude plugin marketplace remove personal` once.
 - nvm was dropped in favor of a Nix-managed Node.js; use per-project flake
   devShells or direnv for version pinning.
 - On macOS, GUI apps (Firefox, Bitwarden, Spotify, Raycast, LinearMouse,

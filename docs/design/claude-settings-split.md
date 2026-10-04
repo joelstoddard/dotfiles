@@ -44,18 +44,13 @@ that reason. `home/claude.nix` links `~/.claude/settings.json` to it with
 this file in place — the same reason `home/nvim.nix` links out-of-store.
 
 The tracked file holds no absolute paths, because it is linked on macOS, Arch
-and Debian alike. Two entries needed changing for that:
+and Debian alike:
 
 - The home read grant is `Read(~/**)`, not `Read(//Users/joel/**)`.
-- This repo's own plugin marketplace is no longer declared there. Claude Code
-  normalises a marketplace path to absolute when it stores one — verified by
-  running `claude plugin marketplace add` with a `~`-relative path and reading
-  back what it wrote — so no single stored value is correct on every machine.
-  Run `claude plugin marketplace add --scope local` once per machine instead: it
-  writes that machine's path into `.claude/settings.local.json`. That file is
-  gitignored, and `home/claude.nix` links it to `~/.claude/` as well, so the
-  declaration lands in both places it is needed and in none that git tracks.
-  Nothing runs this for you — it is the one manual step of a fresh setup.
+- The guardrails marketplace is a GitHub source (`joelstoddard/guardrails`), so it
+  carries no machine-specific path and is declared here like any public marketplace.
+  A local `directory` marketplace could not be: Claude Code stores its path as
+  absolute.
 
 Claude Code merges the user and local files, so the work context still applies at
 runtime — it simply never enters git.
