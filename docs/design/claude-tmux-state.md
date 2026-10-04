@@ -103,7 +103,9 @@ On macOS the notifications come from `~/Applications/Claude Notify.app`, listed 
 Claude Code in System Settings → Notifications, so they carry Claude's icon. Each
 Home Manager switch builds it from `home/files/claude/claude-notify.swift` with the
 system `swiftc`, takes the icon from `/Applications/Claude.app`, and signs it ad hoc.
-No Nix build compiles the Swift, so the macOS CI job type-checks it with `swiftc -typecheck`.
+No Nix build compiles the Swift, so the macOS CI job builds it and runs
+`test/unit/test_claude_notify.sh`. A post needs a logged-in user, so CI checks only that a
+launch without a title and body exits 64.
 If the app is missing or refused, the hook falls back to `osascript`, whose
 notifications show Script Editor's icon. If none appear at all, allow Script Editor
 there.
