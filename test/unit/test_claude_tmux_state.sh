@@ -51,6 +51,8 @@ run() {
     CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 bash "$SCRIPT" "$1"; RC=$?
 }
 on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
+on_linux() { printf '#!/bin/sh\necho Linux\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
+last_args() { grep '^arg:' "$D/log" | tail -2 }  # the notifier's final two arguments
 # notifier_app <exit code> — a fake Claude Notify app in the fake $HOME that logs like the other notifiers
 notifier_app() {
   local bin="$D/Applications/Claude Notify.app/Contents/MacOS"
@@ -232,6 +234,15 @@ has "notify claude-notify" || die app "app not used: $(<$D/log)"
 [[ $(grep -A2 '^notify claude-notify' "$D/log") == $'notify claude-notify\narg:work:3\narg:Done · Fix the build' ]] \
   || die app "args wrong: $(<$D/log)"
 has "notify osascript" && die app "osascript also notified"
+cleanup
+
+echo "--- each fallback notifier gets the title and body in its own order"
+setup; on_macos; run blocked '{"message":"the body"}'
+# osascript's run handler reads item 1 as the body and item 2 as the title.
+[[ $(last_args) == $'arg:the body\narg:Claude · work:3' ]] || die order-osascript "wrong order: $(last_args)"
+cleanup
+setup; on_linux; run blocked '{"message":"the body"}'
+[[ $(last_args) == $'arg:Claude · work:3\narg:the body' ]] || die order-notify-send "wrong order: $(last_args)"
 cleanup
 
 echo "--- on macOS a missing or refusing app falls back to osascript"
