@@ -30,9 +30,9 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - name: Check Nix formatting
+      - name: Lint
         if: matrix.host == 'joel@linux'
-        run: nix fmt -- --ci
+        run: bash test/lint.sh
       - name: Evaluate flake
         run: nix flake check --no-build
       - name: Dry-run build activation package
