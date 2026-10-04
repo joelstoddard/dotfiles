@@ -1,0 +1,29 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      # The test install holds every plugin, parser and Mason tool; a cold one takes 10+ minutes to build.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local/share/nvim-test
+          key: nvim-test-${{ runner.os }}-${{ hashFiles('nvim-pack-lock.json', 'lua/languages/*.lua') }}
+          restore-keys: nvim-test-${{ runner.os }}-
+      - name: Lint
+        run: |
+          nix run nixpkgs#lua51Packages.luacheck -- init.lua lua tests
+          nix run nixpkgs#stylua -- --check init.lua lua tests
+      - name: Test
+        run: nix shell nixpkgs#neovim nixpkgs#tree-sitter --command sh tests/run.sh

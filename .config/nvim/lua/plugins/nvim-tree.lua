@@ -15,4 +15,12 @@ require("nvim-tree").setup({
 	view = {
 		adaptive_size = true,
 	},
+	renderer = {
+		icons = {
+			glyphs = {
+				-- The same symbols the shell prompt (oh-my-posh) uses for untracked, modified and deleted files.
+				git = { untracked = "\u{EA7F}", unstaged = "\u{EB43}", deleted = "\u{EA81}" },
+			},
+		},
+	},
 })
