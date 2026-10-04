@@ -243,9 +243,11 @@ Hence a fixed order:
 
 1. Create and push `joelstoddard/guardrails`, only on the user's explicit approval at
    this step. Protect `main` with the CI check required, and wait for CI to pass.
-2. On one machine, `claude plugin marketplace add joelstoddard/guardrails` and install
-   the three plugins with `--scope user`. Run `claude plugin list` to confirm they load
-   alongside the old plugin; for this check only, both sets running is acceptable.
+2. On one machine, in a scratch directory, add the marketplace and install the three
+   plugins with `--scope local`. User scope would write into `~/.claude/settings.json`,
+   which links to the tracked `user-settings.json`, and leave the main checkout dirty
+   before the pull. Run `claude plugin list` there to confirm they load alongside the old
+   plugin; for this check only, both sets running is acceptable.
 3. Merge the dotfiles PR.
 4. On each machine: pull; `claude plugin marketplace remove personal`;
    `home-manager switch`; `claude plugin list` shows the three plugins loaded and no
