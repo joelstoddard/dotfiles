@@ -22,7 +22,9 @@ notify() { # notify <body>
   title="Claude · $(tmux display -p -t "$pane" '#{session_name}:#{window_index}')"
   # Arguments only: the text can hold commands Claude wrote.
   if [[ $(uname) == Darwin ]]; then
-    osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "$title"
+    # The app shows Claude's icon; osascript shows Script Editor's. Built by home/claude.nix.
+    "$HOME/Applications/Claude Notify.app/Contents/MacOS/claude-notify" "$title" "$1" ||
+      osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title (item 2 of argv)' -e 'end run' "$1" "$title"
   else
     notify-send "$title" "$1"
   fi

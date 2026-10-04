@@ -48,7 +48,15 @@ opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pan
 # run <verb> [stdin] — invoke the script the way a hook does, from pane %7
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
-    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" TMUX_PANE=%7 bash "$SCRIPT" "$1"; RC=$?
+    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 bash "$SCRIPT" "$1"; RC=$?
+}
+on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
+# notifier_app <exit code> — a fake Claude Notify app in the fake $HOME that logs like the other notifiers
+notifier_app() {
+  local bin="$D/Applications/Claude Notify.app/Contents/MacOS"
+  mkdir -p "$bin"
+  printf '#!/bin/sh\necho "notify claude-notify" >> "$FAKE_LOG"\nfor a in "$@"; do echo "arg:$a" >> "$FAKE_LOG"; done\nexit %s\n' "$1" > "$bin/claude-notify"
+  chmod +x "$bin/claude-notify"
 }
 has() { grep -qxF -- "$1" "$D/log" }
 notified() { grep -q '^notify' "$D/log" }
@@ -198,6 +206,22 @@ cleanup
 echo "--- a block with no recorded blocker clears on any tool call"
 setup; opt @claude blocked; opt @claude-blocker ""; run working '{"hook_event_name":"PostToolUse","agent_id":"a2"}'
 [[ $(now) == working ]] || die no-blocker "state is '$(now)'"
+cleanup
+
+echo "--- on macOS the Claude Notify app gets the title and body, so the banner has Claude's icon"
+setup; on_macos; notifier_app 0; run done
+has "notify claude-notify" || die app "app not used: $(<$D/log)"
+[[ $(grep -A2 '^notify claude-notify' "$D/log") == $'notify claude-notify\narg:Claude · work:3\narg:Done · Fix the build' ]] \
+  || die app "args wrong: $(<$D/log)"
+has "notify osascript" && die app "osascript also notified"
+cleanup
+
+echo "--- on macOS a missing or refusing app falls back to osascript"
+setup; on_macos; run done
+has "notify osascript" || die app-missing "no fallback: $(<$D/log)"
+cleanup
+setup; on_macos; notifier_app 1; run done
+has "notify osascript" || die app-refused "no fallback: $(<$D/log)"
 cleanup
 
 echo "--- a failing tmux never fails the hook"
