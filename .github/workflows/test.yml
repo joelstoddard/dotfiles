@@ -26,6 +26,9 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+      - name: Check Nix formatting
+        if: matrix.host == 'joel@linux'
+        run: nix fmt -- --ci
       - name: Evaluate flake
         run: nix flake check --no-build
       - name: Dry-run build activation package
