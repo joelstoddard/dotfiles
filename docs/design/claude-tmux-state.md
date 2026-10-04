@@ -13,7 +13,7 @@ overwrite each other, and tmux drops it when the pane closes.
 | State | Set by |
 |---|---|
 | `idle` | `SessionStart` (startup, resume, clear); focusing a `done` pane (tmux `pane-focus-in`) |
-| `working` | `UserPromptSubmit`, `PostToolUse`; a stop that leaves background agents running |
+| `working` | `UserPromptSubmit`, `PostToolUse`, `PostToolUseFailure`; a stop that leaves background agents running |
 | `stopping` | `Stop`, while the hold below decides whether the turn really ended |
 | `blocked` | `Notification`: `permission_prompt`, `elicitation_dialog`, `agent_needs_input` |
 | `done` | the end of the hold, `StopFailure` (turn ended on an API error), or `idle` if you are looking at the pane |
@@ -60,10 +60,28 @@ agent's `agent_id` (none for the main session). So `asking` records the asker in
 `@claude-asker`, and a `permission_prompt` notification copies it into
 `@claude-blocker`. Other dialogs record no blocker.
 
-While a pane is `blocked`, only a `PostToolUse` from the blocker, or a new prompt
-(`UserPromptSubmit`), sets it back to `working`. Another agent's tool calls, or a
-`Stop` from the main session while a background subagent waits on a prompt, leave it
-red.
+While a pane is `blocked`, only a tool call from the blocker, or a new prompt
+(`UserPromptSubmit`), sets it back to `working`. A tool call means `PostToolUse` or,
+when the approved tool fails, `PostToolUseFailure`. A denied permission fires neither
+(checked with a `claude -p` probe in 2.1.289), so a denial does not turn the red into
+a spinner. Another agent's tool calls, or a `Stop` from the main session while a
+background subagent waits on a prompt, leave it red.
+
+## One Claude per pane
+
+A `claude -p` started from inside a Claude, by its Bash tool or by agent tooling, inherits
+`$TMUX_PANE` and runs the same user hooks. Without a guard, its own start, stop and end
+land on the parent's pane: a "Done" for the wrong session, then the glyph disappears.
+
+Claude Code gives every hook `CLAUDE_PID`, the process ID of the Claude that runs it.
+`idle` (`SessionStart`) records it in `@claude-pid`, and `off` (`SessionEnd`) clears it.
+Each event from another PID is ignored while that owner still runs (`kill -0`). A
+crashed owner never sends `SessionEnd`, but its PID is dead, so the next Claude in the
+pane takes it over.
+
+`CLAUDE_CODE_CHILD_SESSION` looks like the obvious marker, but cannot tell them apart.
+Claude Code sets it in the environment of every hook, the top-level session's included
+(checked with `claude -p` probes in 2.1.289).
 
 ## Notification title
 
@@ -98,6 +116,10 @@ it only to `SessionStart`, but Claude Code 2.1.289 also sends it with
   silent rather than report a hook error on every tool call.
 
 ## Setup
+
+On Linux the notifications go through `notify-send`, which only hosts with
+`dotfiles.gui` get: a headless host has no notification daemon to show them. There the
+glyphs still work, and the notification step fails silently.
 
 On macOS the notifications come from `~/Applications/Claude Notify.app`, listed as
 Claude Code in System Settings → Notifications, so they carry Claude's icon. Each
