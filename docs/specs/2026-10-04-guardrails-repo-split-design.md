@@ -67,10 +67,10 @@ The marketplace entry name and each manifest `name` are identical, so the instal
 | `recording` | adr, rfc, mistakes, track-findings, project-memory, self-improvement                                               | findings-capture, findings-gate, lessons-nudge                                                                                   | findings                                    | `findings.md`                  |
 | `personas`  | —                                                                                                                  | persona-report                                                                                                                   | —                                           | `delegation.md`                |
 
-Each hook's `lib/` chain stays inside its plugin: `guard-publish` and `allow-gh-api-read`
-use `publish-cmd` and `shell-split`; `guard-default-branch` uses `git-cmd` and
-`shell-split`; `lint-warn` and `test-gate` use `repo-cmd` and `git-cmd`; the findings
-hooks use `findings`.
+Each hook's `lib/` chain stays inside its plugin: `guard-publish` uses `publish-cmd` and
+`shell-split`; `guard-default-branch` uses `git-cmd` and `shell-split`; `lint-warn` and
+`test-gate` use `repo-cmd` and `git-cmd`; the findings hooks use `findings`.
+`allow-gh-api-read` sources no `lib/` file.
 
 Dependencies between plugins:
 
