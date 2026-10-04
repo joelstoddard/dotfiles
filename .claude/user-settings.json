@@ -119,11 +119,6 @@
       }
     ]
   },
-  "modelSettings": {
-    "claude-opus-5": {
-      "effortLevel": "xhigh"
-    }
-  },
   "permissions": {
     "allow": [
       "Bash(git status:*)",
