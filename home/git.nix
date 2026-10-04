@@ -66,9 +66,9 @@ in
       };
 
       # Keeps the model and per-model settings Claude Code records out of the tracked
-      # settings blob. .gitattributes binds the filter to the file; this is the
-      # definition it names. See docs/design/claude-settings-split.md
-      filter."claude-settings".clean = "jq -S 'del(.model, .modelSettings)'";
+      # settings blob. Not "claude-settings": the old installer wrote that name into
+      # each clone's .git/config, which overrides this. See docs/design/claude-settings-split.md
+      filter."claude-user-settings".clean = "jq -S 'del(.model, .modelSettings)'";
 
       core = {
         autocrlf = "input";

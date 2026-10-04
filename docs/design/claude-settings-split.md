@@ -117,7 +117,7 @@ default, and it stays tracked.
 A clean filter strips them at the git boundary:
 
 ```
-.gitattributes                    .claude/user-settings.json filter=claude-settings
+.gitattributes                    .claude/user-settings.json filter=claude-user-settings
 git config filter.…clean          jq -S 'del(.model, .modelSettings)'
 ```
 
@@ -134,6 +134,16 @@ never touches another. A clone on a machine that has not activated gets the
 committed file — sorted, no `model` — which is valid: Claude Code picks a
 default and records it again. The filter is a convenience, never a correctness
 dependency.
+
+**Why `claude-user-settings`, not `claude-settings`.** Before Home Manager, the
+Python installer registered the filter as `claude-settings` with a plain
+`git config`, so the definition went into the clone's `.git/config`. Repository
+config takes precedence over the global file. On every machine that ran the
+installer, that copy of the old `del(.model)` replaced the Home Manager
+definition, and a filter change in `home/git.nix` had no effect there. The new
+name leaves those old entries unused, so no machine needs a manual fix. The test
+reads the filter name from `.gitattributes`, and has a case for a stale
+`claude-settings` entry in the clone's config.
 
 **What it does not fix.** `git status` still lists the file after a model
 switch. Git decides that from stat alone and does not run the filter, so the
