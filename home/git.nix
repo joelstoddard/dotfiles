@@ -49,6 +49,9 @@ in
       "# Agent lessons, kept local while the pattern is on trial (see"
       "# https://github.com/joelstoddard/guardrails/blob/main/docs/specs/2026-09-07-guardrails-autonomy-design.md)"
       "**/.claude/docs/lessons/"
+      ""
+      "# Neovim sessions, which <leader>ws writes to the working directory of any project"
+      "Session.vim"
     ];
 
     settings = {
