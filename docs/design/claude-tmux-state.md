@@ -13,7 +13,7 @@ overwrite each other, and tmux drops it when the pane closes.
 | State | Set by |
 |---|---|
 | `idle` | `SessionStart` (startup, resume, clear); focusing a `done` pane (tmux `pane-focus-in`) |
-| `working` | `UserPromptSubmit`, `PostToolUse`; a stop that leaves background agents running |
+| `working` | `UserPromptSubmit`, `PostToolUse`, `PostToolUseFailure`; a stop that leaves background agents running |
 | `stopping` | `Stop`, while the hold below decides whether the turn really ended |
 | `blocked` | `Notification`: `permission_prompt`, `elicitation_dialog`, `agent_needs_input` |
 | `done` | the end of the hold, `StopFailure` (turn ended on an API error), or `idle` if you are looking at the pane |
@@ -60,10 +60,12 @@ agent's `agent_id` (none for the main session). So `asking` records the asker in
 `@claude-asker`, and a `permission_prompt` notification copies it into
 `@claude-blocker`. Other dialogs record no blocker.
 
-While a pane is `blocked`, only a `PostToolUse` from the blocker, or a new prompt
-(`UserPromptSubmit`), sets it back to `working`. Another agent's tool calls, or a
-`Stop` from the main session while a background subagent waits on a prompt, leave it
-red.
+While a pane is `blocked`, only a tool call from the blocker, or a new prompt
+(`UserPromptSubmit`), sets it back to `working`. A tool call means `PostToolUse` or,
+when the approved tool fails, `PostToolUseFailure`. A denied permission fires neither
+(checked with a `claude -p` probe in 2.1.289), so a denial does not turn the red into
+a spinner. Another agent's tool calls, or a `Stop` from the main session while a
+background subagent waits on a prompt, leave it red.
 
 ## Notification title
 

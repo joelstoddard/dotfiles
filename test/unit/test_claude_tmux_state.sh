@@ -276,6 +276,13 @@ echo "--- Stop holds in the background; an API error ends the turn at once"
 [[ $(hook StopFailure | jq -r '.[0].command | split(" ") | last') == done ]] \
   || die stopfailure-hook "StopFailure runs $(hook StopFailure)"
 
+echo "--- a failed tool call counts as the agent carrying on, so an approved command that fails clears the red"
+[[ $(hook PostToolUseFailure | jq -r '.[0].command | split(" ") | last') == working ]] \
+  || die failure-hook "PostToolUseFailure runs $(hook PostToolUseFailure)"
+setup; opt @claude blocked; opt @claude-blocker a1; run working '{"hook_event_name":"PostToolUseFailure","agent_id":"a1"}'
+[[ $(now) == working ]] || die failure-clears "state is '$(now)'"
+cleanup
+
 echo "--- a permission request records the asking agent"
 [[ $(hook PermissionRequest | jq -r '.[0].command | split(" ") | last') == asking ]] \
   || die asking-hook "PermissionRequest runs $(hook PermissionRequest)"

@@ -62,6 +62,17 @@
         ]
       }
     ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "command": "[ -z \"$TMUX_PANE\" ] || claude-tmux-state working",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
