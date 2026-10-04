@@ -30,7 +30,8 @@ Features support for language:
 - `git`, `ripgrep` and `fzf`
 - A [Nerd Font](https://www.nerdfonts.com/)
 
-The first start installs every plugin and asks for confirmation. Update later with `:lua vim.pack.update()`.
+The first start installs every plugin and asks for confirmation. `nvim-pack-lock.json` pins each plugin's revision:
+after you pull a change to it, run `:PackSync`. A weekly workflow opens a pull request that updates the pins.
 Language servers, linters and formatters install automatically through Mason; see `lua/languages/`.
 
 ## License

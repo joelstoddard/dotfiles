@@ -13,10 +13,24 @@ local T = new_set({
 })
 
 local function problems()
-	-- Work the config schedules at startup, such as Mason's registry check, has run by then.
-	vim.uv.sleep(2000)
 	return child.lua([[
 		local out = {}
+		-- The config's Mason check sets the flag when it ends (lua/languages/init.lua). get_clients() hides servers that
+		-- are still starting unless _uninitialized is set.
+		local settled = vim.wait(10000, function()
+			if not vim.g.languages_install_done then
+				return false
+			end
+			for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0, _uninitialized = true })) do
+				if not client.initialized then
+					return false
+				end
+			end
+			return true
+		end)
+		if not settled then
+			table.insert(out, "startup work still running after 10 s")
+		end
 		local messages = vim.api.nvim_exec2("messages", { output = true }).output
 		if messages ~= "" then
 			table.insert(out, messages)
@@ -76,9 +90,11 @@ T["starts treesitter on a file outside git"] = function()
 	local dir = helpers.tempdir()
 	helpers.write(dir .. "/notes.py", "x = 1\n")
 	child = helpers.new_child({ cwd = dir, args = { "notes.py" } })
-	vim.uv.sleep(500)
+	-- vim.wait returns false when the time runs out, so a highlighter that never starts fails the test.
 	local active = child.lua([[
-		return vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] ~= nil
+		return vim.wait(5000, function()
+			return vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] ~= nil
+		end)
 	]])
 	expect.equality(active, true)
 end
