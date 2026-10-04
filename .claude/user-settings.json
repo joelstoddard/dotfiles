@@ -2,8 +2,10 @@
   "autoCompactEnabled": false,
   "effortLevel": "xhigh",
   "enabledPlugins": {
+    "building@guardrails": true,
     "frontend-design@claude-plugins-official": true,
-    "guardrails@personal": true,
+    "personas@guardrails": true,
+    "recording@guardrails": true,
     "slack@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },
@@ -11,6 +13,13 @@
     "EDITOR": "nvim"
   },
   "extraKnownMarketplaces": {
+    "guardrails": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "joelstoddard/guardrails",
+        "source": "github"
+      }
+    },
     "ponytail": {
       "source": {
         "repo": "DietrichGebert/ponytail",
@@ -170,7 +179,7 @@
       "mcp__plugin_slack_slack__slack_read_channel",
       "mcp__plugin_slack_slack__slack_search_public",
       "mcp__plugin_slack_slack__slack_read_user_profile",
-      "Skill(guardrails:commit)",
+      "Skill(building:commit)",
       "Skill(update-config)",
       "WebSearch",
       "WebFetch(domain:docs.blacksmith.sh)",
