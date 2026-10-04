@@ -30,6 +30,8 @@ in
         extraConfig = ''
           set -g @continuum-restore 'on'
           set -g @continuum-save-interval '1'
+          # Continuum appends its save job to this value as it loads. See #130
+          set -g status-right ""
         '';
       }
     ];
@@ -51,7 +53,6 @@ in
       set -g message-style "bg=black,bright,fg=white,bright,nobold"
       set -g message-command-style "bg=black,bright,fg=white,bright,nobold"
       set -g status-left ""
-      set -g status-right ""
       set -g status-justify "right"
       set -g status-left-style "fg=white,dim,nobold"
       set -g status-right-style "fg=white,dim,nobold"
