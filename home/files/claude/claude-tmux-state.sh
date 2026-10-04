@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Claude Code hook: records this pane's Claude state in tmux, and notifies when it needs you.
-# Usage: claude-tmux-state idle|working|blocked|stop|done|off  (hook JSON on stdin)
+# Usage: claude-tmux-state idle|working|asking|blocked|stop|done|off  (hook JSON on stdin)
 # See docs/design/claude-tmux-state.md
 set -euo pipefail
 trap 'exit 0' EXIT # never fail the hook: exit 2 from Stop keeps Claude running
@@ -60,9 +60,26 @@ turn_outcome() {
 case $verb in
   off) tmux set -pu -t "$pane" @claude ;;
   idle) put @claude idle ;;
-  working) put @claude working ;;
+  asking)
+    json=$(cat)
+    agent=$(field .agent_id)
+    put @claude-asker "${agent:-main}"
+    ;;
+  working)
+    if [[ $(get @claude) == blocked ]]; then
+      json=$(cat)
+      blocker=$(get @claude-blocker)
+      agent=$(field .agent_id)
+      # Only the agent that asked, or a new prompt from you, ends a block.
+      [[ -z $blocker || $(field .hook_event_name) == UserPromptSubmit || ${agent:-main} == "$blocker" ]] || exit 0
+    fi
+    put @claude working
+    ;;
   blocked)
     json=$(cat)
+    blocker=""
+    [[ $(field .notification_type) == permission_prompt ]] && blocker=$(get @claude-asker)
+    put @claude-blocker "$blocker"
     put @claude blocked
     if ! watching; then
       body=$(field .message)
@@ -71,6 +88,7 @@ case $verb in
     ;;
   done) finish ;;
   stop)
+    [[ $(get @claude) == blocked ]] && exit 0 # a subagent's prompt is still open
     json=$(cat)
     transcript=$(field .transcript_path)
     lines=$(wc -l 2>/dev/null <"$transcript" || echo 0)

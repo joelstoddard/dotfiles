@@ -44,6 +44,7 @@ EOF
   chmod +x "$D/bin/"*
 }
 cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
+opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
 # run <verb> [stdin] — invoke the script the way a hook does, from pane %7
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
@@ -155,8 +156,52 @@ setup; export FAKE_TRANSCRIPT_TAIL="$SUMMARY"$'\n'"$ENDED" FAKE_DURING_HOLD=work
 notified && die stop-cancelled "notified"
 cleanup
 
+echo "--- a stop while a subagent's prompt is open keeps the pane blocked"
+setup; opt @claude blocked; export FAKE_TRANSCRIPT_TAIL="$SUMMARY"$'\n'"$ENDED_WITH_AGENTS"; run stop "$(stop_json)"
+[[ $(now) == blocked ]] || die stop-while-blocked "state is '$(now)'"
+notified && die stop-while-blocked "notified"
+cleanup
+
+echo "--- asking records which agent asks: a subagent's id, or main"
+setup; run asking '{"hook_event_name":"PermissionRequest","agent_id":"a1"}'
+has "tmux set -p -t %7 @claude-asker a1" || die asking-subagent "$(<$D/log)"
+cleanup
+setup; run asking '{"hook_event_name":"PermissionRequest"}'
+has "tmux set -p -t %7 @claude-asker main" || die asking-main "$(<$D/log)"
+cleanup
+
+echo "--- a permission prompt blocks on the asking agent, other dialogs on no one"
+setup; opt @claude-asker a1; run blocked '{"notification_type":"permission_prompt"}'
+[[ $(cat "$D/opt/@claude-blocker") == a1 ]] || die blocker-permission "blocker is '$(cat "$D/opt/@claude-blocker")'"
+cleanup
+setup; opt @claude-asker a1; run blocked '{"notification_type":"elicitation_dialog"}'
+[[ -z $(cat "$D/opt/@claude-blocker" 2>/dev/null) ]] || die blocker-dialog "blocker is '$(cat "$D/opt/@claude-blocker")'"
+cleanup
+
+echo "--- while blocked, another agent's tool call keeps the red"
+for input in '{"hook_event_name":"PostToolUse","agent_id":"a2"}' '{"hook_event_name":"PostToolUse"}'; do
+  setup; opt @claude blocked; opt @claude-blocker a1; run working "$input"
+  [[ $(now) == blocked ]] || die other-agent "state is '$(now)' after $input"
+  cleanup
+done
+
+echo "--- the blocked agent's own tool call clears the red"
+setup; opt @claude blocked; opt @claude-blocker a1; run working '{"hook_event_name":"PostToolUse","agent_id":"a1"}'
+[[ $(now) == working ]] || die blocker-agent "state is '$(now)'"
+cleanup
+
+echo "--- a new prompt from you clears any block"
+setup; opt @claude blocked; opt @claude-blocker a1; run working '{"hook_event_name":"UserPromptSubmit"}'
+[[ $(now) == working ]] || die prompt-clears "state is '$(now)'"
+cleanup
+
+echo "--- a block with no recorded blocker clears on any tool call"
+setup; opt @claude blocked; opt @claude-blocker ""; run working '{"hook_event_name":"PostToolUse","agent_id":"a2"}'
+[[ $(now) == working ]] || die no-blocker "state is '$(now)'"
+cleanup
+
 echo "--- a failing tmux never fails the hook"
-for s in working idle done blocked stop off; do
+for s in working idle done blocked asking stop off; do
   setup; export FAKE_TMUX_RC=1; run $s '{}'
   [[ $RC == 0 ]] || die tmux-down "$s exited $RC"
   cleanup
@@ -176,6 +221,10 @@ echo "--- Stop holds in the background; an API error ends the turn at once"
   || die stop-hook "Stop runs $(hook Stop)"
 [[ $(hook StopFailure | jq -r '.[0].command | split(" ") | last') == done ]] \
   || die stopfailure-hook "StopFailure runs $(hook StopFailure)"
+
+echo "--- a permission request records the asking agent"
+[[ $(hook PermissionRequest | jq -r '.[0].command | split(" ") | last') == asking ]] \
+  || die asking-hook "PermissionRequest runs $(hook PermissionRequest)"
 
 echo "--- every hook is silent outside tmux, even where the script is not installed"
 for cmd in ${(f)"$(jq -r '.hooks[][].hooks[].command | select(contains("claude-tmux-state"))' "$SETTINGS")"}; do

@@ -47,6 +47,20 @@ So `Stop` runs `claude-tmux-state stop` as an `async` hook, which marks the pane
 If the pane has left `stopping` by the end of the hold, nothing fires, so two stops in
 quick succession notify once. `StopFailure` skips the hold: an API error is an end.
 
+## Which agent is blocked
+
+A subagent's permission prompt blocks the pane like the main session's, but the
+`Notification` for it has no `agent_id`, and it fires about 6s after the prompt
+appears. `PermissionRequest` fires as the prompt appears and carries the asking
+agent's `agent_id` (none for the main session). So `asking` records the asker in
+`@claude-asker`, and a `permission_prompt` notification copies it into
+`@claude-blocker`. Other dialogs record no blocker.
+
+While a pane is `blocked`, only a `PostToolUse` from the blocker, or a new prompt
+(`UserPromptSubmit`), sets it back to `working`. Another agent's tool calls, or a
+`Stop` from the main session while a background subagent waits on a prompt, leave it
+red.
+
 ## Choices
 
 - **Always exit 0.** A `Stop` hook that exits 2 keeps Claude from stopping, and a
@@ -77,9 +91,8 @@ appear, allow Script Editor in System Settings → Notifications.
   If the markers disappear, "Done" comes 5s after every stop and a blocked stop
   notifies again.
 - A `Stop` hook that takes longer than 5s outlasts the hold, which then notifies.
-- A background subagent's tool call sets `working`, which can replace the main
-  session's `blocked` while its permission prompt is still open. The notification
-  has already fired by then.
+- If two agents wait on permission prompts at once, the blocker is the one that asked
+  last.
 - tmux-continuum's auto-save job lives in `status-right`, so `status-interval 1`
   starts it every second. The job exits at once until its save interval passes.
 - On a zoomed window the Claude colour replaces the zoom orange.
