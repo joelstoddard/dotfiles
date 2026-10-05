@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Line coverage for the repo's shell code, checked against per-file floors that only rise.
-# Usage: test/coverage.sh [--update | --ratchet BASE_FLOOR_FILE | --lines FILE]
+# Usage: test/coverage.sh [--update | --ratchet BASE_FLOOR_FILE | --lines FILE | --files | --trace]
 # See docs/design/coverage-and-mutation.md
 set -euo pipefail
 
@@ -127,6 +127,8 @@ ratchet() { # <base floor file>: fails if a floor fell, or vanished while its fi
 case ${1:-} in
   --lines) awk -f "$HERE/coverage/executable.awk" "${2:?--lines needs a file}" ;;
   --ratchet) ratchet "${2:?--ratchet needs the base floor file}" ;;
+  --files) measured ;;
+  --trace) run_suites || exit 1; hits ;;
   --update | "")
     update=0; [[ ${1:-} == --update ]] && update=1
     run_suites || exit 1

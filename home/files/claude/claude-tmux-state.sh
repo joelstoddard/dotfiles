@@ -13,6 +13,10 @@ get() { tmux display -p -t "$pane" "#{$1}"; }
 put() { tmux set -p -t "$pane" "$@"; }
 field() { jq -r "$1 // empty" <<<"$json" 2>/dev/null || true; }
 
+# A claude -p started inside this pane's Claude inherits $TMUX_PANE; only the owner, while it runs, writes the pane.
+owner=$(get @claude-pid)
+if [[ -n ${CLAUDE_PID:-} && -n $owner && $owner != "$CLAUDE_PID" ]] && kill -0 "$owner" 2>/dev/null; then exit 0; fi
+
 watching() { # a focused client is showing this pane
   grep -q "focused.* $pane\$" <<<"$(tmux list-clients -F '#{client_flags} #{pane_id}')"
 }
@@ -62,9 +66,13 @@ turn_outcome() {
 }
 
 case $verb in
-  off) tmux set -pu -t "$pane" @claude ;;
+  off)
+    tmux set -pu -t "$pane" @claude
+    tmux set -pu -t "$pane" @claude-pid
+    ;;
   idle)
     json=$(cat)
+    [[ -z ${CLAUDE_PID:-} ]] || put @claude-pid "$CLAUDE_PID"
     put @claude-title "$(field .session_title)" # a new or resumed session without one drops the old title
     put @claude idle
     ;;

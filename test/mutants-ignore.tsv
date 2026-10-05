@@ -1,0 +1,9 @@
+# Mutants that cannot change behaviour, so no test can kill them. See docs/design/coverage-and-mutation.md
+# file<TAB>operator<TAB>original line, trimmed<TAB>reason (required)
+home/files/claude/claude-tmux-state.sh	exit	[[ -n $pane ]] || exit 0	The EXIT trap, trap 'exit 0' EXIT, turns every exit status into 0 and the hook stops at the same point.
+home/files/claude/claude-tmux-state.sh	exit	if [[ -n ${CLAUDE_PID:-} && -n $owner && $owner != "$CLAUDE_PID" ]] && kill -0 "$owner" 2>/dev/null; then exit 0; fi	The EXIT trap, trap 'exit 0' EXIT, turns every exit status into 0 and the hook stops at the same point.
+home/files/claude/claude-tmux-state.sh	exit	[[ -z $blocker || $(field .hook_event_name) == UserPromptSubmit || ${agent:-main} == "$blocker" ]] || exit 0	The EXIT trap, trap 'exit 0' EXIT, turns every exit status into 0 and the hook stops at the same point.
+home/files/claude/claude-tmux-state.sh	exit	[[ $(get @claude) == blocked ]] && exit 0 # a subagent's prompt is still open	The EXIT trap, trap 'exit 0' EXIT, turns every exit status into 0 and the hook stops at the same point.
+home/files/claude/claude-tmux-state.sh	exit	[[ $(get @claude) == stopping ]] || exit 0 # another event arrived during the hold	The EXIT trap, trap 'exit 0' EXIT, turns every exit status into 0 and the hook stops at the same point.
+home/files/zsh/autoenv.zsh	delete	typeset -ga _AUTOENV_HANDLERS	The _AUTOENV_HANDLERS=() assignment that follows creates the same global array, even when the file is sourced inside a function.
+home/files/zsh/autoenv.zsh	delete	return 0	The mutant ends the function on ':', which returns 0 like the return it replaces.

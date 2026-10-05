@@ -58,9 +58,5 @@ jobs:
       - name: Check coverage floors only rise
         run: |
           git fetch --depth=1 origin main
-          if git cat-file -e FETCH_HEAD:test/coverage-floor.tsv 2>/dev/null; then
-            git show FETCH_HEAD:test/coverage-floor.tsv > "$RUNNER_TEMP/base-floor.tsv"
-            bash test/coverage.sh --ratchet "$RUNNER_TEMP/base-floor.tsv"
-          else
-            echo "main has no coverage floors yet; nothing to compare"
-          fi
+          git show FETCH_HEAD:test/coverage-floor.tsv > "$RUNNER_TEMP/base-floor.tsv"
+          bash test/coverage.sh --ratchet "$RUNNER_TEMP/base-floor.tsv"

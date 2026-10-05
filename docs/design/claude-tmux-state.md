@@ -13,7 +13,7 @@ overwrite each other, and tmux drops it when the pane closes.
 | State | Set by |
 |---|---|
 | `idle` | `SessionStart` (startup, resume, clear); focusing a `done` pane (tmux `pane-focus-in`) |
-| `working` | `UserPromptSubmit`, `PostToolUse`; a stop that leaves background agents running |
+| `working` | `UserPromptSubmit`, `PostToolUse`, `PostToolUseFailure`; a stop that leaves background agents running |
 | `stopping` | `Stop`, while the hold below decides whether the turn really ended |
 | `blocked` | `Notification`: `permission_prompt`, `elicitation_dialog`, `agent_needs_input` |
 | `done` | the end of the hold, `StopFailure` (turn ended on an API error), or `idle` if you are looking at the pane |
@@ -22,11 +22,45 @@ overwrite each other, and tmux drops it when the pane closes.
 The window glyph is the highest-priority state among its panes: blocked > done >
 working or stopping > idle. tmux lists the pane states with `#{P:#{@claude} }` and
 tests the list with `#{m:*blocked*,…}`. The spinner picks a frame from
-`#{e|m|:%S,6}`, so it needs no background process, only `status-interval 1`.
+`#{e|m|:%S,6}`, so it needs no background process, only `status-interval 1`. That
+setting also changes how often tmux-continuum's save job runs (see below).
 
 Each glyph sets only its colour, so it takes its window's brightness: dim on inactive
 windows, as the plain dots are, and full on the current one. A flake check
 (`claude-glyph`) fails if the format sets an attribute again.
+
+## tmux-continuum saves from a timer
+
+`status-interval` also sets how often tmux runs each `#()` job in the status line, once
+for each attached client. tmux-continuum saves through such a job: as it loads, it adds
+`#(continuum_save.sh)` to `status-right`. At `status-interval 1` with three clients, the
+job ran about three times a second. Each run starts about 10 processes (two bash
+scripts, `tmux -V`, three `tmux show-option`, `tr`, `date`) before it decides whether to
+save. An endpoint security agent inspects each new process, so the CPU and battery cost
+was easy to see (#168).
+
+So after continuum loads, tmux.conf moves the job to a timer. If `status-right` holds
+the job, tmux.conf clears `status-right` and starts one `run-shell -b` loop that calls
+`continuum_save.sh` every 60s. The script still uses `@continuum-save-interval` to
+decide when to save. Continuum adds the job only when no other tmux server runs, so the
+timer starts only in that case too. The loop writes its process ID to
+`@continuum-timer`. A reload (`prefix R`) starts a new loop only if that process is
+gone, so a reload does not start a second loop but does replace a killed one. The loop
+stops when `kill -0` finds that its server is gone.
+
+Unlike the status-line job, the timer also saves while no client is attached.
+
+The flake check `continuum-autosave` fails in two cases:
+- tmux.conf starts no timer. The job then runs every second again (#168).
+- tmux.conf resets `status-right` between continuum and the timer block. The block then
+  finds no job, and auto-save stops (#130).
+
+Rejected:
+- A static `working` glyph with the default `status-interval`. It removes the spinner.
+- A patch to continuum that starts the timer itself. It changes third-party code, and
+  a nixpkgs update can break the patch without an error.
+- A launchd agent or a systemd timer. Each platform needs its own, and it runs when no
+  tmux server does.
 
 ## Holding "Done" until the turn has ended
 
@@ -60,10 +94,28 @@ agent's `agent_id` (none for the main session). So `asking` records the asker in
 `@claude-asker`, and a `permission_prompt` notification copies it into
 `@claude-blocker`. Other dialogs record no blocker.
 
-While a pane is `blocked`, only a `PostToolUse` from the blocker, or a new prompt
-(`UserPromptSubmit`), sets it back to `working`. Another agent's tool calls, or a
-`Stop` from the main session while a background subagent waits on a prompt, leave it
-red.
+While a pane is `blocked`, only a tool call from the blocker, or a new prompt
+(`UserPromptSubmit`), sets it back to `working`. A tool call means `PostToolUse` or,
+when the approved tool fails, `PostToolUseFailure`. A denied permission fires neither
+(checked with a `claude -p` probe in 2.1.289), so a denial does not turn the red into
+a spinner. Another agent's tool calls, or a `Stop` from the main session while a
+background subagent waits on a prompt, leave it red.
+
+## One Claude per pane
+
+A `claude -p` started from inside a Claude, by its Bash tool or by agent tooling, inherits
+`$TMUX_PANE` and runs the same user hooks. Without a guard, its own start, stop and end
+land on the parent's pane: a "Done" for the wrong session, then the glyph disappears.
+
+Claude Code gives every hook `CLAUDE_PID`, the process ID of the Claude that runs it.
+`idle` (`SessionStart`) records it in `@claude-pid`, and `off` (`SessionEnd`) clears it.
+Each event from another PID is ignored while that owner still runs (`kill -0`). A
+crashed owner never sends `SessionEnd`, but its PID is dead, so the next Claude in the
+pane takes it over.
+
+`CLAUDE_CODE_CHILD_SESSION` looks like the obvious marker, but cannot tell them apart.
+Claude Code sets it in the environment of every hook, the top-level session's included
+(checked with `claude -p` probes in 2.1.289).
 
 ## Notification title
 
@@ -99,6 +151,10 @@ it only to `SessionStart`, but Claude Code 2.1.289 also sends it with
 
 ## Setup
 
+On Linux the notifications go through `notify-send`, which only hosts with
+`dotfiles.gui` get: a headless host has no notification daemon to show them. There the
+glyphs still work, and the notification step fails silently.
+
 On macOS the notifications come from `~/Applications/Claude Notify.app`, listed as
 Claude Code in System Settings → Notifications, so they carry Claude's icon. Each
 Home Manager switch builds it from `home/files/claude/claude-notify.swift` with the
@@ -131,8 +187,6 @@ Why an app, built outside the store:
 - A `Stop` hook that takes longer than 5s outlasts the hold, which then notifies.
 - If two agents wait on permission prompts at once, the blocker is the one that asked
   last.
-- tmux-continuum's auto-save job lives in `status-right`, so `status-interval 1`
-  starts it every second. The job exits at once until its save interval passes.
 - On a zoomed window the Claude colour replaces the zoom orange.
 - Clicking a macOS notification does nothing.
 - If Claude Code stops sending `session_title` with `UserPromptSubmit`, a `/rename`
