@@ -76,6 +76,29 @@ setup 7; : > "$D/report"; run "$D/report" "$URL"
 [[ ! -s $D/log ]] || die empty-gh "$(<$D/log)"
 cleanup
 
+echo "--- a survivor line with backticks stays whole inside a fence it cannot close"
+setup ""; report 0
+print -r -- $'\nsurvived  home/files/m.sh:9  delete  echo ```x```  ->  :' >> "$D/report"; run "$D/report" "$URL"
+[[ $(grep -c '^~~~~$' "$D/body") == 2 && $(<$D/body) == *'echo ```x```  ->  :'* ]] || die fence "$(<$D/body)"
+[[ $(awk '/^~~~~$/ { f = !f } f && /^```x/ { bad = 1 } END { print bad + 0 }' "$D/body") == 0 ]] || die fence-inside "$(<$D/body)"
+cleanup
+
+echo "--- a survivor line ending in the word TOTAL is not the table row"
+setup ""; report 1
+print -r -- $'survived  home/files/m.sh:9  delete  echo x  ->  echo TOTAL' >> "$D/report"; run "$D/report" "$URL"
+[[ $RC == 0 ]] && called 'gh issue create' || die total-word "rc=$RC: $(<$D/log)"
+cleanup
+
+echo "--- a survivor line ending in TOTAL does not rescue a report that scored nothing"
+setup 7; print -r -- $'   killed  score  file\n     0/0   100.0  TOTAL\nsurvived  home/files/m.sh:9  delete  echo x  ->  3/4 TOTAL' > "$D/report"; run "$D/report" "$URL"
+[[ $RC == 1 && ! -s $D/log ]] || die total-word-zero "rc=$RC: $(<$D/log)"
+cleanup
+
+echo "--- only issues made by the workflow bot are taken over"
+setup 7; report 1; run "$D/report" "$URL"
+grep -q '^gh issue list .*--author app/github-actions' "$D/log" || die author "$(<$D/log)"
+cleanup
+
 echo "--- a failing gh call fails the step"
 setup 7; FAKE_FAIL='issue edit'; export FAKE_FAIL; report 1; run "$D/report" "$URL"
 [[ $RC != 0 ]] || die ghfail "rc=$RC"

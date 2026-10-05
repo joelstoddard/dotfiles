@@ -149,8 +149,14 @@ Each restriction keeps a mutant a real fault and not noise:
   the group after the test exits, after a timeout, and when the run itself gets HUP, INT
   or TERM. A mutant that hangs, or a test that leaves a background process, leaves
   nothing running. Closing the pane in the middle of a run is safe for the same reason.
+- **Interrupted run.** A worker ignores INT, so the main shell stops the workers itself.
+  When it exits, for any reason, it sends TERM to each worker and to the wrapper of its
+  test, then removes the scratch copies. It does not signal its process group, because
+  the caller may share that group.
 - **Timeout.** Ten times the clean run of that test, with a floor of 2s. A timeout
-  exits 124 and counts as killed: a mutant that makes a test hang is detected.
+  exits 124 and counts as killed: a mutant that makes a test hang is detected. Exit 127
+  or 255 means the wrapper failed to start the test or to fork. That is not a kill: it
+  stops the run with exit 1.
 - **Red baseline.** `bash test/coverage.sh --trace` runs first, and each selected test
   runs once unmutated. If one fails, the run stops with exit 1.
 
@@ -169,7 +175,8 @@ A tool error must never read as a clean score, so these stop the run:
 - a measured file with executable lines and no covered line (exit 1), because its tests
   did not run, for example a suite that skips when a tool is missing. A file with no
   executable lines is skipped without a message;
-- a failing suite (exit 1) and a failed worker (exit 1).
+- a failing suite (exit 1) and a failed worker (exit 1), which includes a test wrapper
+  that fails by itself (exit 127 or 255).
 
 Usage errors exit 2: an ignore row without a reason, and a `FILE` argument that is not
 measured. An ignore row that names an unmeasured file is not refused. It matches
@@ -213,7 +220,11 @@ when nothing survives. One rolling issue replaces one issue for each survivor, w
 would flood the tracker with mostly equivalent mutants.
 
 The script refuses a report whose total scored no mutants, so a broken run never closes
-the issue as if everything were killed. The job keeps no git credentials while tests
+the issue as if everything were killed. Only the table row counts: a survivor line that
+ends in the word TOTAL does not. The report sits in a fence of four tildes, so a
+survivor line with backticks cannot close it. The script takes over only an open
+`mutation` issue made by `app/github-actions`, so it never edits an issue that a person
+made. The job keeps no git credentials while tests
 run, and runs one at a time, so an overlapping manual run cannot open a second issue.
 
 ### Known limits

@@ -25,6 +25,21 @@ EOF
 cleanup() { rm -rf "$D" }
 mut() { OUTPUT=$(COV_LOG= COVERAGE_ROOT="$D" bash "$TOOL" "$@" 2>&1); RC=$? }
 row() { print -r -- "$OUTPUT" | awk -v f="$1" '$NF == f { print $1, $2 }' }  # → "killed/scored score"
+hang_fixture() {  # → $H: a file whose `false` mutant hangs its test; the clean test takes 0.5s, so the hang limit is about 5s
+  H=hang_$RANDOM$RANDOM
+  print -r -- $'while false; do :; done\necho looped' > "$D/home/files/$H.sh"
+  print -r -- "sleep 0.5; [[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
+}
+start_hung_run() {  # [mutate.sh options] → $RUN: a run of $H.sh in its own process group, with the hung test in flight
+  COV_LOG= COVERAGE_ROOT="$D" perl -e 'setpgrp(0, 0); $SIG{INT} = "DEFAULT"; exec @ARGV' bash "$TOOL" "$@" "home/files/$H.sh" >/dev/null 2>&1 &
+  RUN=$!
+  local in_test="\.\./home/files/$H.sh"  # the test's own process, not the run's command line
+  for _ in {1..100}; do  # in flight = still there after 0.3s; the unmutated runs exit in milliseconds
+    [[ -n $(pgrep -f "$in_test") ]] && { sleep 0.3; [[ -n $(pgrep -f "$in_test") ]] && break }
+    sleep 0.1
+  done
+  [[ -n $(pgrep -f "$in_test") ]] || die start "the hung test never started"
+}
 status_of() { awk -F'\t' -v l="$1" -v o="$2" '$3 == l && $4 == o { print $1 }' "$D/.coverage/mutants.tsv" }
 
 echo "--- a mutant a test catches is killed, and one it misses survives"
@@ -61,12 +76,7 @@ setup; print -r -- $'home/files/m.sh\tdelete\techo "side note" >/dev/null\t' > "
 cleanup
 
 echo "--- a mutant that makes a test hang counts as killed, and leaves no process behind"
-setup; H=hang_$RANDOM$RANDOM
-cat > "$D/home/files/$H.sh" <<'EOF'
-while false; do :; done
-echo looped
-EOF
-print -r -- "[[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
+setup; hang_fixture
 mut home/files/$H.sh
 [[ $(status_of 1 false) == killed && $(row home/files/$H.sh) == "2/2 100.0" ]] || die hang "rc=$RC: $OUTPUT"
 [[ -z $(pgrep -f "$H.sh") ]] || { die orphan "still running: $(pgrep -fl "$H.sh")"; pkill -9 -f "$H.sh" }
@@ -74,23 +84,19 @@ mut home/files/$H.sh
 cleanup
 
 echo "--- killing the run takes a hung test with it"
-setup; H=hang_$RANDOM$RANDOM
-cat > "$D/home/files/$H.sh" <<'EOF'
-while false; do :; done
-echo looped
-EOF
-print -r -- "[[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
-COV_LOG= COVERAGE_ROOT="$D" perl -e 'setpgrp(0, 0); exec @ARGV' bash "$TOOL" "home/files/$H.sh" >/dev/null 2>&1 &
-RUN=$!
-IN_TEST="\.\./home/files/$H.sh"  # the test's own process, not the run's command line
-for _ in {1..100}; do  # in flight = still there after 0.3s; the unmutated runs exit in milliseconds
-  [[ -n $(pgrep -f "$IN_TEST") ]] && { sleep 0.3; [[ -n $(pgrep -f "$IN_TEST") ]] && break }
-  sleep 0.1
-done
-[[ -n $(pgrep -f "$IN_TEST") ]] || die term-start "the hung test never started"
+setup; hang_fixture
+start_hung_run
 kill -TERM -- -$RUN; wait $RUN 2>/dev/null
 for _ in {1..20}; do [[ -z $(pgrep -f "$H.sh") ]] && break; sleep 0.1; done  # the wrapper can kill the group after the run has exited
 [[ -z $(pgrep -f "$H.sh") ]] || { die term-orphan "still running: $(pgrep -fl "$H.sh")"; pkill -9 -f "$H.sh" }
+cleanup
+
+echo "--- interrupting the run takes its workers and their hung test with it"
+setup; hang_fixture
+start_hung_run
+kill -INT $RUN; wait $RUN 2>/dev/null  # the main shell only: a worker ignores INT, and INT to the group would also end the test wrappers
+for _ in {1..20}; do [[ -z $(pgrep -f "$H.sh") ]] && break; sleep 0.1; done  # within 2s; the hang limit is about 5s
+[[ -z $(pgrep -f "$H.sh") ]] || { die int-workers "still running: $(pgrep -fl "$H.sh")"; pkill -9 -f "$H.sh" }
 cleanup
 
 echo "--- a test that exits leaving a background process behind leaves nothing running"
@@ -139,6 +145,28 @@ cleanup
 echo "--- a file outside the measured set is refused"
 setup; mut home/nope.sh
 [[ $RC == 2 && $OUTPUT == *"not a measured file"* ]] || die unmeasured "rc=$RC: $OUTPUT"
+cleanup
+
+echo "--- a test wrapper that fails by itself (exit 127 or 255) fails the run, and no mutant counts as killed"
+for code in 127 255; do
+  setup; mkdir "$D/bin"
+  cat > "$D/bin/perl" <<EOF
+#!/usr/bin/env bash
+n=\$(( \$(cat "$D/calls" 2>/dev/null || echo 0) + 1 )); echo \$n > "$D/calls"
+((n <= 1)) && exec $(command -v perl) "\$@"
+exit $code
+EOF
+  chmod +x "$D/bin/perl"
+  OUTPUT=$(PATH="$D/bin:$PATH" COV_LOG= COVERAGE_ROOT="$D" bash "$TOOL" -j 1 2>&1); RC=$?
+  [[ $RC == 1 && $OUTPUT == *"a mutation worker failed"* ]] || die "wrapper-$code" "rc=$RC: $OUTPUT"
+  [[ $(<"$D/calls") -ge 2 && ! -e $D/.coverage/mutants.tsv ]] || die "wrapper-$code-scored" "calls=$(<"$D/calls"): $OUTPUT"
+  cleanup
+done
+
+echo "--- a file named twice is mutated once"
+setup; mut home/files/m.sh home/files/m.sh
+[[ $RC == 0 && $(row home/files/m.sh) == "2/3 66.6" && $(print -r -- "$OUTPUT" | grep -c 'm\.sh$') == 1 && \
+  $(print -r -- "$OUTPUT" | awk '$NF == "TOTAL" { print $1 }') == 2/3 ]] || die twice "rc=$RC: $OUTPUT"
 cleanup
 
 echo "--- --changed mutates only the measured files changed since main"
