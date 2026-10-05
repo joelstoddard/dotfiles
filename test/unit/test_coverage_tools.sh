@@ -186,6 +186,7 @@ setup; cov --trace
 [[ $(awk -F'\t' '$2 == "home/files/f.sh" { print $3 }' "$D/.coverage/hits.tsv" | tr '\n' ' ') == "2 3 " ]] || die trace-hits "$(<"$D/.coverage/hits.tsv")"
 print 'exit 1' > "$D/test/unit/test_broken.sh"; cov --trace
 [[ $RC == 1 && $OUTPUT == *"test_broken.sh failed"* ]] || die trace-red "rc=$RC: $OUTPUT"
+[[ ! -e $D/.coverage/hits.tsv ]] || die trace-red-hits "stale hits left behind"
 cleanup
 
 [[ $FAILS == 0 ]] && echo "OK: coverage-tools" || { echo "FAILED: coverage-tools"; exit 1 }
