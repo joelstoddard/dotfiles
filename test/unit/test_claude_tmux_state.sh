@@ -51,6 +51,7 @@ for a in "\$@"; do echo "arg:\$a" >> "\$FAKE_LOG"; done
 EOF
   done
   chmod +x "$D/bin/"*
+  on_linux  # every host runs the same branch; the macOS cases opt in with on_macos
 }
 cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD FAKE_SLEEP_APPENDS }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
@@ -258,7 +259,7 @@ has "notify osascript" && die app "osascript also notified"
 cleanup
 
 echo "--- each fallback notifier gets the title and body in its own order"
-setup; on_macos; run blocked '{"message":"the body"}'
+setup; on_macos; notifier_app 1; run blocked '{"message":"the body"}'
 # osascript's run handler reads item 1 as the body and item 2 as the title.
 [[ $(last_args) == $'arg:the body\narg:Claude · work:3' ]] || die order-osascript "wrong order: $(last_args)"
 cleanup
@@ -267,7 +268,7 @@ setup; on_linux; run blocked '{"message":"the body"}'
 cleanup
 
 echo "--- on macOS a missing or refusing app falls back to osascript"
-setup; on_macos; run done
+setup; on_macos; run done 2>/dev/null  # bash reports the missing app on stderr, which is the case under test
 has "notify osascript" || die app-missing "no fallback: $(<$D/log)"
 cleanup
 setup; on_macos; notifier_app 1; run done
