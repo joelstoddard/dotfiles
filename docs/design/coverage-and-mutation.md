@@ -182,9 +182,10 @@ A tool error must never read as a clean score, so these stop the run:
 - a failing suite (exit 1) and a failed worker (exit 1), which includes a test wrapper
   that fails by itself (exit 127 or 255).
 
-Usage errors exit 2: an ignore row without a reason, and a `FILE` argument that is not
-measured. An ignore row that names an unmeasured file is not refused. It matches
-nothing. A run with survivors exits 0.
+A floor breach exits 1 (see [Floors](#floors)). Usage errors exit 2: an ignore row
+without a reason, a `FILE` argument that is not measured, and `--update` with other
+arguments. An ignore row that names an unmeasured file is not refused. It matches
+nothing. A run with survivors and no floor breach exits 0.
 
 ### Results, equivalent mutants and the ignore file
 
@@ -204,7 +205,9 @@ mutant is `exit 0` to `exit 1` under `trap 'exit 0' EXIT`: the trap decides the 
 ### Use
 
 - `bash test/mutate.sh --changed` mutates the measured files that differ from
-  `origin/main` or are untracked. Run it before a PR that changes measured shell.
+  `origin/main` or are untracked, and fails below a file's floor. Run it before a PR
+  that changes measured shell.
+- `bash test/mutate.sh --update` runs every file and raises the floors.
 - `bash test/mutate.sh FILE...` mutates the named measured files.
 - `-j N` sets the number of workers. The default is the number of CPUs. One scratch
   copy of the tree exists for each worker.
@@ -212,8 +215,29 @@ mutant is `exit 0` to `exit 1` under `trap 'exit 0' EXIT`: the trap decides the 
 The full run on the first day took 4m59s with `-j 14` (82 of 98 mutants killed, 83.6%).
 That is a macOS figure. The same run took 13s in an Ubuntu 24.04 container limited to
 4 CPUs, as on the runner.
-The score does not gate anything yet. A later `test/mutation-floor.tsv` reuses the
-coverage ratchet, as the spec says, once a few weekly runs show a stable score.
+
+### Floors
+
+`test/mutation-floor.tsv` has the format of `test/coverage-floor.tsv`: one
+`path<TAB>percent` line per measured file and a `TOTAL` line, rounded down to one
+decimal place.
+
+- Every row of the table shows the file's floor and a status: `ok`, `LOW`, `NO FLOOR`
+  or `BAD` (a floor that is not `digits.digit`, or a path with two floors). A floor
+  never reads as no limit.
+- The run exits 1 when any reported row is not `ok`. The table and the survivors print
+  first. A run with survivors and no floor breach exits 0.
+- A full run also checks `TOTAL`. A run of `FILE...` or `--changed` checks only the
+  files it mutated and prints no `TOTAL`, because a partial run has no meaningful total.
+- `bash test/mutate.sh --update` runs every file, then sets each floor to its current
+  score and never lowers one. A new measured file gets its floor here. Combined with
+  `--changed` or `FILE` it exits 2. A run that stops with an error writes nothing, and
+  neither does a malformed floor.
+- `bash test/coverage.sh --ratchet BASE test/mutation-floor.tsv` makes "floors only
+  rise" a machine check here too, with the rules in [Floors and the ratchet](#floors-and-the-ratchet).
+
+The floors start at 100.0 for every file. The CI wiring (the ratchet against `main` and
+the run on a pull request) is in the next commit of the same PR.
 
 ### Weekly run and the rolling issue
 

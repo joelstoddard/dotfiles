@@ -51,7 +51,7 @@ Always use the `building:commit` skill for all git commits — invoke it via the
 - **Test:** `bash test/unit/run.sh`
 - **Lint:** `bash test/lint.sh`
 - **Coverage:** `bash test/coverage.sh`
-- **Mutation:** `bash test/mutate.sh --changed`. Run it before a PR that changes measured shell files, and answer each survivor with a test that kills it or a reasoned entry in `test/mutants-ignore.tsv`.
+- **Mutation:** `bash test/mutate.sh --changed`. Run it before a PR that changes measured shell files. It fails below a file's floor in `test/mutation-floor.tsv`, so answer each survivor with a test that kills it or a reasoned entry in `test/mutants-ignore.tsv` before the floor allows the PR.
 
 The unit suite is fast and needs no Nix, which is what the push gate resolves. CI
 runs it, additionally checks coverage floors and that they only rise, and evaluates
@@ -74,5 +74,5 @@ nix fmt                                    # format every Nix file in the repo (
 bash test/unit/run.sh                      # shell unit suites (autoenv, settings filter)
 bash test/lint.sh                          # formatting, shellcheck, zsh -n, actionlint, ruff
 bash test/coverage.sh                      # line coverage vs test/coverage-floor.tsv (--update raises floors)
-bash test/mutate.sh --changed              # mutation testing of the shell files changed since main
+bash test/mutate.sh --changed              # mutation testing of the shell files changed since main vs test/mutation-floor.tsv (--update raises floors)
 ```
