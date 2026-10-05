@@ -3,6 +3,8 @@
 # Usage: test/coverage.sh [--update | --ratchet BASE_FLOOR_FILE | --lines FILE | --files | --trace]
 # See docs/design/coverage-and-mutation.md
 set -euo pipefail
+# Each sort and comm runs with LC_ALL=C, so hits.tsv sorts the same on every host. LC_ALL is not
+# exported, so the traced suites keep the caller's locale.
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ROOT="$(cd "${COVERAGE_ROOT:-$HERE/..}" && pwd -P)"
@@ -21,7 +23,7 @@ pct() { local t=$1; echo "$((t / 10)).$((t % 10))"; }            # 875 -> "87.5"
 measured() { # measured files, relative to ROOT
   (cd "$ROOT" && {
     find home/files -type f \( -name '*.sh' -o -name '*.zsh' \) 2>/dev/null || true
-  }) | sort
+  }) | LC_ALL=C sort
 }
 
 run_suites() { # every test file under tracing, one log per test file; returns 1 if any test fails
@@ -51,14 +53,14 @@ hits() { # writes "test<TAB>path<TAB>line" for each traced line of a file under 
         k = s; sub(/:[0-9]+$/, "", k); ln = substr(s, length(k) + 2)
         print t "\t" k "\t" ln
       }' "$log"
-  done | sort -u >"$OUT/raw-hits.tsv"
+  done | LC_ALL=C sort -u >"$OUT/raw-hits.tsv"
   while IFS= read -r raw; do # resolve each distinct traced path once
     dir=$(cd "$(dirname "$raw")" 2>/dev/null && pwd -P) || continue
     [[ $dir/ == "$ROOT"/* ]] && rel_of[$raw]="${dir#"$ROOT"/}/$(basename "$raw")"
-  done < <(cut -f2 "$OUT/raw-hits.tsv" | sort -u)
+  done < <(cut -f2 "$OUT/raw-hits.tsv" | LC_ALL=C sort -u)
   while IFS=$'\t' read -r t raw ln; do
     if [[ -n ${rel_of[$raw]:-} ]]; then printf '%s\t%s\t%s\n' "$t" "${rel_of[$raw]}" "$ln"; fi
-  done <"$OUT/raw-hits.tsv" | sort -u >"$OUT/hits.tsv"
+  done <"$OUT/raw-hits.tsv" | LC_ALL=C sort -u >"$OUT/hits.tsv"
 }
 
 floor_of() { awk -F'\t' -v p="$1" '$1 == p { print $2 }' "$FLOORS" 2>/dev/null || true; }
@@ -68,9 +70,9 @@ report() { # <update: 0|1>; prints the table, rewrites floors on update, returns
   local -a rows=()
   printf '%-8s %9s %6s %6s  %s\n' status lines pct floor file
   while IFS= read -r f; do
-    exec_n=$(awk -f "$HERE/coverage/executable.awk" "$ROOT/$f" | sort -u >"$OUT/exec" && wc -l <"$OUT/exec")
-    awk -F'\t' -v p="$f" '$2 == p { print $3 }' "$OUT/hits.tsv" | sort -u >"$OUT/hit"
-    hit_n=$(comm -12 <(sort "$OUT/exec") <(sort "$OUT/hit") | wc -l)
+    exec_n=$(awk -f "$HERE/coverage/executable.awk" "$ROOT/$f" | LC_ALL=C sort -u >"$OUT/exec" && wc -l <"$OUT/exec")
+    awk -F'\t' -v p="$f" '$2 == p { print $3 }' "$OUT/hits.tsv" | LC_ALL=C sort -u >"$OUT/hit"
+    hit_n=$(LC_ALL=C comm -12 <(LC_ALL=C sort "$OUT/exec") <(LC_ALL=C sort "$OUT/hit") | wc -l)
     exec_n=$((exec_n)); hit_n=$((hit_n))
     total_exec=$((total_exec + exec_n)); total_hit=$((total_hit + hit_n))
     now=$((exec_n == 0 ? 1000 : hit_n * 1000 / exec_n))
