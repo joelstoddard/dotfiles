@@ -45,10 +45,10 @@ EOF
 }
 cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
-# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID
+# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID (empty: no PID)
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
-    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID:-4242}" \
+    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID-4242}" \
     bash "$SCRIPT" "$1"; RC=$?
 }
 on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
@@ -277,10 +277,29 @@ AS_PID=4244 run idle '{}'
 [[ $(now) == idle && $(cat "$D/opt/@claude-pid") == 4244 ]] || die takeover "state '$(now)', owner '$(cat "$D/opt/@claude-pid")'"
 cleanup
 
+echo "--- a Claude with no PID still writes a pane whose owner is alive"
+setup; opt @claude-pid $$
+AS_PID= run working '{}'
+[[ $(now) == working ]] || die no-pid "state is '$(now)'"
+cleanup
+
+echo "--- the owner's own hooks write while it is alive"
+setup; opt @claude-pid $$
+AS_PID=$$ run working '{}'
+[[ $(now) == working ]] || die owner-writes "state is '$(now)'"
+cleanup
+
 echo "--- a failing tmux never fails the hook"
 for s in working idle done blocked asking stop off; do
   setup; export FAKE_TMUX_RC=1; run $s '{}'
   [[ $RC == 0 ]] || die tmux-down "$s exited $RC"
+  cleanup
+done
+
+echo "--- a failing tmux stops the hook before it notifies"
+for s in blocked done; do
+  setup; export FAKE_TMUX_RC=1; run $s '{}'
+  notified && die tmux-down-silent "$s notified: $(<$D/log)"
   cleanup
 done
 
