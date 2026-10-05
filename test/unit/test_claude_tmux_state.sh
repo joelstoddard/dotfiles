@@ -34,6 +34,15 @@ case $1 in
 esac
 exit "${FAKE_TMUX_RC:-0}"
 EOF
+  cat > "$D/bin/sleep" <<'EOF'
+#!/usr/bin/env bash
+# The Nth wait appends the Nth line of FAKE_SLEEP_APPENDS to the transcript, so a poll sees a marker only after waiting.
+echo x >> "$FAKE_LOG.sleeps"
+n=$(($(wc -l < "$FAKE_LOG.sleeps")))
+line=$(printf '%s\n' "${FAKE_SLEEP_APPENDS:-}" | sed -n "${n}p")
+[[ -z $line ]] || printf '%s\n' "$line" >> "$FAKE_TRANSCRIPT"
+exit 0
+EOF
   for n in osascript notify-send; do
     cat > "$D/bin/$n" <<EOF
 #!/usr/bin/env bash
@@ -43,12 +52,12 @@ EOF
   done
   chmod +x "$D/bin/"*
 }
-cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
+cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD FAKE_SLEEP_APPENDS }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
-# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID
+# run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID (empty: no PID)
 run() {
   print -r -- "${2:-}" | FAKE_LOG="$D/log" FAKE_OPT="$D/opt" FAKE_TRANSCRIPT="$D/transcript" \
-    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID:-4242}" \
+    CLAUDE_TMUX_STATE_POLL=0 PATH="$D/bin:$PATH" HOME="$D" TMUX_PANE=%7 CLAUDE_PID="${AS_PID-4242}" \
     bash "$SCRIPT" "$1"; RC=$?
 }
 on_macos() { printf '#!/bin/sh\necho Darwin\n' > "$D/bin/uname"; chmod +x "$D/bin/uname" }
@@ -160,6 +169,17 @@ for input in "$(stop_json)" '{}'; do
   notified || die stop-unknown "did not notify for $input"
   cleanup
 done
+
+echo "--- the hold waits between polls for the turn's marker"
+setup; export FAKE_SLEEP_APPENDS="$ENDED_WITH_AGENTS"; run stop "$(stop_json)"
+[[ $(now) == working ]] || die stop-waits "state is '$(now)'"
+notified && die stop-waits "notified"
+cleanup
+
+echo "--- a summary alone is not a blocked stop until a second poll confirms it"
+setup; export FAKE_SLEEP_APPENDS="$SUMMARY"$'\n'"$ENDED"; run stop "$(stop_json)"
+[[ $(now) == done ]] || die stop-summary-then-ended "state is '$(now)'"
+cleanup
 
 echo "--- an event during the hold cancels the stop"
 setup; export FAKE_TRANSCRIPT_TAIL="$SUMMARY"$'\n'"$ENDED" FAKE_DURING_HOLD=working; run stop "$(stop_json)"
@@ -277,10 +297,29 @@ AS_PID=4244 run idle '{}'
 [[ $(now) == idle && $(cat "$D/opt/@claude-pid") == 4244 ]] || die takeover "state '$(now)', owner '$(cat "$D/opt/@claude-pid")'"
 cleanup
 
+echo "--- a Claude with no PID still writes a pane whose owner is alive"
+setup; opt @claude-pid $$
+AS_PID= run working '{}'
+[[ $(now) == working ]] || die no-pid "state is '$(now)'"
+cleanup
+
+echo "--- the owner's own hooks write while it is alive"
+setup; opt @claude-pid $$
+AS_PID=$$ run working '{}'
+[[ $(now) == working ]] || die owner-writes "state is '$(now)'"
+cleanup
+
 echo "--- a failing tmux never fails the hook"
 for s in working idle done blocked asking stop off; do
   setup; export FAKE_TMUX_RC=1; run $s '{}'
   [[ $RC == 0 ]] || die tmux-down "$s exited $RC"
+  cleanup
+done
+
+echo "--- a failing tmux stops the hook before it notifies"
+for s in blocked done; do
+  setup; export FAKE_TMUX_RC=1; run $s '{}'
+  notified && die tmux-down-silent "$s notified: $(<$D/log)"
   cleanup
 done
 

@@ -246,7 +246,43 @@ test_dispatch_noop_when_state_matches() {
     rm -rf "$tmp"
 }
 
+test_dispatch_activates_venv_fallback() {
+    local tmp=$(mktemp -d) away=$(mktemp -d)
+    make_fake_venv "$tmp/venv"
+    cd "$away"
+    source "$AUTOENV_SCRIPT"
+    cd "$tmp"
+    [[ ${VIRTUAL_ENV:-} == "$tmp/venv" ]] \
+        || die "VIRTUAL_ENV should be $tmp/venv, got '${VIRTUAL_ENV:-}'"
+    rm -rf "$tmp" "$away"
+}
+
+# A handler that counts how often the dispatcher activates and deactivates it.
+write_counting_handler() {
+    cat >"$1/autoenv.d/count.zsh" <<'EOF'
+_autoenv_count_detect()     { print -r -- key }
+_autoenv_count_active()     { print -r -- "${COUNT_ON:-}" }
+_autoenv_count_activate()   { COUNT_ON=$1; ACTIVATIONS=$((ACTIVATIONS + 1)) }
+_autoenv_count_deactivate() { COUNT_ON=; DEACTIVATIONS=$((DEACTIVATIONS + 1)) }
+EOF
+}
+
+test_dispatch_leaves_matching_state_alone() {
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    mkdir -p "$tmp/autoenv.d"
+    write_counting_handler "$tmp"
+    typeset -i ACTIVATIONS=0 DEACTIVATIONS=0
+    source "$tmp/autoenv.zsh"
+    _autoenv_chpwd
+    (( ACTIVATIONS == 1 && DEACTIVATIONS == 0 )) \
+        || die "second chpwd in the same project should do nothing, got $ACTIVATIONS activations and $DEACTIVATIONS deactivations"
+    rm -rf "$tmp"
+}
+
 run_test "dispatch: activates on enter"         test_dispatch_activates_on_enter
+run_test "dispatch: activates the venv/ fallback" test_dispatch_activates_venv_fallback
+run_test "dispatch: leaves matching state alone" test_dispatch_leaves_matching_state_alone
 run_test "dispatch: deactivates on leave"       test_dispatch_deactivates_on_leave
 run_test "dispatch: switches between projects"  test_dispatch_switches_between_projects
 run_test "dispatch: no-op when state matches"   test_dispatch_noop_when_state_matches
@@ -298,6 +334,49 @@ EOF
 }
 
 run_test "missing functions warn and skip" test_missing_functions_warn_and_skip
+
+test_incomplete_handler_does_not_block_the_next() {
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    mkdir -p "$tmp/autoenv.d"
+    # broken sorts before fine, so its missing list must not carry over.
+    echo "_autoenv_broken_detect() { return 1 }" >"$tmp/autoenv.d/broken.zsh"
+    for fn in detect active activate deactivate; do
+        echo "_autoenv_fine_$fn() { }" >>"$tmp/autoenv.d/fine.zsh"
+    done
+    source "$tmp/autoenv.zsh" 2>/dev/null
+    [[ " ${_AUTOENV_HANDLERS[*]} " == *" fine "* ]] \
+        || die "complete handler after a broken one should register, got: ${_AUTOENV_HANDLERS[*]}"
+    rm -rf "$tmp"
+}
+
+test_resourcing_drops_a_disabled_handler() {
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    mkdir -p "$tmp/autoenv.d"
+    write_counting_handler "$tmp"
+    typeset -i ACTIVATIONS=0 DEACTIVATIONS=0
+    source "$tmp/autoenv.zsh"
+    mv "$tmp/autoenv.d/count.zsh" "$tmp/autoenv.d/_count.zsh"
+    source "$tmp/autoenv.zsh"
+    [[ -z ${_AUTOENV_HANDLERS[*]} ]] \
+        || die "re-sourcing should rebuild the handler list from scratch, got: ${_AUTOENV_HANDLERS[*]}"
+    rm -rf "$tmp"
+}
+
+test_missing_handler_dir_does_not_fail_the_source() {
+    local tmp=$(mktemp -d)
+    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
+    # The test uses a fresh shell, because errexit does not apply inside its own subshell. Under
+    # errexit, a non-zero status from the handler discovery ends the shell before it prints.
+    local out=$(zsh -f -o errexit -c 'source "$1"; print reached' _ "$tmp/autoenv.zsh" 2>&1)
+    [[ $out == reached ]] || die "sourcing without an autoenv.d should finish quietly, got: '$out'"
+    rm -rf "$tmp"
+}
+
+run_test "incomplete handler does not block the next"   test_incomplete_handler_does_not_block_the_next
+run_test "re-sourcing drops a disabled handler"         test_resourcing_drops_a_disabled_handler
+run_test "missing handler dir does not fail the source" test_missing_handler_dir_does_not_fail_the_source
 
 # === summary ===
 print
