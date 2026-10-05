@@ -25,6 +25,11 @@ EOF
 cleanup() { rm -rf "$D" }
 mut() { OUTPUT=$(COV_LOG= COVERAGE_ROOT="$D" bash "$TOOL" "$@" 2>&1); RC=$? }
 row() { print -r -- "$OUTPUT" | awk -v f="$1" '$NF == f { print $1, $2 }' }  # → "killed/scored score"
+hang_fixture() {  # → $H: a file whose `false` mutant hangs its test; the clean test takes 0.5s, so the hang limit is about 5s
+  H=hang_$RANDOM$RANDOM
+  print -r -- $'while false; do :; done\necho looped' > "$D/home/files/$H.sh"
+  print -r -- "sleep 0.5; [[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
+}
 status_of() { awk -F'\t' -v l="$1" -v o="$2" '$3 == l && $4 == o { print $1 }' "$D/.coverage/mutants.tsv" }
 
 echo "--- a mutant a test catches is killed, and one it misses survives"
@@ -61,12 +66,7 @@ setup; print -r -- $'home/files/m.sh\tdelete\techo "side note" >/dev/null\t' > "
 cleanup
 
 echo "--- a mutant that makes a test hang counts as killed, and leaves no process behind"
-setup; H=hang_$RANDOM$RANDOM
-cat > "$D/home/files/$H.sh" <<'EOF'
-while false; do :; done
-echo looped
-EOF
-print -r -- "[[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
+setup; hang_fixture
 mut home/files/$H.sh
 [[ $(status_of 1 false) == killed && $(row home/files/$H.sh) == "2/2 100.0" ]] || die hang "rc=$RC: $OUTPUT"
 [[ -z $(pgrep -f "$H.sh") ]] || { die orphan "still running: $(pgrep -fl "$H.sh")"; pkill -9 -f "$H.sh" }
@@ -74,12 +74,7 @@ mut home/files/$H.sh
 cleanup
 
 echo "--- killing the run takes a hung test with it"
-setup; H=hang_$RANDOM$RANDOM
-cat > "$D/home/files/$H.sh" <<'EOF'
-while false; do :; done
-echo looped
-EOF
-print -r -- "[[ \$(bash \"\${0:A:h}/../../home/files/$H.sh\") == looped ]]" > "$D/test/unit/test_n.sh"
+setup; hang_fixture
 COV_LOG= COVERAGE_ROOT="$D" perl -e 'setpgrp(0, 0); exec @ARGV' bash "$TOOL" "home/files/$H.sh" >/dev/null 2>&1 &
 RUN=$!
 IN_TEST="\.\./home/files/$H.sh"  # the test's own process, not the run's command line
