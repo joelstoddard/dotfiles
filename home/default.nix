@@ -31,7 +31,7 @@
     work = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Install work packages (granted, jfrog-cli, awscurl).";
+      description = "Install work packages (granted, amazon-ecr-credential-helper, jfrog-cli, awscurl).";
     };
 
     repoPath = lib.mkOption {

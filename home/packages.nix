@@ -60,6 +60,7 @@ let
       ansible
       awscli2
       docker # CLI + engine on Linux; on macOS the daemon runs via colima
+      docker-credential-helpers # keeps docker login credentials in the macOS keychain, not config.json
       go
       kubernetes-helm
       kubectl
@@ -81,6 +82,7 @@ let
 
   work = with pkgs; [
     granted
+    amazon-ecr-credential-helper # gets Elastic Container Registry tokens from AWS credentials, so docker stores none
     jfrog-cli
     # awscurl: not in nixpkgs — install with `uv tool install awscurl`
   ];
