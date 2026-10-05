@@ -136,6 +136,12 @@ setup; mut home/nope.sh
 [[ $RC == 2 && $OUTPUT == *"not a measured file"* ]] || die unmeasured "rc=$RC: $OUTPUT"
 cleanup
 
+echo "--- a file named twice is mutated once"
+setup; mut home/files/m.sh home/files/m.sh
+[[ $RC == 0 && $(row home/files/m.sh) == "2/3 66.6" && $(print -r -- "$OUTPUT" | grep -c 'm\.sh$') == 1 && \
+  $(print -r -- "$OUTPUT" | awk '$NF == "TOTAL" { print $1 }') == 2/3 ]] || die twice "rc=$RC: $OUTPUT"
+cleanup
+
 echo "--- --changed mutates only the measured files changed since main"
 setup
 print 'echo g' > "$D/home/files/g.sh"

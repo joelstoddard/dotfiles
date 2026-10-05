@@ -36,6 +36,7 @@ targets() { # fills files[] with the measured files to mutate; runs in the main 
       local f
       for f in "$@"; do
         printf '%s\n' "${all[@]}" | grep -qxF -- "$f" || die "not a measured file: $f"
+        printf '%s\n' "${files[@]}" | grep -qxF -- "$f" && continue
         files+=("$f")
       done
       ;;
