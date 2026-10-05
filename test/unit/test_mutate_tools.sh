@@ -136,6 +136,22 @@ setup; mut home/nope.sh
 [[ $RC == 2 && $OUTPUT == *"not a measured file"* ]] || die unmeasured "rc=$RC: $OUTPUT"
 cleanup
 
+echo "--- a test wrapper that fails by itself (exit 127 or 255) fails the run, and no mutant counts as killed"
+for code in 127 255; do
+  setup; mkdir "$D/bin"
+  cat > "$D/bin/perl" <<EOF
+#!/usr/bin/env bash
+n=\$(( \$(cat "$D/calls" 2>/dev/null || echo 0) + 1 )); echo \$n > "$D/calls"
+((n <= 1)) && exec $(command -v perl) "\$@"
+exit $code
+EOF
+  chmod +x "$D/bin/perl"
+  OUTPUT=$(PATH="$D/bin:$PATH" COV_LOG= COVERAGE_ROOT="$D" bash "$TOOL" -j 1 2>&1); RC=$?
+  [[ $RC == 1 && $OUTPUT == *"a mutation worker failed"* ]] || die "wrapper-$code" "rc=$RC: $OUTPUT"
+  [[ $(<"$D/calls") -ge 2 && ! -e $D/.coverage/mutants.tsv ]] || die "wrapper-$code-scored" "calls=$(<"$D/calls"): $OUTPUT"
+  cleanup
+done
+
 echo "--- a file named twice is mutated once"
 setup; mut home/files/m.sh home/files/m.sh
 [[ $RC == 0 && $(row home/files/m.sh) == "2/3 66.6" && $(print -r -- "$OUTPUT" | grep -c 'm\.sh$') == 1 && \

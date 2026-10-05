@@ -109,7 +109,7 @@ baseline() { # <copy>: times each test the plan needs, unmutated; a red test sto
 }
 
 worker() { # <index> <copy>: runs every plan line whose number is index modulo jobs; writes results.<index>
-  local k=$1 copy=$2 f ln op mutated original status t n=0
+  local k=$1 copy=$2 f ln op mutated original status t rc n=0
   while IFS="$SEP" read -r f ln op mutated; do
     n=$((n + 1))
     (((n - 1) % jobs == k)) || continue
@@ -122,7 +122,10 @@ worker() { # <index> <copy>: runs every plan line whose number is index modulo j
       if parses "$copy/$f"; then
         status=survived
         while IFS= read -r t; do
-          run_test "$copy" "$t" "${limit[$t]}" && continue
+          rc=0; run_test "$copy" "$t" "${limit[$t]}" || rc=$?
+          # 127 and 255 are the wrapper's own failures (exec, fork), not a test that caught the mutant.
+          ((rc == 127 || rc == 255)) && { echo "mutate: test wrapper failed with $rc on $t" >&2; return 1; }
+          ((rc == 0)) && continue
           status=killed; break
         done < <(awk -F'\t' -v p="$f" -v l="$ln" '$2 == p && $3 == l { print $1 }' "$OUT/hits.tsv")
       else
