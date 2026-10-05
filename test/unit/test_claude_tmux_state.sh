@@ -34,6 +34,15 @@ case $1 in
 esac
 exit "${FAKE_TMUX_RC:-0}"
 EOF
+  cat > "$D/bin/sleep" <<'EOF'
+#!/usr/bin/env bash
+# The Nth wait appends the Nth line of FAKE_SLEEP_APPENDS to the transcript, so a poll sees a marker only after waiting.
+echo x >> "$FAKE_LOG.sleeps"
+n=$(($(wc -l < "$FAKE_LOG.sleeps")))
+line=$(printf '%s\n' "${FAKE_SLEEP_APPENDS:-}" | sed -n "${n}p")
+[[ -z $line ]] || printf '%s\n' "$line" >> "$FAKE_TRANSCRIPT"
+exit 0
+EOF
   for n in osascript notify-send; do
     cat > "$D/bin/$n" <<EOF
 #!/usr/bin/env bash
@@ -43,7 +52,7 @@ EOF
   done
   chmod +x "$D/bin/"*
 }
-cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD }
+cleanup() { rm -rf "$D"; unset FAKE_CLIENTS FAKE_TITLE FAKE_TMUX_RC FAKE_TRANSCRIPT_TAIL FAKE_DURING_HOLD FAKE_SLEEP_APPENDS }
 opt() { printf '%s' "$2" > "$D/opt/$1" }  # opt <@name> <value> — preset a pane option
 # run <verb> [stdin] — invoke the script the way a hook does, from pane %7, as the Claude with PID $AS_PID (empty: no PID)
 run() {
@@ -160,6 +169,17 @@ for input in "$(stop_json)" '{}'; do
   notified || die stop-unknown "did not notify for $input"
   cleanup
 done
+
+echo "--- the hold waits between polls for the turn's marker"
+setup; export FAKE_SLEEP_APPENDS="$ENDED_WITH_AGENTS"; run stop "$(stop_json)"
+[[ $(now) == working ]] || die stop-waits "state is '$(now)'"
+notified && die stop-waits "notified"
+cleanup
+
+echo "--- a summary alone is not a blocked stop until a second poll confirms it"
+setup; export FAKE_SLEEP_APPENDS="$SUMMARY"$'\n'"$ENDED"; run stop "$(stop_json)"
+[[ $(now) == done ]] || die stop-summary-then-ended "state is '$(now)'"
+cleanup
 
 echo "--- an event during the hold cancels the stop"
 setup; export FAKE_TRANSCRIPT_TAIL="$SUMMARY"$'\n'"$ENDED" FAKE_DURING_HOLD=working; run stop "$(stop_json)"
