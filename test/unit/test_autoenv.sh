@@ -167,16 +167,15 @@ test_discovery_finds_python_handler() {
 }
 
 test_discovery_skips_underscore_prefixed_files() {
-    # Copy autoenv.zsh + a custom autoenv.d into tmp so we can stage files.
+    # Point autoenv at a custom autoenv.d in tmp so we can stage files.
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     mkdir -p "$tmp/autoenv.d"
     echo "_autoenv_live_detect()     { return 1 }" >  "$tmp/autoenv.d/live.zsh"
     echo "_autoenv_live_active()     { }"         >> "$tmp/autoenv.d/live.zsh"
     echo "_autoenv_live_activate()   { }"         >> "$tmp/autoenv.d/live.zsh"
     echo "_autoenv_live_deactivate() { }"         >> "$tmp/autoenv.d/live.zsh"
     echo "LOADED_DISABLED=1" > "$tmp/autoenv.d/_disabled.zsh"
-    source "$tmp/autoenv.zsh"
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT"
     [[ " ${_AUTOENV_HANDLERS[*]} " == *" live "* ]] \
         || die "live handler not discovered"
     [[ " ${_AUTOENV_HANDLERS[*]} " != *" _disabled "* ]] \
@@ -186,7 +185,20 @@ test_discovery_skips_underscore_prefixed_files() {
     rm -rf "$tmp"
 }
 
+test_handler_dir_override_replaces_the_default() {
+    local tmp=$(mktemp -d)
+    mkdir "$tmp/autoenv.d"
+    for fn in detect active activate deactivate; do
+        echo "_autoenv_only_$fn() { }" >>"$tmp/autoenv.d/only.zsh"
+    done
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT"
+    [[ "${_AUTOENV_HANDLERS[*]}" == only ]] \
+        || die "override should be the only handler dir, got: ${_AUTOENV_HANDLERS[*]}"
+    rm -rf "$tmp"
+}
+
 run_test "discovery finds python"                test_discovery_finds_python_handler
+run_test "handler dir override replaces default" test_handler_dir_override_replaces_the_default
 run_test "discovery skips underscore-prefixed"   test_discovery_skips_underscore_prefixed_files
 
 test_dispatch_activates_on_enter() {
@@ -269,11 +281,10 @@ EOF
 
 test_dispatch_leaves_matching_state_alone() {
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     mkdir -p "$tmp/autoenv.d"
     write_counting_handler "$tmp"
     typeset -i ACTIVATIONS=0 DEACTIVATIONS=0
-    source "$tmp/autoenv.zsh"
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT"
     _autoenv_chpwd
     (( ACTIVATIONS == 1 && DEACTIVATIONS == 0 )) \
         || die "second chpwd in the same project should do nothing, got $ACTIVATIONS activations and $DEACTIVATIONS deactivations"
@@ -319,14 +330,13 @@ run_test "bootstrap runs on source" test_bootstrap_runs_on_source
 
 test_missing_functions_warn_and_skip() {
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     mkdir -p "$tmp/autoenv.d"
     # Handler defines only _detect; missing active/activate/deactivate.
     cat >"$tmp/autoenv.d/broken.zsh" <<'EOF'
 _autoenv_broken_detect() { return 1 }
 EOF
     local stderr_file=$(mktemp)
-    source "$tmp/autoenv.zsh" 2>"$stderr_file"
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT" 2>"$stderr_file"
     grep -q broken "$stderr_file" || die "expected warning mentioning 'broken' on stderr, got: $(cat "$stderr_file")"
     [[ " ${_AUTOENV_HANDLERS[*]} " != *" broken "* ]] \
         || die "broken handler should be skipped, but is in: ${_AUTOENV_HANDLERS[*]}"
@@ -337,14 +347,13 @@ run_test "missing functions warn and skip" test_missing_functions_warn_and_skip
 
 test_incomplete_handler_does_not_block_the_next() {
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     mkdir -p "$tmp/autoenv.d"
     # broken sorts before fine, so its missing list must not carry over.
     echo "_autoenv_broken_detect() { return 1 }" >"$tmp/autoenv.d/broken.zsh"
     for fn in detect active activate deactivate; do
         echo "_autoenv_fine_$fn() { }" >>"$tmp/autoenv.d/fine.zsh"
     done
-    source "$tmp/autoenv.zsh" 2>/dev/null
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT" 2>/dev/null
     [[ " ${_AUTOENV_HANDLERS[*]} " == *" fine "* ]] \
         || die "complete handler after a broken one should register, got: ${_AUTOENV_HANDLERS[*]}"
     rm -rf "$tmp"
@@ -352,13 +361,12 @@ test_incomplete_handler_does_not_block_the_next() {
 
 test_resourcing_drops_a_disabled_handler() {
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     mkdir -p "$tmp/autoenv.d"
     write_counting_handler "$tmp"
     typeset -i ACTIVATIONS=0 DEACTIVATIONS=0
-    source "$tmp/autoenv.zsh"
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT"
     mv "$tmp/autoenv.d/count.zsh" "$tmp/autoenv.d/_count.zsh"
-    source "$tmp/autoenv.zsh"
+    AUTOENV_HANDLER_DIR="$tmp/autoenv.d" source "$AUTOENV_SCRIPT"
     [[ -z ${_AUTOENV_HANDLERS[*]} ]] \
         || die "re-sourcing should rebuild the handler list from scratch, got: ${_AUTOENV_HANDLERS[*]}"
     rm -rf "$tmp"
@@ -366,10 +374,9 @@ test_resourcing_drops_a_disabled_handler() {
 
 test_missing_handler_dir_does_not_fail_the_source() {
     local tmp=$(mktemp -d)
-    cp "$AUTOENV_SCRIPT" "$tmp/autoenv.zsh"
     # The test uses a fresh shell, because errexit does not apply inside its own subshell. Under
     # errexit, a non-zero status from the handler discovery ends the shell before it prints.
-    local out=$(zsh -f -o errexit -c 'source "$1"; print reached' _ "$tmp/autoenv.zsh" 2>&1)
+    local out=$(AUTOENV_HANDLER_DIR="$tmp/autoenv.d" zsh -f -o errexit -c 'source "$1"; print reached' _ "$AUTOENV_SCRIPT" 2>&1)
     [[ $out == reached ]] || die "sourcing without an autoenv.d should finish quietly, got: '$out'"
     rm -rf "$tmp"
 }
