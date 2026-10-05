@@ -162,10 +162,16 @@ for f in "${files[@]}"; do parses "$ROOT/$f" || fail "$f does not parse, so ever
 bash "$HERE/coverage.sh" --trace || fail "the suites fail; fix them before mutating"
 plan
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+pids=()
+# Workers ignore INT, so they outlive the main shell; their wrappers get TERM first and kill the tests.
+# The trap does not signal the process group, because the caller can share it.
+stop_workers() {
+  local p
+  for p in "${pids[@]}"; do pkill -TERM -P "$p" 2>/dev/null || true; kill "$p" 2>/dev/null || true; done
+}
+trap 'stop_workers; rm -rf "$WORK"' EXIT
 mkdir "$WORK/0"; copy_tree "$WORK/0"
 baseline "$WORK/0"
-pids=()
 for ((i = 0; i < jobs; i++)); do
   [[ -d $WORK/$i ]] || { mkdir "$WORK/$i"; copy_tree "$WORK/$i"; }
   worker "$i" "$WORK/$i" &
