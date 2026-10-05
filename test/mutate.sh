@@ -36,6 +36,7 @@ targets() { # fills files[] with the measured files to mutate; runs in the main 
       local f
       for f in "$@"; do
         printf '%s\n' "${all[@]}" | grep -qxF -- "$f" || die "not a measured file: $f"
+        printf '%s\n' "${files[@]}" | grep -qxF -- "$f" && continue
         files+=("$f")
       done
       ;;
@@ -108,7 +109,7 @@ baseline() { # <copy>: times each test the plan needs, unmutated; a red test sto
 }
 
 worker() { # <index> <copy>: runs every plan line whose number is index modulo jobs; writes results.<index>
-  local k=$1 copy=$2 f ln op mutated original status t n=0
+  local k=$1 copy=$2 f ln op mutated original status t rc n=0
   while IFS="$SEP" read -r f ln op mutated; do
     n=$((n + 1))
     (((n - 1) % jobs == k)) || continue
@@ -121,7 +122,10 @@ worker() { # <index> <copy>: runs every plan line whose number is index modulo j
       if parses "$copy/$f"; then
         status=survived
         while IFS= read -r t; do
-          run_test "$copy" "$t" "${limit[$t]}" && continue
+          rc=0; run_test "$copy" "$t" "${limit[$t]}" || rc=$?
+          # 127 and 255 are the wrapper's own failures (exec, fork), not a test that caught the mutant.
+          ((rc == 127 || rc == 255)) && { echo "mutate: test wrapper failed with $rc on $t" >&2; return 1; }
+          ((rc == 0)) && continue
           status=killed; break
         done < <(awk -F'\t' -v p="$f" -v l="$ln" '$2 == p && $3 == l { print $1 }' "$OUT/hits.tsv")
       else
@@ -158,10 +162,16 @@ for f in "${files[@]}"; do parses "$ROOT/$f" || fail "$f does not parse, so ever
 bash "$HERE/coverage.sh" --trace || fail "the suites fail; fix them before mutating"
 plan
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+pids=()
+# Workers ignore INT, so they outlive the main shell; their wrappers get TERM first and kill the tests.
+# The trap does not signal the process group, because the caller can share it.
+stop_workers() {
+  local p
+  for p in "${pids[@]}"; do pkill -TERM -P "$p" 2>/dev/null || true; kill "$p" 2>/dev/null || true; done
+}
+trap 'stop_workers; rm -rf "$WORK"' EXIT
 mkdir "$WORK/0"; copy_tree "$WORK/0"
 baseline "$WORK/0"
-pids=()
 for ((i = 0; i < jobs; i++)); do
   [[ -d $WORK/$i ]] || { mkdir "$WORK/$i"; copy_tree "$WORK/$i"; }
   worker "$i" "$WORK/$i" &

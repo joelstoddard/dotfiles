@@ -45,7 +45,7 @@ index(lines, "," NR ",") {
   # Deleting a simple command or assignment keeps the syntax valid; control lines are left alone.
   t = code; gsub(/^[ \t]+|[ \t]+$/, "", t)
   if (t ~ /^[A-Za-z_][A-Za-z0-9_.\/-]*([= \t]|$)/ && t !~ /^(if|elif|while|until|for|case|function|then|do|else|local|declare|export|readonly)([ \t]|$)/ &&
-      t !~ /(\{|\(|\\|\||&&|;;|<<[^<]*)$/ && t !~ /<</) {
+      t !~ /(\{|\(|\\|\||&&|;;)$/ && t !~ /<</) {
     match(line, /^[ \t]*/); emit("delete", RLENGTH + 1, length(line) - RLENGTH, ":")
   }
 }
