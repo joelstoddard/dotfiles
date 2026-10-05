@@ -30,7 +30,8 @@ in
         plugin = continuum; # keep last so it saves the fully-configured session
         extraConfig = ''
           set -g @continuum-restore 'on'
-          set -g @continuum-save-interval '1'
+          # Each save runs about 77 commands, so a save every minute costs battery for little gain. See #170
+          set -g @continuum-save-interval '5'
           # Continuum appends its save job to this value as it loads. See #130
           set -g status-right ""
         '';
