@@ -151,6 +151,16 @@ print -r -- $'home/files/f.sh\t66.6\nTOTAL\t66.6' > "$D/base.tsv"; cov --ratchet
 [[ $RC == 1 && $OUTPUT == *"floor removed: TOTAL"* ]] || die ratchet-total "rc=$RC: $OUTPUT"
 cleanup
 
+echo "--- the ratchet compares a second floor file when one is named, and ignores the coverage floors"
+setup
+print -r -- $'home/files/f.sh\t10.0\nTOTAL\t10.0' > "$D/test/coverage-floor.tsv"
+print -r -- $'home/files/f.sh\t70.0\nTOTAL\t70.0' > "$D/base.tsv"
+print -r -- $'home/files/f.sh\t60.0\nTOTAL\t70.0' > "$D/other.tsv"; cov --ratchet "$D/base.tsv" "$D/other.tsv"
+[[ $RC == 1 && $OUTPUT == *"floor lowered: home/files/f.sh 70.0 -> 60.0"* ]] || die ratchet-other-lowered "rc=$RC: $OUTPUT"
+print -r -- $'home/files/f.sh\t80.0\nTOTAL\t70.0' > "$D/other.tsv"; cov --ratchet "$D/base.tsv" "$D/other.tsv"
+[[ $RC == 0 ]] || die ratchet-other-raised "rc=$RC: $OUTPUT"
+cleanup
+
 echo "--- a file run through a symlinked path is credited to its real path"
 setup; ln -s "$D/home/files" "$D/alias"
 cat > "$D/test/unit/test_f.sh" <<'EOF'
