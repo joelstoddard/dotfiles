@@ -59,12 +59,16 @@ The rules are a heuristic. They need to be consistent, not exact: floors start a
 measured values, so each run compares like with like. A line miscounted the same way
 every time changes no result.
 
-Known limits:
+A traced hit on a continuation line of a counted command is credited to the command's
+counted line. `executable.awk -v spans=1` prints each such continuation line with its
+counted line, and `hits()` rewrites `hits.tsv` with it, so `mutate.sh` sees the counted
+line too. bash credits a multi-line command to a later line, and the line differs
+between bash versions.
 
-- A multi-line command counts on its first line, but bash credits a hit to a different
-  line, so that first line reads as uncovered.
-- A file a test copies before sourcing is traced under the copy's path and is not
-  credited to the original (for example `autoenv.zsh:30-31`).
+Known limit: a test that copies a file before sourcing it is traced under the copy's
+path and not credited to the original. A byte compare cannot repair this, because the
+test deletes the copy before coverage reads the traces. Tests point
+`AUTOENV_HANDLER_DIR` at their own handler directory and source the real `autoenv.zsh`.
 
 Known blind spot: code in another language inside a shell string is not measured. The
 awk in `shell-split.sh` and the jq in `claude-tmux-state.sh` count as one shell line
@@ -242,10 +246,9 @@ run, and runs one at a time, so an overlapping manual run cannot open a second i
 - **CI and macOS differ line by line.** A platform conditional is covered, and so
   mutated, on one branch only. `claude-tmux-state.sh`'s `uname == Darwin` branch runs
   locally, and the Linux branch runs in CI.
-- **bash 5.2 and 5.3 trace a multi-line command differently.** bash 5.2 (Linux, CI)
-  credits a multi-line simple command to its last line, and bash 5.3 to its first. Such
-  a command's first line can read as uncovered on CI only. No measured file has one
-  today.
+- **bash 5.2 and 5.3 trace a multi-line command differently.** The trace credits it to a
+  later line, and the line differs between versions. Coverage maps such a hit to the
+  counted first line, so the difference does not change the result.
 - **Flaky tests.** A test that fails at random reads as a kill. The run does not retry.
 - **Shell inside a string.** The awk and jq code in strings gets no mutants, as for
   coverage.

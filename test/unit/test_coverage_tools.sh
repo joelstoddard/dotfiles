@@ -77,6 +77,36 @@ lines=$(bash "$TOOL" --lines "$D/h.sh" | tr '\n' ' ')
 [[ $lines == "2 3 5 8 10 12 18 " ]] || die heuristic "executable lines are '$lines'"
 cleanup
 
+echo "--- a hit on a later line of a multi-line command is credited to the command's counted line"
+setup
+cat > "$D/home/files/m.sh" <<'EOF'
+x=$(printf '%s' "a
+b")
+echo one \
+  two
+echo done
+EOF
+print 'bash "${0:A:h}/../../home/files/m.sh" >/dev/null' > "$D/test/unit/test_m.sh"
+cov --update
+[[ $(row home/files/m.sh) == "3/3 100.0 NO" ]] || die span-credit "row is '$(row home/files/m.sh)'"
+[[ $(awk -F'\t' '$2 == "home/files/m.sh" { print $3 }' "$D/.coverage/hits.tsv" | tr '\n' ' ') == "1 3 5 " ]] || die span-hits "hits are '$(<"$D/.coverage/hits.tsv")'"
+cleanup
+
+echo "--- a multi-line command the test never reaches stays uncovered"
+setup
+cat > "$D/home/files/m.sh" <<'EOF'
+if [[ ${1:-} == yes ]]; then
+  echo "took yes"
+else
+  echo "took no \
+  twice"
+fi
+EOF
+print 'bash "${0:A:h}/../../home/files/m.sh" yes >/dev/null' > "$D/test/unit/test_m.sh"
+cov --update
+[[ $(row home/files/m.sh) == "2/3 66.6 NO" ]] || die span-uncovered "row is '$(row home/files/m.sh)'"
+cleanup
+
 echo "--- a measured file with no executable lines counts as fully covered"
 setup; print '# only a comment' > "$D/home/files/empty.sh"; cov --update
 [[ $(row home/files/empty.sh) == "0/0 100.0 NO" ]] || die empty "row is '$(row home/files/empty.sh)'"

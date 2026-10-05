@@ -15,7 +15,8 @@ _AUTOENV_HANDLERS=()
 # Files whose basename starts with `_` are skipped (convention for disabling).
 () {
     local self_dir="${${(%):-%x}:A:h}"
-    local handler_dir="$self_dir/autoenv.d"
+    # Tests set AUTOENV_HANDLER_DIR to source this file, not a copy, so coverage sees it.
+    local handler_dir="${AUTOENV_HANDLER_DIR:-$self_dir/autoenv.d}"
     [[ -d $handler_dir ]] || return 0
     local f name fn missing
     for f in $handler_dir/*.zsh(N); do
