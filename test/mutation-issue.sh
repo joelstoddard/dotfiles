@@ -7,10 +7,10 @@ set -euo pipefail
 report=${1:?mutation-issue needs the report file}
 run_url=${2:?mutation-issue needs the run URL}
 [[ -r $report ]] || { echo "mutation-issue: cannot read $report" >&2; exit 1; }
-awk '$NF == "TOTAL" { split($1, a, "/"); n = a[2] } END { exit !(n > 0) }' "$report" ||
+awk '$NF == "TOTAL" && $1 ~ /^[0-9]+\/[0-9]+$/ { split($1, a, "/"); n = a[2] } END { exit !(n > 0) }' "$report" ||
   { echo "mutation-issue: $report scored no mutants" >&2; exit 1; }
 
-open=$(gh issue list --label mutation --state open --json number --jq '.[0].number // empty')
+open=$(gh issue list --author app/github-actions --label mutation --state open --json number --jq '.[0].number // empty')
 
 if grep -q '^survived ' "$report"; then
   body=$(mktemp)
@@ -19,9 +19,9 @@ if grep -q '^survived ' "$report"; then
     echo "The weekly mutation run found mutants that no test kills. Each one needs a test that"
     echo "kills it, or an entry with a reason in \`test/mutants-ignore.tsv\`."
     echo
-    echo '```'
+    echo '~~~~'
     cat "$report"
-    echo '```'
+    echo '~~~~'
     echo
     echo "Run: $run_url"
   } >"$body"
