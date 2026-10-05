@@ -2,8 +2,8 @@
 
 ## Problem
 
-The repo's real logic is shell: the 114-line `claude-tmux-state` hook script and about
-95 lines of zsh in autoenv. The tests for it are the zsh suites run by
+The repo's real logic is shell: the `claude-tmux-state` hook script and the autoenv
+zsh, about 220 lines together. The tests for it are the zsh suites run by
 `test/unit/run.sh`. The guardrails plugin, about 850 lines of bash, was in this repo
 when this spec was written. It moved to `joelstoddard/guardrails` in #151, so it is out
 of scope here.
@@ -124,6 +124,9 @@ that open or continue a block, a pipeline or a heredoc alone.
 - **Invalid mutants:** a mutant that fails `bash -n` (`zsh -n` for a `.zsh` file) is
   left out of the score. A measured file that does not parse unmutated stops the run, so
   it can never read as 0 of 0.
+- **Tests that did not run:** a measured file with executable lines but no covered line
+  stops the run with exit 1. That happens, for example, when a suite skips because a tool
+  is missing. Without this stop the file would read as 0 of 0.
 
 **Results.** Score = killed ÷ (killed + survived), per file and total. Each survivor is
 printed as `survived  file:line  operator  original  ->  mutated`, and
@@ -144,9 +147,16 @@ a score yet.
 `workflow_dispatch`, with `contents: read` and `issues: write` only. It runs the full
 set, and `test/mutation-issue.sh` maintains one open issue labelled `mutation`. The
 issue holds the report: per-file and total scores, then the survivors in file order. It
-closes the issue when nothing survives. The issue is posted by `github-actions`. The run
-step uses `shell: bash`, whose `pipefail` fails the step when `mutate.sh` fails, so a
-broken run never reaches the issue step and never closes the issue.
+closes the issue when nothing survives. The issue is posted by `github-actions`. Two
+layers keep a broken run from closing the issue:
+
+- The run step uses `shell: bash`, whose `pipefail` fails the step when `mutate.sh`
+  fails, so a broken run never reaches the issue step.
+- `mutation-issue.sh` refuses a report whose TOTAL scored no mutants, before any `gh`
+  call.
+
+The checkout keeps no git credentials while tests and mutants run. A `concurrency`
+group runs one job at a time, so an overlapping manual run cannot open a second issue.
 
 **A floor later.** Once a few weekly runs show a stable score, a
 `test/mutation-floor.tsv` reuses the coverage ratchet check and turns the score into a
@@ -174,12 +184,14 @@ covers the rolling issue against a fake `gh`.
     leaves a background process leaves anything running, even when the run itself is
     killed.
   - Mutants that do not parse, in bash and in zsh, are invalid.
-  - An unparsable measured file, a red suite and an unmeasured file stop the run.
+  - An unparsable measured file, a file whose tests did not run, a red suite and an
+    unmeasured file stop the run.
   - A mutated line keeps its backslashes.
   - `--changed` picks only the changed files.
   - One worker and many workers give the same results.
 - **Rolling issue:** it creates, edits or closes the one `mutation` issue as the report
-  needs, and an unreadable report fails the step.
+  needs. An unreadable report, a report that scored nothing and a failing `gh` call each
+  fail the step, and a report that scored nothing makes no `gh` call.
 
 ### Failure modes
 
@@ -190,27 +202,29 @@ All of them fail closed:
 - **A new measured file:** CI fails with "no floor for FILE" until `--update` records
   one.
 - **Red suite:** the mutator refuses to score.
-- **A tool error in the mutator** (a measured file that does not parse, or a failing
-  `coverage.sh --files` or `--lines`): the run stops with exit 1 instead of printing a
-  clean-looking score.
+- **A tool error in the mutator:** a measured file that does not parse, a measured file
+  whose tests did not run, or a failing `coverage.sh --files` or `--lines`. The run stops
+  with exit 1 instead of printing a clean-looking score.
 - **A failed weekly run:** the workflow fails before the issue step, and the rolling
-  issue stays as it was.
+  issue stays as it was. A report that scored nothing is refused at the issue step too.
 
 ## Rollout
 
-Two PRs after this spec, tracked in #142:
+Three PRs after this spec, tracked in #142:
 
 1. **Coverage (#144):** the zsh tracing spike, tracer, heuristic, `test/coverage.sh`,
    tool tests, an initial `test/coverage-floor.tsv` from a real run, and the CI step with
    the ratchet check. It creates `docs/design/coverage-and-mutation.md`, which the
    tools' comments cite, and adds **Coverage** to `CLAUDE.md`'s Commands.
-2. **Mutation:** `test/mutate.sh`, `test/mutants-ignore.tsv`, `--changed`, tool tests,
-   and `.github/workflows/mutation.yml` with the rolling issue. The first full run's
-   scores and survivors go in the PR description. It extends the design doc and adds
-   **Mutation** to `CLAUDE.md`.
+2. **Mutation (#166):** `test/mutate.sh`, `test/mutants-ignore.tsv`, `--changed`, tool
+   tests, and `.github/workflows/mutation.yml` with the rolling issue. The first full
+   run's scores and survivors go in the PR description. It extends the design doc and
+   adds **Mutation** to `CLAUDE.md`.
+3. **Survivor triage (#178):** the first weekly run's 18 survivors (#174) each get a
+   test that kills them or an ignore row with its reason.
 
-This spec first planned four PRs. The zsh spike landed inside coverage, and the weekly
-workflow lands with mutation.
+This spec first planned four PRs. The zsh spike landed inside coverage, the weekly
+workflow landed with mutation, and the survivor triage was added after the first run.
 
 **Implementation:**
 
