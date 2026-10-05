@@ -190,23 +190,23 @@ run_test "discovery finds python"                test_discovery_finds_python_han
 run_test "discovery skips underscore-prefixed"   test_discovery_skips_underscore_prefixed_files
 
 test_dispatch_activates_on_enter() {
-    local tmp=$(mktemp -d)
+    local tmp=$(mktemp -d) away=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    cd "$(mktemp -d)"
+    cd "$away"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     [[ ${VIRTUAL_ENV:-} == "$tmp/.venv" ]] \
         || die "VIRTUAL_ENV should be $tmp/.venv, got '${VIRTUAL_ENV:-}'"
     [[ ${_AUTOENV_ACTIVE[python]:-} == "$tmp/.venv" ]] \
         || die "_AUTOENV_ACTIVE[python] should be $tmp/.venv, got '${_AUTOENV_ACTIVE[python]:-}'"
-    rm -rf "$tmp"
+    rm -rf "$tmp" "$away"
 }
 
 test_dispatch_deactivates_on_leave() {
     local tmp=$(mktemp -d)
-    local empty=$(mktemp -d)
+    local empty=$(mktemp -d) away=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    cd "$(mktemp -d)"
+    cd "$away"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     cd "$empty"
@@ -214,14 +214,14 @@ test_dispatch_deactivates_on_leave() {
         || die "VIRTUAL_ENV should be unset after leaving, got '${VIRTUAL_ENV:-}'"
     [[ -z ${_AUTOENV_ACTIVE[python]:-} ]] \
         || die "_AUTOENV_ACTIVE[python] should be unset after leaving"
-    rm -rf "$tmp" "$empty"
+    rm -rf "$tmp" "$empty" "$away"
 }
 
 test_dispatch_switches_between_projects() {
-    local a=$(mktemp -d) b=$(mktemp -d)
+    local a=$(mktemp -d) b=$(mktemp -d) away=$(mktemp -d)
     make_fake_venv "$a/.venv"
     make_fake_venv "$b/.venv"
-    cd "$(mktemp -d)"
+    cd "$away"
     source "$AUTOENV_SCRIPT"
     cd "$a"
     [[ ${VIRTUAL_ENV:-} == "$a/.venv" ]] || die "should be in A, got '${VIRTUAL_ENV:-}'"
@@ -229,13 +229,13 @@ test_dispatch_switches_between_projects() {
     [[ ${VIRTUAL_ENV:-} == "$b/.venv" ]] || die "should switch to B, got '${VIRTUAL_ENV:-}'"
     [[ ${_AUTOENV_ACTIVE[python]:-} == "$b/.venv" ]] \
         || die "_AUTOENV_ACTIVE[python] should be $b/.venv"
-    rm -rf "$a" "$b"
+    rm -rf "$a" "$b" "$away"
 }
 
 test_dispatch_noop_when_state_matches() {
-    local tmp=$(mktemp -d)
+    local tmp=$(mktemp -d) away=$(mktemp -d)
     make_fake_venv "$tmp/.venv"
-    cd "$(mktemp -d)"
+    cd "$away"
     source "$AUTOENV_SCRIPT"
     cd "$tmp"
     local before=$VIRTUAL_ENV
@@ -243,7 +243,7 @@ test_dispatch_noop_when_state_matches() {
     cd "$tmp"
     [[ $VIRTUAL_ENV == $before ]] \
         || die "VIRTUAL_ENV changed on redundant chpwd: '$before' -> '$VIRTUAL_ENV'"
-    rm -rf "$tmp"
+    rm -rf "$tmp" "$away"
 }
 
 test_dispatch_activates_venv_fallback() {
@@ -288,18 +288,18 @@ run_test "dispatch: switches between projects"  test_dispatch_switches_between_p
 run_test "dispatch: no-op when state matches"   test_dispatch_noop_when_state_matches
 
 test_dispatch_respects_manual_activation() {
-    local proj=$(mktemp -d)
+    local proj=$(mktemp -d) away=$(mktemp -d)
     make_fake_venv "$proj/.venv"
     # Pretend the user manually activated some unrelated venv before sourcing.
     export VIRTUAL_ENV=/some/manual/path
-    cd "$(mktemp -d)"
+    cd "$away"
     source "$AUTOENV_SCRIPT"
     cd "$proj"
     [[ $VIRTUAL_ENV == /some/manual/path ]] \
         || die "manual VIRTUAL_ENV was overwritten: got '$VIRTUAL_ENV'"
     [[ -z ${_AUTOENV_ACTIVE[python]:-} ]] \
         || die "_AUTOENV_ACTIVE[python] should remain unset when manual active"
-    rm -rf "$proj"
+    rm -rf "$proj" "$away"
 }
 
 run_test "dispatch: respects manual activation" test_dispatch_respects_manual_activation
