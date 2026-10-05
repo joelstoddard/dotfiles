@@ -4,6 +4,7 @@
 
 let
   palette = config.dotfiles.palette;
+  continuumSave = "${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/scripts/continuum_save.sh";
 in
 {
   programs.tmux = {
@@ -64,6 +65,14 @@ in
 
       # Claude state per window, written by claude-tmux-state. See docs/design/claude-tmux-state.md
       set -g status-interval 1
+      # status-interval 1 runs each #() job in the status line every second. So the tmux-continuum
+      # save job runs once a minute from a timer, not from status-right. See docs/design/claude-tmux-state.md
+      if -F '#{m:*continuum_save.sh*,#{status-right}}' {
+        set -g status-right ""
+        if-shell '! kill -0 "#{@continuum-timer}" 2>/dev/null' {
+          run-shell -b 'tmux set -g @continuum-timer $$; while sleep 60 && kill -0 #{pid} 2>/dev/null; do ${continuumSave} >/dev/null 2>&1; done'
+        }
+      }
       set -g @claude-states '#{P:#{@claude} }'
       set -g @claude-spin '#{?#{==:#{e|m|:%S,6},0},·,#{?#{==:#{e|m|:%S,6},1},✢,#{?#{==:#{e|m|:%S,6},2},✳,#{?#{==:#{e|m|:%S,6},3},✶,#{?#{==:#{e|m|:%S,6},4},✻,✽}}}}}'
       set -g @claude-glyph '#{?#{m:*blocked*,#{E:@claude-states}},#[fg=${palette.accent.red}]●,#{?#{m:*done*,#{E:@claude-states}},#[fg=${palette.accent.green}]●,#{?#{m/r:working|stopping,#{E:@claude-states}},#[fg=${palette.semantic.claude}]#{T:@claude-spin},#{?#{m:*idle*,#{E:@claude-states}},#[fg=${palette.semantic.claude}]●,●}}}}'

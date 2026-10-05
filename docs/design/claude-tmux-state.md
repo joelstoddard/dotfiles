@@ -22,11 +22,45 @@ overwrite each other, and tmux drops it when the pane closes.
 The window glyph is the highest-priority state among its panes: blocked > done >
 working or stopping > idle. tmux lists the pane states with `#{P:#{@claude} }` and
 tests the list with `#{m:*blocked*,…}`. The spinner picks a frame from
-`#{e|m|:%S,6}`, so it needs no background process, only `status-interval 1`.
+`#{e|m|:%S,6}`, so it needs no background process, only `status-interval 1`. That
+setting also changes how often tmux-continuum's save job runs (see below).
 
 Each glyph sets only its colour, so it takes its window's brightness: dim on inactive
 windows, as the plain dots are, and full on the current one. A flake check
 (`claude-glyph`) fails if the format sets an attribute again.
+
+## tmux-continuum saves from a timer
+
+`status-interval` also sets how often tmux runs each `#()` job in the status line, once
+for each attached client. tmux-continuum saves through such a job: as it loads, it adds
+`#(continuum_save.sh)` to `status-right`. At `status-interval 1` with three clients, the
+job ran about three times a second. Each run starts about 10 processes (two bash
+scripts, `tmux -V`, three `tmux show-option`, `tr`, `date`) before it decides whether to
+save. An endpoint security agent inspects each new process, so the CPU and battery cost
+was easy to see (#168).
+
+So after continuum loads, tmux.conf moves the job to a timer. If `status-right` holds
+the job, tmux.conf clears `status-right` and starts one `run-shell -b` loop that calls
+`continuum_save.sh` every 60s. The script still uses `@continuum-save-interval` to
+decide when to save. Continuum adds the job only when no other tmux server runs, so the
+timer starts only in that case too. The loop writes its process ID to
+`@continuum-timer`. A reload (`prefix R`) starts a new loop only if that process is
+gone, so a reload does not start a second loop but does replace a killed one. The loop
+stops when `kill -0` finds that its server is gone.
+
+Unlike the status-line job, the timer also saves while no client is attached.
+
+The flake check `continuum-autosave` fails in two cases:
+- tmux.conf starts no timer. The job then runs every second again (#168).
+- tmux.conf resets `status-right` between continuum and the timer block. The block then
+  finds no job, and auto-save stops (#130).
+
+Rejected:
+- A static `working` glyph with the default `status-interval`. It removes the spinner.
+- A patch to continuum that starts the timer itself. It changes third-party code, and
+  a nixpkgs update can break the patch without an error.
+- A launchd agent or a systemd timer. Each platform needs its own, and it runs when no
+  tmux server does.
 
 ## Holding "Done" until the turn has ended
 
@@ -153,8 +187,6 @@ Why an app, built outside the store:
 - A `Stop` hook that takes longer than 5s outlasts the hold, which then notifies.
 - If two agents wait on permission prompts at once, the blocker is the one that asked
   last.
-- tmux-continuum's auto-save job lives in `status-right`, so `status-interval 1`
-  starts it every second. The job exits at once until its save interval passes.
 - On a zoomed window the Claude colour replaces the zoom orange.
 - Clicking a macOS notification does nothing.
 - If Claude Code stops sending `session_title` with `UserPromptSubmit`, a `/rename`

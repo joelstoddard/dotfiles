@@ -58,9 +58,9 @@
         else
           pkgs.runCommand "no-automode" { } "touch $out";
 
-      # tmux-continuum saves through a #() job that it appends to status-right as it loads.
-      # Nothing after its run-shell may reset status-right. See #130
-      continuumKeepsStatusRight =
+      # tmux-continuum appends a #() save job to status-right as it loads, and tmux.conf moves
+      # that job to a timer. See docs/design/claude-tmux-state.md
+      continuumSavesOnTimer =
         pkgs: home:
         let
           inherit (pkgs) lib;
@@ -70,14 +70,21 @@
               lib.last (lib.splitString "continuum.tmux" tmuxConf)
             else
               "";
+          lines = lib.splitString "\n";
+          beforeTimer = builtins.head (lib.splitString "continuum_save.sh" afterContinuum);
           resets = builtins.filter (
             line: builtins.match " *set(-option)? +-g +status-right +.*" line != null
-          ) (lib.splitString "\n" afterContinuum);
+          ) (lines beforeTimer);
+          timers = builtins.filter (
+            line: builtins.match " *run-shell -b .*continuum_save\\.sh.*" line != null
+          ) (lines afterContinuum);
         in
         if resets != [ ] then
-          throw "tmux.conf resets status-right after tmux-continuum loads, which disables auto-save (#130): ${builtins.head resets}"
+          throw "tmux.conf resets status-right before it moves continuum's save job to a timer, which disables auto-save (#130): ${builtins.head resets}"
+        else if timers == [ ] then
+          throw "tmux.conf starts no timer for continuum's save job, so status-interval 1 runs the job every second (#168)"
         else
-          pkgs.runCommand "continuum-keeps-status-right" { } "touch $out";
+          pkgs.runCommand "continuum-saves-on-timer" { } "touch $out";
 
       # The Claude glyphs set only a colour, so inactive windows stay dim like the plain dots.
       # See docs/design/claude-tmux-state.md
@@ -134,7 +141,7 @@
         home-omarchy = self.homeConfigurations."${username}@omarchy".activationPackage;
         no-automode = noAutoMode (mkPkgs "x86_64-linux");
         continuum-autosave =
-          continuumKeepsStatusRight (mkPkgs "x86_64-linux")
+          continuumSavesOnTimer (mkPkgs "x86_64-linux")
             self.homeConfigurations."${username}@linux";
         claude-glyph =
           claudeGlyphFollowsWindow (mkPkgs "x86_64-linux")
@@ -144,7 +151,7 @@
         home-macos = self.homeConfigurations."${username}@macos".activationPackage;
         no-automode = noAutoMode (mkPkgs "aarch64-darwin");
         continuum-autosave =
-          continuumKeepsStatusRight (mkPkgs "aarch64-darwin")
+          continuumSavesOnTimer (mkPkgs "aarch64-darwin")
             self.homeConfigurations."${username}@macos";
         claude-glyph =
           claudeGlyphFollowsWindow (mkPkgs "aarch64-darwin")
