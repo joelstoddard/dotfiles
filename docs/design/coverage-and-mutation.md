@@ -7,7 +7,8 @@ measurement, an agent can add a branch to a hook with no test for it and every c
 stays green.
 `test/coverage.sh` measures line coverage and fails when it falls.
 
-This document covers coverage only.
+The first half of this document covers coverage. [Mutation](#mutation) starts after
+the coverage failure modes.
 
 ## Why the tools are in the repo
 
@@ -104,3 +105,140 @@ tracer or a damaged floor file cannot hide a gap.
 - **A relative path after `cd`:** traced paths resolve from the tool's working
   directory. A suite that changes directory and then runs a script by a relative path
   loses those hits. Run such scripts by an absolute path.
+
+## Mutation
+
+Coverage shows that a test ran a line, not that it checks the line. `test/mutate.sh`
+changes one covered line at a time and runs the tests that cover it. A mutant that
+leaves every test green survived, and the line is not checked. No maintained mutation
+tool exists for shell, so the mutator is plain bash, POSIX awk and perl.
+
+`test/coverage/mutants.awk` makes the mutants. It works on the executable lines that
+`coverage.sh --lines` reports and `hits.tsv` shows as covered. An uncovered line gets
+no mutants, because coverage already reports it.
+
+| Operator    | Mutation                                                                     |
+| ----------- | ---------------------------------------------------------------------------- |
+| Comparison  | `==` and `!=` swap; `-eq`/`-ne`, `-lt`/`-ge`, `-gt`/`-le`, `-z`/`-n` swap    |
+| Logic       | `&&` and `\|\|` swap; a leading `! ` is dropped                              |
+| Exit status | `exit` or `return` `0` becomes `1`; `1` becomes `0`; `exit 2` becomes `0`    |
+| Boolean     | `true` and `false` swap, as whole words                                      |
+| Deletion    | a simple command or assignment becomes `:`                                   |
+
+Each restriction keeps a mutant a real fault and not noise:
+
+- **Test operators only inside `[[`, `[` or `test`.** `-n` and `-z` are also options of
+  `head`, `sort` and others. Swapping them breaks a command and not a decision.
+- **Deletion only of simple commands and assignments.** Deleting `if`, `then`, `do`,
+  a line that opens a block, a pipeline or a heredoc, or a continued line gives a script
+  that does not parse. Such a mutant is invalid and tells nothing. Declarations with
+  `local`, `declare`, `export` or `readonly` are not deleted either.
+- **No mutants inside strings or comments.** A changed string is data, and the tests
+  that compare it fail for a reason that is not a logic fault. A comment is not code.
+  The scanner tracks quotes and backslashes so a `==` in a string is not touched.
+
+### Running the mutants
+
+- **Test selection.** `hits.tsv` maps each test to the lines it ran. A mutant runs only
+  the tests that ran its line, and stops at the first one that fails.
+- **Isolation.** The run makes one scratch copy of the working tree for each worker, so
+  a mutant never touches the checkout. Each worker puts the original file back after
+  each mutant. Workers take plan lines by index modulo `-j`, so one worker and many
+  workers give the same results.
+- **Process groups.** A test runs in its own process group, and the wrapper (perl) kills
+  the group after the test exits, after a timeout, and when the run itself gets HUP, INT
+  or TERM. A mutant that hangs, or a test that leaves a background process, leaves
+  nothing running. Closing the pane in the middle of a run is safe for the same reason.
+- **Timeout.** Ten times the clean run of that test, with a floor of 2s. A timeout
+  exits 124 and counts as killed: a mutant that makes a test hang is detected.
+- **Red baseline.** `bash test/coverage.sh --trace` runs first, and each selected test
+  runs once unmutated. If one fails, the run stops with exit 1.
+
+### Invalid mutants and errors that look like a score
+
+A mutant that fails `bash -n` (or `zsh -n` for a `.zsh` file) is invalid. It is out of
+the score, and it is neither killed nor survived. The operators should rarely make one,
+but a test fixture shows the check works.
+
+A tool error must never read as a clean score, so these stop the run:
+
+- a measured file that does not parse unmutated (exit 1), because every mutant of it
+  would be invalid and the file would score 0 of 0;
+- a failing `coverage.sh --files` or `coverage.sh --lines` (exit 1), because an empty
+  list reads as nothing to mutate;
+- a measured file with executable lines and no covered line (exit 1), because its tests
+  did not run, for example a suite that skips when a tool is missing. A file with no
+  executable lines is skipped without a message;
+- a failing suite (exit 1) and a failed worker (exit 1).
+
+Usage errors exit 2: an ignore row without a reason, and a `FILE` argument that is not
+measured. An ignore row that names an unmeasured file is not refused. It matches
+nothing. A run with survivors exits 0.
+
+### Results, equivalent mutants and the ignore file
+
+Score is killed divided by killed plus survived, for each file and in total. The table
+and the survivors, as `survived file:line operator original -> mutated`, print to
+stdout. `.coverage/mutants.tsv` holds every result.
+
+`test/mutants-ignore.tsv` lists mutants that cannot change behaviour: file, operator,
+original line trimmed, and a required reason, separated by tabs. A row matches on the
+line text and not the line number, so it survives edits elsewhere in the file. An
+ignored mutant is out of the score. A row without a reason stops the run, so no one can
+silence a survivor without saying why.
+
+Each survivor gets a test that kills it, or a reasoned ignore row. The usual equivalent
+mutant is `exit 0` to `exit 1` under `trap 'exit 0' EXIT`: the trap decides the status.
+
+### Use
+
+- `bash test/mutate.sh --changed` mutates the measured files that differ from
+  `origin/main` or are untracked. Run it before a PR that changes measured shell.
+- `bash test/mutate.sh FILE...` mutates the named measured files.
+- `-j N` sets the number of workers. The default is the number of CPUs. One scratch
+  copy of the tree exists for each worker.
+
+The full run on the first day took 4m59s with `-j 14` (82 of 98 mutants killed, 83.6%).
+That is a macOS figure. The same run took 13s in an Ubuntu 24.04 container limited to
+4 CPUs, as on the runner.
+The score does not gate anything yet. A later `test/mutation-floor.tsv` reuses the
+coverage ratchet, as the spec says, once a few weekly runs show a stable score.
+
+### Weekly run and the rolling issue
+
+A weekly workflow, `.github/workflows/mutation.yml`, runs the full set and keeps one
+open GitHub issue labelled `mutation` through `test/mutation-issue.sh`. The issue lists
+the survivors by file with the per-file and total scores, and the workflow closes it
+when nothing survives. One rolling issue replaces one issue for each survivor, which
+would flood the tracker with mostly equivalent mutants.
+
+The script refuses a report whose total scored no mutants, so a broken run never closes
+the issue as if everything were killed. The job keeps no git credentials while tests
+run, and runs one at a time, so an overlapping manual run cannot open a second issue.
+
+### Known limits
+
+- **Uncovered lines get no mutants.** A mutation score says nothing about them. Read it
+  with the coverage report.
+- **Tests that write into the tree.** A test that writes inside its scratch copy keeps
+  that state for the next mutant of the same worker. No suite does so today. Every
+  suite under `test/unit/` writes only to `mktemp` directories, and a full run leaves
+  `git status --porcelain` showing only the files the change made (`.coverage/` is
+  ignored). Check this again when a suite is added.
+- **Equivalent mutants.** Some survivors cannot be killed, as above. The first run has
+  several candidates, for example `exit 0` to `exit 1` after a guard under an `EXIT`
+  trap, and the deletion of `set -euo pipefail`. Judge each one before an ignore row.
+- **CI and macOS differ line by line.** A platform conditional is covered, and so
+  mutated, on one branch only. `claude-tmux-state.sh`'s `uname == Darwin` branch runs
+  locally, and the Linux branch runs in CI.
+- **bash 5.2 and 5.3 trace a multi-line command differently.** bash 5.2 (Linux, CI)
+  credits a multi-line simple command to its last line, and bash 5.3 to its first. Such
+  a command's first line can read as uncovered on CI only. No measured file has one
+  today.
+- **Flaky tests.** A test that fails at random reads as a kill. The run does not retry.
+- **Shell inside a string.** The awk and jq code in strings gets no mutants, as for
+  coverage.
+- **The scanner reads one line at a time.** It treats a `-n` or `-z` as a test operator
+  when `[[`, `[ ` or `test ` comes earlier on the line, even outside the brackets. It
+  does not track quotes nested inside `$( )`. Such a mutant breaks a command and is
+  killed at once, or changes a string. No measured line gets such a mutant today.
