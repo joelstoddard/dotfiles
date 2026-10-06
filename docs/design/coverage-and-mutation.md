@@ -242,12 +242,8 @@ On a pull request the `unit` job in `.github/workflows/test.yml` runs both check
 the coverage ones: `bash test/mutate.sh` for the floors, then the ratchet against the
 copy on `main`. A full run takes about 13 seconds on four CPUs, and the tool takes its
 worker count from the CPU count. It needs zsh, perl and `pkill`; the job installs zsh,
-and `ubuntu-latest` has the others.
-
-The ratchet step skips with a notice when `main` has no `test/mutation-floor.tsv`, so
-the pull request that adds the file can pass. The test is whether the file exists in
-`main`'s tree, not whether `git show` succeeded, so a failed fetch or read still fails
-the step. Once the file is on `main`, the ratchet always runs, and #186 removes the skip.
+and `ubuntu-latest` has the others. As for coverage, the ratchet step fails when `main`
+has no `test/mutation-floor.tsv`, so a deleted floor file can never pass.
 
 ### Weekly run and the rolling issue
 
