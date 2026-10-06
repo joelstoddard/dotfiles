@@ -236,8 +236,18 @@ decimal place.
 - `bash test/coverage.sh --ratchet BASE test/mutation-floor.tsv` makes "floors only
   rise" a machine check here too, with the rules in [Floors and the ratchet](#floors-and-the-ratchet).
 
-The floors start at 100.0 for every file. The CI wiring (the ratchet against `main` and
-the run on a pull request) is in the next commit of the same PR.
+The floors start at 100.0 for every file.
+
+On a pull request the `unit` job in `.github/workflows/test.yml` runs both checks after
+the coverage ones: `bash test/mutate.sh` for the floors, then the ratchet against the
+copy on `main`. A full run takes about 13 seconds on four CPUs, and the tool takes its
+worker count from the CPU count. It needs zsh, perl and `pkill`; the job installs zsh,
+and `ubuntu-latest` has the others.
+
+The ratchet step skips with a notice when `main` has no `test/mutation-floor.tsv`, so
+the pull request that adds the file can pass. The test is whether the file exists in
+`main`'s tree, not whether `git show` succeeded, so a failed fetch or read still fails
+the step. Once the file is on `main`, the ratchet always runs, and #186 removes the skip.
 
 ### Weekly run and the rolling issue
 
@@ -254,6 +264,13 @@ survivor line with backticks cannot close it. The script takes over only an open
 `mutation` issue made by `app/github-actions`, so it never edits an issue that a person
 made. The job keeps no git credentials while tests
 run, and runs one at a time, so an overlapping manual run cannot open a second issue.
+
+The issue step runs with `if: ${{ !cancelled() }}`, so a floor breach, which makes
+`mutate.sh` exit 1, still updates the issue, and the job ends red. This is safe because
+`mutate.sh` prints the table only at the end, in `report`, after every error that stops
+it (a red suite, a failed worker, a bad argument). A report from such a stop has no
+scored `TOTAL` row, and `mutation-issue.sh` refuses it before any `gh` call. The run
+step uses `bash` with `pipefail`, so `tee` does not hide the exit status.
 
 ### Known limits
 
