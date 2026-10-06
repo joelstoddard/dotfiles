@@ -30,6 +30,7 @@ jobs:
         shell: bash
         run: bash test/mutate.sh | tee "$RUNNER_TEMP/mutation.txt"
       - name: Update the rolling mutation issue
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
