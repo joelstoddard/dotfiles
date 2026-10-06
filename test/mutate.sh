@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Mutation testing for the repo's shell code: a mutant survives when every test that runs its line still passes.
-# Usage: test/mutate.sh [-j N] [--changed | FILE...]
+# Usage: test/mutate.sh [-j N] [--update | --changed | FILE...]
 # See docs/design/coverage-and-mutation.md
 set -euo pipefail
 
@@ -8,12 +8,18 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ROOT="$(cd "${COVERAGE_ROOT:-$HERE/..}" && pwd -P)"
 OUT="$ROOT/.coverage"
 IGNORE="$ROOT/test/mutants-ignore.tsv"
+FLOORS="$ROOT/test/mutation-floor.tsv"
 SEP=$'\034'
 
 die() { echo "mutate: $*" >&2; exit 2; }
 fail() { echo "mutate: $*" >&2; exit 1; }
 ((BASH_VERSINFO[0] >= 5)) || die "needs bash 5 or newer (EPOCHREALTIME)"
-pct() { local k=$1 n=$2 t; t=$((n == 0 ? 1000 : k * 1000 / n)); echo "$((t / 10)).$((t % 10))"; }
+score() { echo $(($2 == 0 ? 1000 : $1 * 1000 / $2)); }  # killed, scored -> tenths of a percent
+pct() { echo "$(($1 / 10)).$(($1 % 10))"; }              # 875 -> "87.5"
+tenths() { # "87.5" -> 875; fails on anything but digits.digit, so a bad floor can never read as "no limit"
+  [[ $1 =~ ^[0-9]+\.[0-9]$ ]] || return 1
+  echo $((10#${1%.*} * 10 + 10#${1#*.}))
+}
 trim() { local s=$1; s=${s#"${s%%[![:space:]]*}"}; printf '%s\n' "${s%"${s##*[![:space:]]}"}"; }
 
 parses() { case $1 in *.zsh) zsh -n "$1" ;; *) bash -n "$1" ;; esac 2>/dev/null; }
@@ -25,6 +31,10 @@ targets() { # fills files[] with the measured files to mutate; runs in the main 
   mapfile -t all < <(printf '%s' "$listing")
   case ${1:-} in
     "") files=("${all[@]}") ;;
+    --update)
+      (($# == 1)) || die "--update takes no other arguments, because only a full run has a total"
+      files=("${all[@]}")
+      ;;
     --changed)
       (($# == 1)) || die "--changed takes no other arguments"
       local base
@@ -137,17 +147,47 @@ worker() { # <index> <copy>: runs every plan line whose number is index modulo j
   done <"$OUT/plan" >"$OUT/results.$k"
 }
 
-report() { # per-file and total scores from mutants.tsv; survivors listed after the table
-  printf '%9s %6s  %s\n' killed score file
-  local f k=0 n=0 fk fn
+floor_of() { awk -F'\t' -v p="$1" '$1 == p { print $2 }' "$FLOORS" 2>/dev/null || true; }
+
+check() { # <file> <now, tenths> <floor or empty>; sets status
+  if [[ -z $3 ]]; then
+    status="NO FLOOR"; ((update)) && return 0; return 1
+  fi
+  local floor_tenths
+  floor_tenths=$(tenths "$3") || { status="BAD"; return 1; }
+  if (($2 < floor_tenths)); then status="LOW"; return 1; fi
+  status="ok"
+}
+
+newfloor() { # <now> <floor>: the higher of the two, in tenths
+  local now=$1 floor_tenths
+  if floor_tenths=$(tenths "${2:-}") && ((floor_tenths > now)); then now=$floor_tenths; fi
+  echo "$now"
+}
+
+row() { # <label> <killed> <scored>; prints a table row; report's bad, invalid and rows see the result
+  local now floor
+  now=$(score "$2" "$3"); floor=$(floor_of "$1")
+  check "$1" "$now" "$floor" || bad=1
+  [[ $status == BAD ]] && invalid=1
+  printf '%9s %6s %6s  %-8s  %s\n' "$2/$3" "$(pct "$now")" "${floor:--}" "$status" "$1"
+  rows+=("$1"$'\t'"$(pct "$(newfloor "$now" "$floor")")")
+}
+
+report() { # <update: 0|1>; table with floors, survivors after it; returns 1 on a missing, low or bad floor
+  local update=$1 f k=0 n=0 fk fn bad=0 invalid=0 status
+  local -a rows=()
+  printf '%9s %6s %6s  %-8s  %s\n' killed score floor status file
   for f in "${files[@]}"; do
     fk=$(awk -F'\t' -v p="$f" '$2 == p && $1 == "killed"' "$OUT/mutants.tsv" | wc -l)
     fn=$(awk -F'\t' -v p="$f" '$2 == p && ($1 == "killed" || $1 == "survived")' "$OUT/mutants.tsv" | wc -l)
     fk=$((fk)); fn=$((fn)); k=$((k + fk)); n=$((n + fn))
-    printf '%9s %6s  %s\n' "$fk/$fn" "$(pct "$fk" "$fn")" "$f"
+    row "$f" "$fk" "$fn"
   done
-  printf '%9s %6s  %s\n' "$k/$n" "$(pct "$k" "$n")" TOTAL
+  ((full)) && row TOTAL "$k" "$n"
   awk -F'\t' '$1 == "survived" { if (!s++) print ""; printf "survived  %s:%s  %s  %s  ->  %s\n", $2, $3, $4, $5, $6 }' "$OUT/mutants.tsv"
+  if ((update && !invalid)); then printf '%s\n' "${rows[@]}" >"$FLOORS"; fi
+  return $bad
 }
 
 jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)
@@ -155,6 +195,8 @@ if [[ ${1:-} == -j ]]; then jobs=${2:-}; shift $(($# > 1 ? 2 : 1)); fi
 [[ $jobs =~ ^[1-9][0-9]*$ ]] || die "-j needs a positive number"
 declare -A ignored limit
 declare -a files=()
+update=0 full=0
+case ${1:-} in --update) update=1 full=1 ;; "") full=1 ;; esac
 load_ignores
 targets "$@"
 ((${#files[@]})) || { echo "mutate: no measured files to mutate"; exit 0; }
@@ -180,4 +222,4 @@ done
 for p in "${pids[@]}"; do wait "$p" || fail "a mutation worker failed"; done
 sort -t$'\t' -k2,2 -k3,3n "$OUT"/results.* >"$OUT/mutants.tsv"
 rm -f "$OUT"/results.*
-report
+report "$update"
