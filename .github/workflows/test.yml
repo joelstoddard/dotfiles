@@ -65,10 +65,5 @@ jobs:
       - name: Check mutation floors only rise
         run: |
           git fetch --depth=1 origin main
-          # Main has no floor file until the PR that adds it merges. Removing this skip then is #186.
-          if [ -z "$(git ls-tree --name-only FETCH_HEAD test/mutation-floor.tsv)" ]; then
-            echo "::notice::main has no test/mutation-floor.tsv yet, so there is nothing to ratchet against"
-            exit 0
-          fi
           git show FETCH_HEAD:test/mutation-floor.tsv > "$RUNNER_TEMP/base-mutation-floor.tsv"
           bash test/coverage.sh --ratchet "$RUNNER_TEMP/base-mutation-floor.tsv" test/mutation-floor.tsv
