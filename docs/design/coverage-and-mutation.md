@@ -213,8 +213,8 @@ mutant is `exit 0` to `exit 1` under `trap 'exit 0' EXIT`: the trap decides the 
   copy of the tree exists for each worker.
 
 The full run on the first day took 4m59s with `-j 14` (82 of 98 mutants killed, 83.6%).
-That is a macOS figure. The same run took 13s in an Ubuntu 24.04 container limited to
-4 CPUs, as on the runner.
+That is a macOS figure. On the 4-CPU `ubuntu-latest` runner, the full run in the `unit`
+job takes about 90 seconds, tracing included.
 
 ### Floors
 
@@ -240,7 +240,7 @@ The floors start at 100.0 for every file.
 
 On a pull request the `unit` job in `.github/workflows/test.yml` runs both checks after
 the coverage ones: `bash test/mutate.sh` for the floors, then the ratchet against the
-copy on `main`. A full run takes about 13 seconds on four CPUs, and the tool takes its
+copy on `main`. A full run adds about 90 seconds to the job, and the tool takes its
 worker count from the CPU count. It needs zsh, perl and `pkill`; the job installs zsh,
 and `ubuntu-latest` has the others. As for coverage, the ratchet step fails when `main`
 has no `test/mutation-floor.tsv`, so a deleted floor file can never pass.
