@@ -7,6 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # nixpkgs has no opencode v2, and its pi is older than upstream.
+    # These flakes keep their own nixpkgs, so their pinned dependency hashes stay valid.
+    opencode.url = "github:anomalyco/opencode/v2.0.24";
+    pi.url = "github:earendil-works/pi/stable";
   };
 
   outputs =
@@ -14,6 +18,8 @@
       self,
       nixpkgs,
       home-manager,
+      opencode,
+      pi,
       ...
     }:
     let
@@ -24,6 +30,12 @@
         import nixpkgs {
           inherit system;
           config.allowUnfree = true; # terraform, discord, spotify, steam, obs plugins, davinci-resolve
+          overlays = [
+            (_: _: {
+              opencode = opencode.packages.${system}.opencode;
+              pi = pi.packages.${system}.default;
+            })
+          ];
         };
 
       mkHome =

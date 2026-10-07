@@ -69,7 +69,7 @@ home-manager uninstall   # removes generated files/links, keeps Nix itself
 ## Architecture
 
 ```
-flake.nix                 # inputs (nixpkgs, home-manager) + one config per host
+flake.nix                 # inputs (nixpkgs, home-manager, opencode, pi) + one config per host
   └─ home/
        ├─ default.nix     # module list + dotfiles.{gui,omarchy,work,repoPath} options
        ├─ palette.nix     # ash-plus colors — single source of truth for theming
@@ -119,7 +119,7 @@ alacritty, git, and tmux modules — no generation step anymore.
 ## Updating
 
 ```bash
-nix flake update            # bump nixpkgs + home-manager
+nix flake update            # bump nixpkgs, home-manager and pi; opencode is pinned to a tag in flake.nix
 home-manager switch --flake .#<host>
 ```
 
