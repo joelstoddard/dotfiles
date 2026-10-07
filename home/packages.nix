@@ -74,7 +74,6 @@ let
       bash
       lua5_4
       lua54Packages.luacheck
-      rtk
     ]
     ++ lib.optionals isDarwin [
       colima
