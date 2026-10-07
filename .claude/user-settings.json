@@ -4,6 +4,7 @@
   "enabledPlugins": {
     "building@guardrails": true,
     "frontend-design@claude-plugins-official": true,
+    "i-have-adhd@i-have-adhd": true,
     "personas@guardrails": true,
     "recording@guardrails": true,
     "slack@claude-plugins-official": true,
@@ -17,6 +18,12 @@
       "autoUpdate": true,
       "source": {
         "repo": "joelstoddard/guardrails",
+        "source": "github"
+      }
+    },
+    "i-have-adhd": {
+      "source": {
+        "repo": "ayghri/i-have-adhd",
         "source": "github"
       }
     },
