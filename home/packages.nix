@@ -74,6 +74,11 @@ let
       bash
       lua5_4
       lua54Packages.luacheck
+      just
+      bats # bats-core
+      shfmt
+      typos # source-code spell checker
+      lychee # link checker
     ]
     ++ lib.optionals isDarwin [
       colima
