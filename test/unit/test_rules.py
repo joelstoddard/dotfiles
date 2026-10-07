@@ -10,6 +10,7 @@ REPO_DIR = Path(__file__).resolve().parent.parent.parent
 RULES = REPO_DIR / ".claude" / "rules"
 ALWAYS_ON = {"context.md"}
 MOVED = re.compile(r"(?<![\w/-])core\.md|delegation\.md|guardrails:")
+RETIRED = re.compile(r"\b(?:ALWAYS|NEVER)\b")
 
 
 def split_frontmatter(path):
@@ -49,6 +50,12 @@ class Rules(unittest.TestCase):
         for path in RULES.glob("*.md"):
             with self.subTest(rule=path.name):
                 self.assertIsNone(MOVED.search(path.read_text()))
+
+    def test_rules_use_bcp14_keywords(self):
+        # guardrails' conduct.md defines BCP 14 keywords only, so ALWAYS / NEVER are undefined.
+        for path in RULES.glob("*.md"):
+            with self.subTest(rule=path.name):
+                self.assertIsNone(RETIRED.search(path.read_text()))
 
 
 if __name__ == "__main__":
