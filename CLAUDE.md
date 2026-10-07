@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Key Files
 
-- `flake.nix` — inputs (nixpkgs unstable, home-manager) and host configs
+- `flake.nix` — inputs (nixpkgs unstable, home-manager, opencode and pi from their upstream flakes) and host configs
 - `home/default.nix` — module imports + `dotfiles.*` option declarations
 - `home/palette.nix` — ash-plus colors, single source of truth (consumed by alacritty/git/tmux modules)
 - `home/packages.nix` — every package for all platforms (was `packages/packages.yaml`)

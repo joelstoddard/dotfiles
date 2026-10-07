@@ -45,6 +45,9 @@ let
       # claude-code installs itself under ~/.local and self-updates; a nixpkgs
       # copy earlier in PATH shadows it, so `claude update` has no visible effect.
       eza
+      # The overlay in flake.nix supplies these from their upstream flakes, not from nixpkgs.
+      opencode
+      pi
       # nvm is replaced by a Nix-managed Node.js; pin per-project versions with
       # a flake devShell or direnv instead of `nvm use`.
       nodejs_22
