@@ -19,34 +19,34 @@ paths:
 ## CI/CD
 *Tier: STANDING (pipeline definitions you edit: CHANGE)*
 
-* ALWAYS preserve a releasable main branch.
-* ALWAYS build once AND promote the same artefact through every environment.
-* NEVER deploy manually. EVERY path to production MUST go through the pipeline.
-* ALWAYS order pipeline stages so the cheapest checks fail first.
-* ALWAYS use feature flags to decouple deploy from release.
-* ALWAYS make deployments automated, repeatable, AND reversible.
-* ALWAYS version releases semantically AND tag them. Tagging a release requires explicit approval.
-* NEVER bypass, skip, OR edit pipeline checks to get a change through.
+* You MUST preserve a releasable main branch.
+* You MUST build once AND promote the same artefact through every environment.
+* You MUST NOT deploy manually. EVERY path to production MUST go through the pipeline.
+* You MUST order pipeline stages so the cheapest checks fail first.
+* You MUST use feature flags to decouple deploy from release.
+* You MUST make deployments automated, repeatable, AND reversible.
+* You MUST version releases semantically AND tag them. Tagging a release requires explicit approval.
+* You MUST NOT bypass, skip, OR edit pipeline checks to get a change through.
 
 ## Infrastructure as Code
 *Tier: CHANGE*
 
-* ALWAYS define infrastructure in version control. NEVER make manual changes to live environments.
-* ALWAYS prepare infrastructure changes for review like application code.
-* ALWAYS make infrastructure changes idempotent AND plannable (preview BEFORE apply).
-* NEVER apply infrastructure changes without explicit approval of the plan.
-* NEVER allow drift. Detect it AND propose reconciliation.
-* ALWAYS keep environments reproducible from code alone.
-* ALWAYS test infrastructure code: validate, lint, plan, policy-check, AND deploy to an ephemeral environment.
-* ALWAYS satisfy policy-as-code on infrastructure changes.
+* You MUST define infrastructure in version control. You MUST NOT make manual changes to live environments.
+* You MUST prepare infrastructure changes for review like application code.
+* You MUST make infrastructure changes idempotent AND plannable (preview BEFORE apply).
+* You MUST NOT apply infrastructure changes without explicit approval of the plan.
+* You MUST NOT allow drift. Detect it AND propose reconciliation.
+* You MUST keep environments reproducible from code alone.
+* You MUST test infrastructure code: validate, lint, plan, policy-check, AND deploy to an ephemeral environment.
+* You MUST satisfy policy-as-code on infrastructure changes.
 
 ## Twelve Factor
 *Tier: CHANGE*
 
-* ALWAYS keep config in the environment, NEVER in code.
-* ALWAYS declare dependencies explicitly AND isolate them.
-* ALWAYS keep processes stateless AND share-nothing. Persist state in backing services.
-* ALWAYS treat backing services as attached, replaceable resources.
-* ALWAYS maximise staging/prod parity.
-* ALWAYS write logs to stdout as an event stream.
-* ALWAYS design processes to start fast AND shut down gracefully (disposability).
+* You MUST keep config in the environment; you MUST NOT keep it in code.
+* You MUST declare dependencies explicitly AND isolate them.
+* You MUST keep processes stateless AND share-nothing. Persist state in backing services.
+* You MUST treat backing services as attached, replaceable resources.
+* You MUST maximise staging/prod parity.
+* You MUST write logs to stdout as an event stream.
+* You MUST design processes to start fast AND shut down gracefully (disposability).
