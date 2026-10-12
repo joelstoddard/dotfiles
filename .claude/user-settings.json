@@ -37,6 +37,7 @@
     },
     "ponytail": {
       "source": {
+        "ref": "v5.1.0",
         "repo": "DietrichGebert/ponytail",
         "source": "github"
       }
