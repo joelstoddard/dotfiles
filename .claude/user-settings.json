@@ -5,6 +5,7 @@
     "building@guardrails": true,
     "frontend-design@claude-plugins-official": true,
     "i-have-adhd@i-have-adhd": true,
+    "mattpocock-skills@mattpocock": true,
     "personas@guardrails": true,
     "recording@guardrails": true,
     "slack@claude-plugins-official": true,
@@ -27,8 +28,16 @@
         "source": "github"
       }
     },
+    "mattpocock": {
+      "source": {
+        "ref": "v1.3.1",
+        "repo": "mattpocock/skills",
+        "source": "github"
+      }
+    },
     "ponytail": {
       "source": {
+        "ref": "v5.1.0",
         "repo": "DietrichGebert/ponytail",
         "source": "github"
       }
