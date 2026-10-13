@@ -91,6 +91,7 @@ let
     granted
     amazon-ecr-credential-helper # gets Elastic Container Registry tokens from AWS credentials, so docker stores none
     jfrog-cli
+    cosign
     # awscurl: not in nixpkgs — install with `uv tool install awscurl`
   ];
 
