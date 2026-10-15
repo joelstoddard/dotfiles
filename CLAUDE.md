@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `home/packages.nix` — every package for all platforms (was `packages/packages.yaml`)
 - `home/pkgs/ttl.nix` — custom derivation for tools missing from nixpkgs
 - `home/files/` — files kept byte-for-byte and linked, not rewritten in Nix
-- `.claude/rules/` — linked into `~/.claude/` by `home/claude.nix`: the path-scoped domain rules and `context.md` (the `~/work` convention). The `building`, `recording` and `personas` plugins come from [joelstoddard/guardrails](https://github.com/joelstoddard/guardrails), declared in `.claude/user-settings.json`. `test/unit/test_rules.py` checks the rules left here. See `docs/specs/2026-10-04-guardrails-repo-split-design.md`
+- `.claude/rules/` — linked into `~/.claude/` by `home/claude.nix`: the path-scoped domain rules, plus the always-on `context.md` (the `~/work` convention) `lists.md` (numbered lists in replies) and `links.md` (full URLs and paths in replies). The `building`, `recording` and `personas` plugins come from [joelstoddard/guardrails](https://github.com/joelstoddard/guardrails), declared in `.claude/user-settings.json`. `test/unit/test_rules.py` checks the rules left here. See `docs/specs/2026-10-04-guardrails-repo-split-design.md`
 - `.claude/user-settings.json` — user-level Claude Code settings, linked to `~/.claude/settings.json` by `home/claude.nix`. `.claude/settings.json` is this repo's own project settings; the two are different files. See `docs/design/claude-settings-split.md`
 
 ## Patterns
