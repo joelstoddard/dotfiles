@@ -8,7 +8,7 @@ import yaml
 
 REPO_DIR = Path(__file__).resolve().parent.parent.parent
 RULES = REPO_DIR / ".claude" / "rules"
-ALWAYS_ON = {"context.md", "lists.md"}
+ALWAYS_ON = {"context.md", "links.md", "lists.md"}
 MOVED = re.compile(r"(?<![\w/-])core\.md|delegation\.md|guardrails:")
 RETIRED = re.compile(r"\b(?:ALWAYS|NEVER)\b")
 
