@@ -26,6 +26,16 @@ let
     text = builtins.readFile ./files/claude/claude-tmux-state.sh;
   };
 
+  # The status line command: the oh-my-posh line plus the prompt cache state. See docs/design/claude-cache-statusline.md
+  claude-statusline = pkgs.writeShellApplication {
+    name = "claude-statusline";
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.oh-my-posh
+    ];
+    text = builtins.readFile ./files/claude/claude-statusline.sh;
+  };
+
   claude-notify-plist = pkgs.writeText "Info.plist" (
     lib.generators.toPlist { escape = true; } {
       CFBundleIdentifier = "local.dotfiles.claude-notify";
@@ -38,7 +48,10 @@ let
   );
 in
 {
-  home.packages = [ claude-tmux-state ];
+  home.packages = [
+    claude-tmux-state
+    claude-statusline
+  ];
 
   # The app claude-tmux-state notifies through on macOS. It is built in ~/Applications, where
   # macOS accepts it, with the icon from Claude.app. See docs/design/claude-tmux-state.md

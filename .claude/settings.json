@@ -19,7 +19,8 @@
   "model": "opus[1m]",
   "statusLine": {
     "type": "command",
-    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml",
+    "command": "claude-statusline",
+    "refreshInterval": 30,
     "padding": 0
   },
   "skipAutoPermissionPrompt": true,

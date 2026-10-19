@@ -311,7 +311,8 @@
   "skipAutoPermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "statusLine": {
-    "command": "oh-my-posh claude --config ~/.config/oh-my-posh/claude.yaml",
+    "command": "claude-statusline",
+    "refreshInterval": 30,
     "type": "command"
   },
   "tui": "fullscreen",
