@@ -128,7 +128,7 @@ home-manager switch --flake .#<host>
 ```bash
 nix flake check --no-build            # evaluate all host configs
 nix build --dry-run .#homeConfigurations."joel@linux".activationPackage
-zsh test/unit/test_autoenv.sh         # autoenv shell unit tests
+bash test/unit/run.sh                 # every unit suite, shell and Python
 ```
 
 ## Notes on the migration from stow
