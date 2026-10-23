@@ -51,7 +51,9 @@ Neither tracer changes a test or a script. Both write `file:line` to a log named
   `;;&`, `{`, `}` or `)`, followed by nothing or by a space, `;`, `|`, `&`, `<` or `>`.
   The whole line is skipped, so `then cmd`, `else cmd` and `{ cmd; }` do not count;
 - function headers, and case labels on their own or with an empty arm (`pattern) ;;`);
-- continuation lines of multi-line strings, heredoc bodies and backslash continuations;
+- continuation lines of multi-line strings, heredoc bodies and backslash continuations.
+  A `<<` inside `(( ))` or `$(( ))` is a shift and opens no heredoc, even when the
+  `(( ))` spans lines;
 - lines ending in `# coverage: ignore <reason>`. The reason is required. Use the marker
   only for lines that cannot run.
 

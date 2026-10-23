@@ -77,6 +77,28 @@ lines=$(bash "$TOOL" --lines "$D/h.sh" | tr '\n' ' ')
 [[ $lines == "2 3 5 8 10 12 18 " ]] || die heuristic "executable lines are '$lines'"
 cleanup
 
+echo "--- a shift inside (( )) or \$(( )) opens no heredoc, and a heredoc after a closing )) still does"
+D=$(mktemp -d)
+cat > "$D/a.sh" <<'EOF'
+(( x << y ))
+echo after-arith
+z=$(( x << y ))
+echo after-expansion
+(( x )) && cat <<BODY
+not code
+BODY
+d=$(dirname $(pwd)) && cat <<BODY
+not code
+BODY
+echo after-heredocs
+(( x +
+  y << z ))
+echo after-two-lines
+EOF
+lines=$(bash "$TOOL" --lines "$D/a.sh" | tr '\n' ' ')
+[[ $lines == "1 2 3 4 5 8 11 12 13 14 " ]] || die arith-shift "executable lines are '$lines'"
+cleanup
+
 echo "--- a hit on a later line of a multi-line command is credited to the command's counted line"
 setup
 cat > "$D/home/files/m.sh" <<'EOF'
