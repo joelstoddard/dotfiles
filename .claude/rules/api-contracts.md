@@ -14,7 +14,7 @@ paths:
 * You MUST treat the published contract as the source of truth, AND generate clients, mocks, AND docs from it.
 * You MUST NOT make a breaking change to a published API. You MUST version, deprecate, AND provide a migration path. Draft the announcement for the user to send.
 * You MUST be strict in what you accept AND what you send. Tolerate unknown additive fields ONLY WHERE the contract says to.
-* You MUST use consistent naming, error shapes, pagination, filtering, AND authentication across ALL APIs.
+* You MUST use consistent naming, error shapes, pagination, filtering, AND authentication across all APIs.
 
 ## Behaviour
 * You MUST make write operations idempotent (idempotency keys) WHERE retries are possible.
