@@ -7,7 +7,7 @@ paths:
 
 * You MUST write scenarios in business language. You MUST NOT reference UI elements, selectors, endpoints, OR database tables.
 * You MUST write declarative steps (what); you MUST NOT write imperative steps (how).
-* You MUST limit a scenario to ONE behaviour AND ONE `When`.
+* You MUST limit a scenario to one behaviour AND one `When`.
 * You MUST keep `Given` to state, `When` to action, `Then` to observable outcome.
 * You MUST NOT assert internal state in a `Then`. ONLY assert what a user or consumer could observe.
 * You MUST NOT make scenarios depend on one another. Each MUST set up its own state.
