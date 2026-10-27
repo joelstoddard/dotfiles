@@ -14,6 +14,13 @@ let
 
   ttl = pkgs.callPackage ./pkgs/ttl.nix { };
 
+  # Only the gawk binary: guardrails' coverage profiles its awk programs with gawk, and the package's own awk
+  # would shadow the system awk that the hooks run and are tested under.
+  gawk-only = pkgs.runCommand "gawk-only" { } ''
+    mkdir -p $out/bin
+    ln -s ${pkgs.gawk}/bin/gawk $out/bin/gawk
+  '';
+
   core =
     with pkgs;
     [
@@ -25,6 +32,7 @@ let
       neovim
       tree-sitter # nvim-treesitter builds parsers with this CLI
       jq
+      gawk-only
       yq-go
       ripgrep
       grex
