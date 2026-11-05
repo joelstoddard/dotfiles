@@ -73,7 +73,4 @@ in
 
   # Path-scoped rules and the personal context, linked whole so new rule files appear without a switch.
   home.file.".claude/rules".source = config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/rules";
-
-  # The i-have-adhd plugin's SessionStart hook loads its ruleset only while this flag exists.
-  home.file.".claude/.i-have-adhd-always".text = "";
 }
